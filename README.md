@@ -124,7 +124,7 @@ Tous droits réservés © 2025–2026 — Équipe AXIUM.
 ---
 
 <p align="center">
-  Fait avec ❤️ par l'équipe FoodWise · Esprit 2A21
+  Fait avec ❤️ par l'équipe AXIUM · Esprit 2A21
 </p>
 
 
