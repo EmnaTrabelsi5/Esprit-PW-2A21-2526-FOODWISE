@@ -118,13 +118,13 @@ Les membres de notre equipe AXIUM
 
 ##  Licence
 
-Ce projet est réalisé à des fins **pédagogiques** dans le cadre Projet Technologies Web.  
+Ce projet est réalisé à des fins **pédagogiques** dans le cadre du Projet Technologies Web.  
 Tous droits réservés © 2025–2026 — Équipe AXIUM.
 
 ---
 
 <p align="center">
-  Fait avec <<3>> par l'équipe AXIUM · Esprit 2A21
+  Fait avec ❤️ par l'équipe FoodWise · Esprit 2A21
 </p>
 
 
