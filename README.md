@@ -37,7 +37,7 @@ git clone https://github.com/EmnaTrabelsi5/Esprit-PW-2A21-2526-FOODWISE.git
 cd Esprit-PW-2A21-2526-FOODWISE
 ```
 
-1. **Lancez le serveur local**
+2. **Lancez le serveur local**
 
 * Placez le projet dans le dossier `htdocs` de XAMPP (ou équivalent)
 * Démarrez Apache et MySQL depuis le panneau de contrôle XAMPP
