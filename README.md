@@ -30,18 +30,6 @@ FoodWise répond à deux besoins concrets du quotidien :
 
 ##  Installation
 
-### Prérequis
-
-Avant de commencer, assurez-vous d'avoir installé sur votre machine :
-
-* [PHP](https://www.php.net/) >= 8.0
-* [MySQL](https://www.mysql.com/) ou [MariaDB](https://mariadb.org/)
-* [Composer](https://getcomposer.org/)
-* Un serveur local : [XAMPP](https://www.apachefriends.org/) ou [Laragon](https://laragon.org/)
-* [Git](https://git-scm.com/)
-
-### Étapes d'installation
-
 1. **Clonez le repository**
 
 ```bash
