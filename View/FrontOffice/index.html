@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodWise - Communauté Avis & Favoris</title>
+    <title>FoodWise - Communauté Avis & Réponses</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -81,7 +81,7 @@
         </div>
         <div class="topbar-nav">
             <a href="#" class="active">Communauté</a>
-            <a href="backoffice.html">Admin</a>
+            <a href="../Backoffice/manageReviews.html">Admin</a>
             <a href="#">Aide</a>
         </div>
         <div class="topbar-user">
@@ -95,58 +95,56 @@
         <div class="page-body">
 
             <!-- En-tête de page -->
-            <div class="page-title">Communauté · Avis & Favoris</div>
-            <div class="page-subtitle">Partagez votre expérience, découvrez les recettes populaires</div>
+            <div class="page-title">Communauté · Avis & Réponses</div>
+            <div class="page-subtitle">Partagez votre expérience, répondez aux avis</div>
 
             <!-- ========== STATISTIQUES ========== -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">📊 Mes Statistiques d'Avis & Popularité</div>
+                    <div class="card-title">📊 Mes Statistiques</div>
                 </div>
                 <div style="display: flex; gap: 24px; flex-wrap: wrap;">
                     <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);">4.3</div>
+                        <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);" id="statNoteMoyenne">0</div>
                         <div style="font-size: 14px; color: var(--texte-moyen);">Note Moyenne / 5</div>
                         <div class="badge badge-vert" style="margin-top: 8px;">Excellente</div>
                     </div>
                     <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--vert-moyen);">Top 15%</div>
+                        <div style="font-size: 36px; font-weight: 700; color: var(--vert-moyen);" id="statPopularite">Top 15%</div>
                         <div style="font-size: 14px; color: var(--texte-moyen);">Classement popularité</div>
                         <div class="badge badge-brun" style="margin-top: 8px;">Toutes mes recettes</div>
                     </div>
                     <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);">8</div>
+                        <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);" id="statTotalAvis">0</div>
                         <div style="font-size: 14px; color: var(--texte-moyen);">Avis rédigés</div>
-                        <div class="badge badge-info" style="margin-top: 8px;">+2 ce mois</div>
+                        <div class="badge badge-info" style="margin-top: 8px;" id="statNouveauxAvis">+2 ce mois</div>
                     </div>
                 </div>
             </div>
 
-            <!-- ========== MES AVIS RÉDIGÉS ========== -->
+            <!-- ========== MES AVIS (DESIGN CARTES) ========== -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">✍️ Mes Avis Rédigés</div>
+                    <div class="card-title">✍️ Mes Avis</div>
                     <button class="btn btn-primary btn-sm" id="showAddReviewBtn">+ Nouvel avis</button>
                 </div>
 
-                <!-- Formulaire d'ajout d'avis (caché par défaut) -->
+                <!-- Formulaire d'ajout d'avis -->
                 <div id="addReviewForm" style="display: none; margin-bottom: 24px; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
                     <form id="reviewForm">
                         <div class="form-group">
                             <label class="form-label">Recette *</label>
                             <select class="form-control" id="recipeSelect" required>
                                 <option value="">Sélectionner une recette</option>
-                                <option value="1">Poulet Granola</option>
-                                <option value="2">Salade composée</option>
-                                <option value="3">Poisson Papillote</option>
-                                <option value="4">Tajine Légumes</option>
+                                <option value="Poulet Granola">Poulet Granola</option>
+                                <option value="Salade composée">Salade composée</option>
+                                <option value="Poisson Papillote">Poisson Papillote</option>
+                                <option value="Tajine Légumes">Tajine Légumes</option>
                             </select>
-                            <div class="error-msg" id="recipeError" style="color: var(--alerte-rouge); font-size: 12px; margin-top: 4px;"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Votre avis *</label>
                             <textarea class="form-control" id="reviewText" rows="3" placeholder="Partagez votre expérience... (min. 5 caractères)" required></textarea>
-                            <div class="error-msg" id="textError" style="color: var(--alerte-rouge); font-size: 12px; margin-top: 4px;"></div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Note *</label>
@@ -158,7 +156,6 @@
                                 <span data-rating="5">☆</span>
                             </div>
                             <input type="hidden" id="ratingValue" value="0">
-                            <div class="error-msg" id="ratingError" style="color: var(--alerte-rouge); font-size: 12px; margin-top: 4px;"></div>
                         </div>
                         <div style="display: flex; gap: 12px;">
                             <button type="submit" class="btn btn-primary">Publier l'avis</button>
@@ -167,74 +164,40 @@
                     </form>
                 </div>
 
-                <table class="fw-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Recette</th>
-                            <th>Mon Avis</th>
-                            <th>Note</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="reviewsList">
-                        <!-- Chargé dynamiquement -->
-                    </tbody>
-                </table>
+                <!-- Conteneur des cartes d'avis -->
+                <div id="reviewsContainer">
+                    <div style="text-align: center; padding: 20px;">Chargement des avis...</div>
+                </div>
             </div>
 
-            <!-- ========== MES RECETTES FAVORITES ========== -->
+            <!-- ========== MES RÉPONSES ========== -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">❤️ Mes Recettes Favorites</div>
-                    <button class="btn btn-secondary btn-sm" id="showAddFavoriteBtn">+ Ajouter aux favoris</button>
+                    <div class="card-title">💬 Mes Réponses</div>
                 </div>
-
-                <!-- Formulaire d'ajout de favori (caché par défaut) -->
-                <div id="addFavoriteForm" style="display: none; margin-bottom: 24px; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                    <form id="favoriteForm">
-                        <div class="form-group">
-                            <label class="form-label">Recette *</label>
-                            <select class="form-control" id="favRecipeSelect" required>
-                                <option value="">Sélectionner une recette</option>
-                                <option value="1">Poulet Granola</option>
-                                <option value="2">Salade composée</option>
-                                <option value="3">Poisson Papillote</option>
-                                <option value="4">Tajine Légumes</option>
-                            </select>
-                            <div class="error-msg" id="favRecipeError" style="color: var(--alerte-rouge); font-size: 12px; margin-top: 4px;"></div>
-                        </div>
-                        <div style="display: flex; gap: 12px;">
-                            <button type="submit" class="btn btn-secondary">Ajouter</button>
-                            <button type="button" class="btn btn-outline" id="cancelFavoriteBtn">Annuler</button>
-                        </div>
-                    </form>
-                </div>
-
                 <table class="fw-table">
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Recette</th>
-                            <th>Note Moyenne</th>
-                            <th>Popularité</th>
+                            <th>Avis concerné</th>
+                            <th>Ma Réponse</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <tbody id="favoritesList">
-                        <!-- Chargé dynamiquement -->
+                    <tbody id="responsesList">
+                        <tr><td colspan="4" style="text-align: center;">Chargement des réponses...</td</tr>
                     </tbody>
                 </table>
             </div>
 
-            <!-- ========== RECETTES POPULAIRES (GRID) ========== -->
+            <!-- ========== RECETTES POPULAIRES ========== -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">🔥 Top Recettes Populaires</div>
                     <a href="#" class="btn btn-outline btn-sm">Voir tout</a>
                 </div>
                 <div class="recipe-grid" id="popularRecipesGrid">
-                    <!-- Dynamique -->
+                    <div style="text-align: center; padding: 20px;">Chargement...</div>
                 </div>
             </div>
 
@@ -244,7 +207,7 @@
                     <div class="card-title">🔔 Notifications</div>
                 </div>
                 <div class="notif-panel" id="notificationsList">
-                    <!-- Dynamique -->
+                    <div class="notif-item">💬 Bienvenue sur la communauté !</div>
                 </div>
             </div>
 
@@ -263,7 +226,7 @@
     <!-- Modal Modification Avis -->
     <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
-            <h3 style="margin-bottom: 20px;">Modifier mon avis</h3>
+            <h3 style="margin-bottom: 20px;">✏️ Modifier mon avis</h3>
             <form id="editReviewForm">
                 <input type="hidden" id="editReviewId">
                 <div class="form-group">
@@ -273,15 +236,55 @@
                 <div class="form-group">
                     <label class="form-label">Note</label>
                     <select class="form-control" id="editReviewRating" required>
-                        <option value="1">1 étoile</option>
-                        <option value="2">2 étoiles</option>
-                        <option value="3">3 étoiles</option>
-                        <option value="4">4 étoiles</option>
-                        <option value="5">5 étoiles</option>
+                        <option value="1">⭐ 1 étoile</option>
+                        <option value="2">⭐⭐ 2 étoiles</option>
+                        <option value="3">⭐⭐⭐ 3 étoiles</option>
+                        <option value="4">⭐⭐⭐⭐ 4 étoiles</option>
+                        <option value="5">⭐⭐⭐⭐⭐ 5 étoiles</option>
                     </select>
                 </div>
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
                     <button type="button" class="btn btn-outline" id="closeModalBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Ajouter Réponse -->
+    <div id="reponseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
+            <h3 style="margin-bottom: 20px;">💬 Répondre à cet avis</h3>
+            <form id="reponseForm">
+                <input type="hidden" id="reponseReviewId">
+                <div class="form-group">
+                    <label class="form-label">Avis concerné</label>
+                    <textarea id="reponseOriginalAvis" class="form-control" rows="2" readonly style="background: var(--creme-fonce);"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Votre réponse *</label>
+                    <textarea class="form-control" id="reponseContent" rows="3" placeholder="Écrivez votre réponse..." required></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" id="closeReponseBtn">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Publier la réponse</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Modifier Réponse -->
+    <div id="editReponseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
+            <h3 style="margin-bottom: 20px;">✏️ Modifier ma réponse</h3>
+            <form id="editReponseForm">
+                <input type="hidden" id="editReponseId">
+                <div class="form-group">
+                    <label class="form-label">Votre réponse</label>
+                    <textarea class="form-control" id="editReponseContent" rows="3" required></textarea>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-outline" id="closeEditReponseBtn">Annuler</button>
                     <button type="submit" class="btn btn-primary">Enregistrer</button>
                 </div>
             </form>

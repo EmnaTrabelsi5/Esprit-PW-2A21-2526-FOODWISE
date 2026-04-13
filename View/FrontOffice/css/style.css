@@ -504,3 +504,305 @@ select.form-control { cursor: pointer; }
   .topbar { left: 0; }
   .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
+/* ==================== DESIGN CARTES MODERNE ==================== */
+
+/* Conteneur des cartes */
+.reviews-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Carte d'avis */
+.review-card {
+    background: var(--blanc);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    border: 1px solid rgba(78,44,14,0.08);
+}
+
+.review-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+/* En-tête de la carte */
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.recipe-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--brun-fonce);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.recipe-name::before {
+    content: "🍽️";
+}
+
+.rating {
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: #FFD700;
+}
+
+/* Métadonnées */
+.review-meta {
+    display: flex;
+    gap: 20px;
+    font-size: 12px;
+    color: var(--texte-leger);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--creme-fonce);
+}
+
+.review-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Contenu de l'avis */
+.review-content {
+    background: var(--creme);
+    padding: 15px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--texte-sombre);
+    margin-bottom: 15px;
+    font-style: italic;
+}
+
+/* Statistiques */
+.review-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--creme-fonce);
+    font-size: 13px;
+    color: var(--texte-moyen);
+}
+
+.review-stats span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Boutons d'action */
+.review-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-repondre {
+    background: var(--vert-moyen);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-repondre:hover {
+    background: var(--vert-fonce);
+}
+
+.btn-modifier {
+    background: var(--brun-chaud);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-modifier:hover {
+    background: var(--brun-moyen);
+}
+
+.btn-supprimer {
+    background: var(--alerte-rouge);
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-supprimer:hover {
+    background: #c0392b;
+}
+
+/* Section des réponses */
+.responses-section {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--creme-fonce);
+}
+
+.responses-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--brun-moyen);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Carte de réponse */
+.response-card {
+    background: var(--creme-fonce);
+    border-radius: var(--radius);
+    padding: 12px;
+    margin-bottom: 10px;
+}
+
+.response-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.response-author {
+    font-weight: 600;
+    color: var(--brun-fonce);
+}
+
+.response-date {
+    color: var(--texte-leger);
+    font-size: 11px;
+}
+
+.response-content {
+    font-size: 13px;
+    color: var(--texte-sombre);
+    margin-bottom: 8px;
+}
+
+.response-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.response-actions button {
+    background: none;
+    border: none;
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.response-actions button:first-child {
+    color: var(--vert-moyen);
+}
+
+.response-actions button:first-child:hover {
+    background: #e8f5e9;
+}
+
+.response-actions button:last-child {
+    color: var(--alerte-rouge);
+}
+
+.response-actions button:last-child:hover {
+    background: #fdeaea;
+}
+
+/* Animation d'apparition */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.review-card {
+    animation: fadeInUp 0.3s ease;
+}
+
+/* Notification toast */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideInRight 0.3s ease;
+    font-size: 14px;
+}
+
+.toast-notification.success {
+    background: var(--alerte-vert);
+    color: white;
+}
+
+.toast-notification.error {
+    background: var(--alerte-rouge);
+    color: white;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .review-card {
+        padding: 15px;
+    }
+    
+    .recipe-name {
+        font-size: 16px;
+    }
+    
+    .review-meta {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .review-actions button {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+}

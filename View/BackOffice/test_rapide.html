@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test rapide</title>
+</head>
+<body>
+    <h1>Test de l'API Avis</h1>
+    <button onclick="tester()">Tester</button>
+    <div id="resultat"></div>
+    
+    <script>
+        function tester() {
+            fetch('http://localhost/modulecommunity/Controller/ReviewController.php')
+                .then(r => r.json())
+                .then(data => {
+                    if(data.success) {
+                        let html = '<h2>Avis trouvés : ' + data.data.length + '</h2><ul>';
+                        for(let avis of data.data) {
+                            html += '<li>' + avis.recipe_name + ' : ' + avis.content + ' (' + avis.rating + '⭐)</li>';
+                        }
+                        html += '</ul>';
+                        document.getElementById('resultat').innerHTML = html;
+                    }
+                })
+                .catch(e => {
+                    document.getElementById('resultat').innerHTML = 'Erreur: ' + e.message;
+                });
+        }
+        
+        // Tester automatiquement
+        tester();
+    </script>
+</body>
+</html>
