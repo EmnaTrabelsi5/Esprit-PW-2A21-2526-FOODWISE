@@ -20,7 +20,100 @@
   gap: 16px;
   margin-bottom: 22px;
 }
+.fw-table {
+  width: 100%;
+  border-collapse: separate; /* IMPORTANT */
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
 
+
+.fw-table thead {
+  background: var(--brown-header);
+  color: white;
+}
+
+.fw-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+}
+
+/* CELLS */
+.fw-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(122, 79, 55, 0.1);
+}
+
+/* ROW HOVER */
+.fw-table tbody tr:hover {
+  background: rgba(200, 222, 176, 0.25);
+}
+.fw-table th:nth-child(1),
+.fw-table td:nth-child(1) {
+  width: 35%;
+}
+
+.fw-table th:nth-child(2),
+.fw-table td:nth-child(2) {
+  width: 20%;
+}
+
+.fw-table th:nth-child(3),
+.fw-table td:nth-child(3) {
+  width: 15%;
+}
+
+.fw-table th:nth-child(4),
+.fw-table td:nth-child(4) {
+  width: 30%;
+}
+
+.table-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  background: rgba(122, 79, 55, 0.1);
+  transition: 0.2s;
+}
+
+/* Colors */
+.action-btn.view {
+  color: #3a5c1e;
+}
+
+.action-btn.edit {
+  color: #a66d4f;
+}
+
+.action-btn.delete {
+  color: #8b4513;
+}
+
+/* Hover */
+.action-btn:hover {
+  transform: scale(1.1);
+  background: rgba(122, 79, 55, 0.2);
+}
+
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+}
 .stat-card {
   background: var(--blanc);
   border-radius: var(--radius);

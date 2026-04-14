@@ -1,9 +1,9 @@
 <?php
-// views/offre/form.php
+
 $isEdit       = !empty($data['id']);
 $pageTitle    = $isEdit ? 'Modifier l\'offre' : 'Publier une offre';
 $activeModule = 'offre';
-require __DIR__ . '/../layouts/header.php';
+require __DIR__ . '/../../layouts/front/header.php';
  
 $categories = [
   'fruits'   => '🍎 Fruits',
@@ -35,7 +35,9 @@ $unites = ['kg','g','L','ml','pièce','boîte','bouteille','paquet','sachet','lo
     </div>
  
     <form method="post"
-          action="<?= $isEdit ? 'offre.php?action=update' : 'offre.php?action=store' ?>"
+          action="<?= $isEdit 
+    ? '/FOODWISE1/offre.php?action=update' 
+    : '/FOODWISE1/offre.php?action=store' ?>"
           novalidate>
  
       <?php if ($isEdit): ?>
@@ -185,4 +187,4 @@ $unites = ['kg','g','L','ml','pièce','boîte','bouteille','paquet','sachet','lo
   </div>
 </div>
  
-<?php require __DIR__ . '/../layouts/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/front/footer.php'; ?>

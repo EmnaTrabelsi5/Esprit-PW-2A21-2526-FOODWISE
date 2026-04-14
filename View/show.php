@@ -1,8 +1,15 @@
-<?php
-// views/commercant/show.php
 $pageTitle    = htmlspecialchars($commercant['nom']);
 $activeModule = 'commercant';
 require __DIR__ . '/../layouts/header.php';
+require_once __DIR__ . '/../../Model/CommercantModel.php';
+
+$id = $_GET['id'] ?? 1;
+
+$model = new CommercantModel($pdo);
+$commercant = $model->getById($id);
+
+// optional: load offres too if needed
+$commercant['offres'] = $model->getOffresByCommercant($id);
 ?>
  
 <div class="page-header-bar">
