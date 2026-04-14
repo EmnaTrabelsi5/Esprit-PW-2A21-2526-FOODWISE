@@ -14,16 +14,18 @@
 $pageTitle  = 'Gestion des recettes';
 $activeNav  = 'gestion_recettes';
 $backoffice = true;
-include __DIR__ . '/../../layout/header.php';
+include __DIR__ . '/layout/header.php';
 ?>
 
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
   <div>
     <h1 class="page-title">📋 Gestion des Recettes</h1>
-    <p class="page-subtitle">Back Office — Module RecipeBook</p>
   </div>
-  <a href="/admin/recettes/ajouter" class="btn btn-primary">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  <a href="/FOODWISE/admin/recettes/ajouter" class="btn btn-primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <line x1="12" y1="5" x2="12" y2="19"/>
+      <line x1="5" y1="12" x2="19" y2="12"/>
+    </svg>
     Ajouter une recette
   </a>
 </div>
@@ -32,10 +34,10 @@ include __DIR__ . '/../../layout/header.php';
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px;">
   <?php
     $stat_cards = [
-      ['label' => 'Total recettes',    'val' => $stats['total'] ?? 0,          'icon' => '📖', 'color' => 'var(--brun-chaud)'],
-      ['label' => 'Végétariennes',     'val' => $stats['vegetariennes'] ?? 0,  'icon' => '🥦', 'color' => 'var(--vert-moyen)'],
-      ['label' => 'Sans gluten',       'val' => $stats['sans_gluten'] ?? 0,    'icon' => '🌾', 'color' => '#2471A3'],
-      ['label' => 'Ajoutées ce mois',  'val' => $stats['ce_mois'] ?? 0,        'icon' => '📅', 'color' => '#884EA0'],
+      ['label' => 'Total recettes',   'val' => $stats['total']         ?? 0, 'icon' => '📖', 'color' => 'var(--brun-chaud)'],
+      ['label' => 'Végétariennes',    'val' => $stats['vegetariennes'] ?? 0, 'icon' => '🥦', 'color' => 'var(--vert-moyen)'],
+      ['label' => 'Sans gluten',      'val' => $stats['sans_gluten']   ?? 0, 'icon' => '🌾', 'color' => '#2471A3'],
+      ['label' => 'Ajoutées ce mois', 'val' => $stats['ce_mois']       ?? 0, 'icon' => '📅', 'color' => '#884EA0'],
     ];
     foreach ($stat_cards as $sc):
   ?>
@@ -48,30 +50,30 @@ include __DIR__ . '/../../layout/header.php';
 </div>
 
 <!-- ── Filtres ── -->
-<form method="GET" action="/admin/recettes">
-<div class="filter-bar" style="margin-bottom:18px;">
-  <input type="text" name="q" placeholder="Rechercher une recette..."
-         value="<?= htmlspecialchars($filtres['q'] ?? '') ?>">
-  <select name="regime">
-    <option value="">Tous régimes</option>
-    <option value="vegetarien"  <?= ($filtres['regime'] ?? '') === 'vegetarien'  ? 'selected' : '' ?>>🥦 Végétarien</option>
-    <option value="vegan"       <?= ($filtres['regime'] ?? '') === 'vegan'       ? 'selected' : '' ?>>🌱 Vegan</option>
-    <option value="sans_gluten" <?= ($filtres['regime'] ?? '') === 'sans_gluten' ? 'selected' : '' ?>>🌾 Sans gluten</option>
-  </select>
-  <select name="difficulte">
-    <option value="">Difficulté</option>
-    <option value="facile"    <?= ($filtres['difficulte'] ?? '') === 'facile'    ? 'selected' : '' ?>>Facile</option>
-    <option value="moyen"     <?= ($filtres['difficulte'] ?? '') === 'moyen'     ? 'selected' : '' ?>>Moyen</option>
-    <option value="difficile" <?= ($filtres['difficulte'] ?? '') === 'difficile' ? 'selected' : '' ?>>Difficile</option>
-  </select>
-  <select name="trier_par">
-    <option value="date_desc" <?= ($filtres['trier_par'] ?? '') === 'date_desc' ? 'selected' : '' ?>>Plus récentes</option>
-    <option value="nom_asc"   <?= ($filtres['trier_par'] ?? '') === 'nom_asc'   ? 'selected' : '' ?>>Nom A→Z</option>
-    <option value="cal_desc"  <?= ($filtres['trier_par'] ?? '') === 'cal_desc'  ? 'selected' : '' ?>>Calories ↓</option>
-  </select>
-  <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
-  <a href="/admin/recettes" class="btn btn-outline btn-sm">Réinitialiser</a>
-</div>
+<form method="GET" action="/FOODWISE/admin/recettes">
+  <div class="filter-bar" style="margin-bottom:18px;">
+    <input type="text" name="q" placeholder="Rechercher une recette..."
+           value="<?= htmlspecialchars($filtres['q'] ?? '') ?>">
+    <select name="regime">
+      <option value="">Tous régimes</option>
+      <option value="vegetarien"  <?= ($filtres['regime'] ?? '') === 'vegetarien'  ? 'selected' : '' ?>>🥦 Végétarien</option>
+      <option value="vegan"       <?= ($filtres['regime'] ?? '') === 'vegan'       ? 'selected' : '' ?>>🌱 Vegan</option>
+      <option value="sans_gluten" <?= ($filtres['regime'] ?? '') === 'sans_gluten' ? 'selected' : '' ?>>🌾 Sans gluten</option>
+    </select>
+    <select name="difficulte">
+      <option value="">Difficulté</option>
+      <option value="facile"    <?= ($filtres['difficulte'] ?? '') === 'facile'    ? 'selected' : '' ?>>Facile</option>
+      <option value="moyen"     <?= ($filtres['difficulte'] ?? '') === 'moyen'     ? 'selected' : '' ?>>Moyen</option>
+      <option value="difficile" <?= ($filtres['difficulte'] ?? '') === 'difficile' ? 'selected' : '' ?>>Difficile</option>
+    </select>
+    <select name="trier_par">
+      <option value="date_desc" <?= ($filtres['trier_par'] ?? '') === 'date_desc' ? 'selected' : '' ?>>Plus récentes</option>
+      <option value="nom_asc"   <?= ($filtres['trier_par'] ?? '') === 'nom_asc'   ? 'selected' : '' ?>>Nom A→Z</option>
+      <option value="cal_desc"  <?= ($filtres['trier_par'] ?? '') === 'cal_desc'  ? 'selected' : '' ?>>Calories ↓</option>
+    </select>
+    <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
+    <a href="/FOODWISE/admin/recettes" class="btn btn-outline btn-sm">Réinitialiser</a>
+  </div>
 </form>
 
 <!-- ── Tableau ── -->
@@ -83,97 +85,98 @@ include __DIR__ . '/../../layout/header.php';
         (<?= $pagination['total'] ?? 0 ?> résultat<?= ($pagination['total'] ?? 0) > 1 ? 's' : '' ?>)
       </span>
     </h2>
-    <div style="display:flex;gap:8px;">
-      <a href="/admin/recettes/export?format=csv" class="btn btn-outline btn-sm">⬇ CSV</a>
-    </div>
   </div>
 
   <div style="overflow-x:auto;">
-  <table class="fw-table">
-    <thead>
-      <tr>
-        <th style="width:40px;">#</th>
-        <th>Nom</th>
-        <th>Régimes</th>
-        <th>Diff.</th>
-        <th>Temps total</th>
-        <th>Ingrédients</th>
-        <th>Calories</th>
-        <th>Date ajout</th>
-        <th style="width:130px;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <?php if (!empty($recettes)): ?>
-        <?php foreach ($recettes as $r): ?>
+    <table class="fw-table">
+      <thead>
         <tr>
-          <td style="color:var(--texte-leger);font-size:12px;"><?= $r->id_recette ?></td>
-          <td>
-            <div style="font-weight:700;color:var(--brun-fonce);"><?= htmlspecialchars($r->nom) ?></div>
-            <?php if (!empty($r->description)): ?>
-              <div style="font-size:12px;color:var(--texte-leger);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">
-                <?= htmlspecialchars(substr($r->description, 0, 70)) ?>...
-              </div>
-            <?php endif; ?>
-          </td>
-          <td>
-            <div style="display:flex;gap:4px;flex-wrap:wrap;">
-              <?php if ($r->est_vegetarien): ?><span class="badge badge-vert" style="font-size:10px;">Végé</span><?php endif; ?>
-              <?php if ($r->est_vegan):      ?><span class="badge badge-vert" style="font-size:10px;">Vegan</span><?php endif; ?>
-              <?php if ($r->est_sans_gluten):?><span class="badge badge-info" style="font-size:10px;">S/G</span><?php endif; ?>
-              <?php if (!$r->est_vegetarien && !$r->est_vegan && !$r->est_sans_gluten): ?>
-                <span class="badge badge-brun" style="font-size:10px;">Standard</span>
+          <th style="width:40px;">#</th>
+          <th>Nom</th>
+          <th>Régimes</th>
+          <th>Diff.</th>
+          <th>Temps total</th>
+          <th>Ingrédients</th>
+          <th>Calories</th>
+          <th>Vues</th>
+          <th>Date ajout</th>
+          <th style="width:130px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (!empty($recettes)): ?>
+          <?php foreach ($recettes as $r): ?>
+          <tr>
+            <td style="color:var(--texte-leger);font-size:12px;"><?= $r->id_recette ?></td>
+            <td>
+              <div style="font-weight:700;color:var(--brun-fonce);"><?= htmlspecialchars($r->nom) ?></div>
+              <?php if (!empty($r->description)): ?>
+                <div style="font-size:12px;color:var(--texte-leger);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;">
+                  <?= htmlspecialchars(substr($r->description, 0, 70)) ?>...
+                </div>
               <?php endif; ?>
-            </div>
-          </td>
-          <td>
-            <?php
-              $niv = ['facile' => '⭐', 'moyen' => '⭐⭐', 'difficile' => '⭐⭐⭐'];
-              echo $niv[$r->niveau_difficulte] ?? '-';
-            ?>
-          </td>
-          <td style="white-space:nowrap;">
-            <?= ($r->temps_prep ?? 0) + ($r->temps_cuisson ?? 0) ?> min
-          </td>
-          <td style="text-align:center;"><?= $r->nb_ingredients ?? '–' ?></td>
-          <td>
-            <?php if (!empty($r->calories_totales)): ?>
-              <span style="font-weight:700;color:var(--brun-moyen);"><?= round($r->calories_totales) ?></span>
-              <span style="font-size:11px;color:var(--texte-leger);"> kcal</span>
-            <?php else: ?>
-              <span style="color:var(--texte-leger);font-size:12px;">—</span>
-            <?php endif; ?>
-          </td>
-          <td style="font-size:13px;color:var(--texte-leger);white-space:nowrap;">
-            <?= date('d/m/Y', strtotime($r->date_creation)) ?>
-          </td>
-          <td>
-            <div style="display:flex;gap:5px;align-items:center;">
-              <a href="/recettes/<?= $r->id_recette ?>" class="btn btn-outline btn-sm" title="Voir">👁</a>
-              <a href="/admin/recettes/<?= $r->id_recette ?>/modifier" class="btn btn-outline btn-sm" title="Modifier">✏️</a>
-              <form method="POST" action="/admin/recettes/<?= $r->id_recette ?>/supprimer"
-                    onsubmit="return confirm('Supprimer «<?= htmlspecialchars(addslashes($r->nom)) ?>» ?');"
-                    style="display:inline;">
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" class="btn btn-danger btn-sm" title="Supprimer">🗑</button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      <?php else: ?>
-        <tr>
-          <td colspan="9" style="text-align:center;padding:40px;color:var(--texte-leger);">
-            Aucune recette trouvée.
-            <a href="/admin/recettes/ajouter" style="color:var(--brun-chaud);">Ajouter la première.</a>
-          </td>
-        </tr>
-      <?php endif; ?>
-    </tbody>
-  </table>
+            </td>
+            <td>
+              <div style="display:flex;gap:4px;flex-wrap:wrap;">
+                <?php if ($r->est_vegetarien): ?><span class="badge badge-vert" style="font-size:10px;">Végé</span><?php endif; ?>
+                <?php if ($r->est_vegan):      ?><span class="badge badge-vert" style="font-size:10px;">Vegan</span><?php endif; ?>
+                <?php if ($r->est_sans_gluten):?><span class="badge badge-info" style="font-size:10px;">S/G</span><?php endif; ?>
+                <?php if (!$r->est_vegetarien && !$r->est_vegan && !$r->est_sans_gluten): ?>
+                  <span class="badge badge-brun" style="font-size:10px;">Standard</span>
+                <?php endif; ?>
+              </div>
+            </td>
+            <td>
+              <?php
+                $niv = ['facile' => '⭐', 'moyen' => '⭐⭐', 'difficile' => '⭐⭐⭐'];
+                echo $niv[$r->niveau_difficulte] ?? '-';
+              ?>
+            </td>
+            <td style="white-space:nowrap;">
+              <?= ($r->temps_prep ?? 0) + ($r->temps_cuisson ?? 0) ?> min
+            </td>
+            <td style="text-align:center;"><?= $r->nb_ingredients ?? '–' ?></td>
+            <td>
+              <?php if (!empty($r->calories_totales)): ?>
+                <span style="font-weight:700;color:var(--brun-moyen);"><?= round($r->calories_totales) ?></span>
+                <span style="font-size:11px;color:var(--texte-leger);"> kcal</span>
+              <?php else: ?>
+                <span style="color:var(--texte-leger);font-size:12px;">—</span>
+              <?php endif; ?>
+            </td>
+            <td style="text-align:center;color:var(--texte-leger);font-size:13px;">
+              <?= $r->nbr_vue ?? 0 ?>
+            </td>
+            <td style="font-size:13px;color:var(--texte-leger);white-space:nowrap;">
+              <?= date('d/m/Y', strtotime($r->date_creation)) ?>
+            </td>
+            <td>
+              <div style="display:flex;gap:5px;align-items:center;">
+                <a href="/FOODWISE/admin/recettes/<?= $r->id_recette ?>"
+                   class="btn btn-outline btn-sm" title="Voir">👁</a>
+                <form method="POST"
+                      action="/FOODWISE/admin/recettes/<?= $r->id_recette ?>/supprimer"
+                      onsubmit="return confirm('Supprimer «<?= htmlspecialchars(addslashes($r->nom)) ?>» ?');"
+                      style="display:inline;">
+                  <button type="submit" class="btn btn-danger btn-sm" title="Supprimer">🗑</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <tr>
+            <td colspan="10" style="text-align:center;padding:40px;color:var(--texte-leger);">
+              Aucune recette trouvée.
+              <a href="/FOODWISE/admin/recettes/ajouter" style="color:var(--brun-chaud);">Ajouter la première.</a>
+            </td>
+          </tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
   </div>
 
-  <!-- Pagination -->
+  <!-- ── Pagination ── -->
   <?php if (($pagination['total_pages'] ?? 1) > 1): ?>
   <div style="padding:16px 22px;border-top:1px solid var(--creme-fonce);">
     <div class="pagination">
@@ -193,6 +196,8 @@ include __DIR__ . '/../../layout/header.php';
     </div>
   </div>
   <?php endif; ?>
-</div><!-- /card tableau -->
 
-<?php include __DIR__ . '/../../layout/footer.php'; ?>
+</div>
+
+
+<?php include __DIR__ . '/layout/footer.php'; ?>

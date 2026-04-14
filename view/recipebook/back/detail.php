@@ -15,13 +15,12 @@
 
 $pageTitle = $recette->nom ?? 'Détail recette';
 $activeNav = 'recettes';
-$backoffice = false;
+$backoffice = true;
 include __DIR__ . '/layout/header.php';
 ?>
 
 <!-- ── Fil d'Ariane ── -->
 <nav style="font-size:13px;color:var(--texte-leger);margin-bottom:16px;">
-  <a href="/FOODWISE/recettes" style="color:var(--brun-chaud);text-decoration:none;">Mes Recettes</a>
   <span style="margin:0 6px;">›</span>
   <span><?= htmlspecialchars($recette->nom) ?></span>
 </nav>
@@ -47,9 +46,6 @@ include __DIR__ . '/layout/header.php';
             <?= htmlspecialchars($recette->nom) ?>
           </h1>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <?php if (!$backoffice): ?>
-             <a href="/FOODWISE/recettes/<?= $recette->id_recette ?>/modifier" class="btn btn-outline btn-sm">✏️ Modifier</a>
-            <?php endif; ?>
              <form method="POST" action="/FOODWISE/recettes/<?= $recette->id_recette ?>/supprimer"
                   onsubmit="return confirm('Supprimer cette recette ?');" style="display:inline;">
               <input type="hidden" name="_method" value="DELETE">
@@ -111,47 +107,11 @@ include __DIR__ . '/layout/header.php';
             <strong style="font-size:15px;color:var(--brun-moyen);">
               <?= $ri->quantite ?> <?= htmlspecialchars($ri->unite) ?>
             </strong>
-
-            <!-- Alerte allergène / indisponible -->
-            <?php if ($ri->est_allergene || !$ri->est_disponible): ?>
-              <div style="font-size:11px;color:var(--alerte-orange);">
-                <?= $ri->est_allergene ? '⚠️ Allergène' : '❌ Indisponible' ?>
-              </div>
-            <?php endif; ?>
           </div>
         </li>
         <?php endforeach; ?>
       </ul>
     </div>
-
-    <!-- Suggestions de substitution -->
-    <?php if (!empty($substituts)): ?>
-    <div class="card">
-      <div class="card-header">
-        <h2 class="card-title">🔄 Suggestions de substitution</h2>
-      </div>
-      <?php foreach ($substituts as $sub): ?>
-      <div class="substitut-alert">
-        <span style="font-size:18px;">⚠️</span>
-        <div>
-          <strong><?= htmlspecialchars($sub->nom_source) ?></strong>
-          <?= $sub->ingredient_source->est_allergene ? '(allergène)' : '(indisponible)' ?>
-          <span style="margin:0 6px;">→</span>
-          <strong style="color:var(--vert-fonce);">
-            <?= htmlspecialchars($sub->nom_substitut) ?>
-          </strong>
-          <?php if ($sub->ratio_conversion != 1): ?>
-            <span style="font-size:12px;"> (×<?= $sub->ratio_conversion ?> la quantité)</span>
-          <?php endif; ?>
-          <?php if (!empty($sub->raison)): ?>
-            <div style="font-size:12px;margin-top:3px;opacity:0.85;"><?= htmlspecialchars($sub->raison) ?></div>
-          <?php endif; ?>
-        </div>
-      </div>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-
   </div><!-- /colonne principale -->
 
   <!-- ══ Colonne latérale ══ -->
@@ -220,15 +180,6 @@ include __DIR__ . '/layout/header.php';
       </div>
     </div>
 
-    <!-- Actions -->
-<div class="card">
-  <a href="/FOODWISE/planificateur/ajouter?recette=<?= $recette->id_recette ?>" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">
-    📅 Ajouter au planificateur
-  </a>
-  <a href="/FOODWISE/favoris/ajouter?recette=<?= $recette->id_recette ?>" class="btn btn-outline" style="width:100%;justify-content:center;">
-    ❤️ Ajouter aux favoris
-  </a>
-</div>
 
   </div><!-- /sidebar -->
 </div><!-- /grid -->

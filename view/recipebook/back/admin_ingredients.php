@@ -13,7 +13,7 @@
 $pageTitle  = 'Base Ingrédients';
 $activeNav  = 'gestion_ingredients';
 $backoffice = true;
-include __DIR__ . '/../../layout/header.php';
+include __DIR__ . '/layout/header.php';
 ?>
 
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:22px;">
@@ -323,4 +323,4 @@ document.querySelectorAll('[id^="modal-"]').forEach(m => {
 });
 </script>
 
-<?php include __DIR__ . '/../../layout/footer.php'; ?>
+<?php include __DIR__ . '/layout/footer.php'; ?>

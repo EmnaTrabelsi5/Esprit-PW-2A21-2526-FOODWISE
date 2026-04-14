@@ -57,17 +57,17 @@ body {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 10px;
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  flex-shrink: 0;
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
 }
-.sidebar-logo img {
-  width: 100px ;   
-  height: auto ;
-  object-fit: contain;
-}
+
+.sidebar-logo img { width: 44px; height: 44px; }
+
+.sidebar-logo-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--creme); letter-spacing: 0.5px; }
+
+.sidebar-logo-text span { color: var(--brun-pale); }
+
 .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
 
 .nav-item {
@@ -504,6 +504,98 @@ select.form-control { cursor: pointer; }
   .topbar { left: 0; }
   .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
 }
-.card:hover {
-  transform: translateY(-5px) scale(1.01);
+/* ///////////////================= FRONTEND ================= ////////////////*/
+.frontoffice {
+  background-color: var(--creme);
+  color: var(--texte-sombre);
 }
+
+/* Topbar plus douce */
+.frontoffice .topbar {
+  background: var(--creme);
+  border-bottom: 1px solid var(--vert-pale);
+}
+
+/* Cartes plus naturelles */
+.frontoffice .card,
+.frontoffice .recipe-card {
+  background: var(--blanc);
+  border: 1px solid var(--vert-pale);
+}
+
+/* Boutons → plus vert */
+.frontoffice .btn-primary {
+  background: var(--vert-moyen);
+}
+
+.frontoffice .btn-primary:hover {
+  background: var(--vert-fonce);
+}
+
+/* Titres légèrement verts */
+.frontoffice .page-title,
+.frontoffice .card-title {
+  color: var(--vert-fonce);
+}
+
+/* Table hover plus vert */
+.frontoffice .fw-table tr:hover td {
+  background: rgba(200, 222, 176, 0.4);
+}
+/* ///////////////// fin frontendd /////////////// */
+/* ================= BACKEND ================= */
+.backoffice {
+  background-color: #2b1a0f;
+  color: var(--creme);
+}
+
+/* Topbar plus sombre */
+.backoffice .topbar {
+  background: var(--brun-fonce);
+  border-bottom: 1px solid var(--brun-moyen);
+}
+
+/* Texte */
+.backoffice .page-title,
+.backoffice .card-title {
+  color: var(--creme);
+}
+
+/* Cartes */
+.backoffice .card,
+.backoffice .recipe-card {
+  background: #3a2415;
+  color: var(--creme);
+  border: 1px solid var(--brun-moyen);
+}
+
+/* Inputs */
+.backoffice .form-control {
+  background: #4a2c1a;
+  color: var(--creme);
+  border: 1px solid var(--brun-moyen);
+}
+
+/* Boutons contrastés vert */
+.backoffice .btn-primary {
+  background: var(--vert-moyen);
+}
+
+.backoffice .btn-primary:hover {
+  background: var(--vert-clair);
+}
+
+/* Tables */
+.backoffice .fw-table th {
+  background: #3a2415;
+  color: var(--vert-pale);
+}
+
+.backoffice .fw-table td {
+  border-bottom: 1px solid #4a2c1a;
+}
+
+.backoffice .fw-table tr:hover td {
+  background: rgba(92, 122, 62, 0.25);
+}
+/*//////////////// fin backend //////////// */ 

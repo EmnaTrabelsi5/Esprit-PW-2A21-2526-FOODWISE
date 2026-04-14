@@ -2,31 +2,43 @@
 /**
  * FoodWise — Module RecipeBook
  * Vue : Formulaire Ajouter / Modifier une recette
- * views/recipebook/front/form.php  (partagé front + back)
- *
- * Variables transmises par RecipeController::create() / edit($id) :
- *   $recette          object|null   null pour création, objet pour modification
- *   $ingredients_dispo array        Liste de tous les ingrédients disponibles
- *   $erreurs          array         Erreurs de validation JavaScript/PHP
- *   $is_backoffice    bool          true si accès via /admin
  */
+
+// --- 1. FONCTION HELPER POUR LES ERREURS ---
+function erreur(array $erreurs, string $champ): void {
+    if (!empty($erreurs[$champ])) {
+        echo '<p style="color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;">⚠️ '
+             . htmlspecialchars($erreurs[$champ]) . '</p>';
+    }
+}
 
 $is_backoffice = $is_backoffice ?? false;
 $estModif      = !empty($recette->id_recette ?? null);
 $pageTitle     = $estModif ? 'Modifier ' . ($recette->nom ?? '') : 'Nouvelle recette';
 $activeNav     = $is_backoffice ? 'gestion_recettes' : 'recettes';
 $backoffice    = $is_backoffice;
-include __DIR__ . '/../../layout/header.php';
+$erreurs       = $erreurs ?? []; // Sécurité si la variable n'existe pas
 
+include __DIR__ . '/layout/header.php';
 
 $action = $estModif
-  ? ($is_backoffice ? '/admin/recettes/' . $recette->id_recette . '/modifier' : '/recettes/' . $recette->id_recette . '/modifier')
-  : ($is_backoffice ? '/admin/recettes/ajouter' : '/recettes/ajouter');
+  ? ($is_backoffice ? '/FOODWISE/admin/recettes/' . $recette->id_recette . '/modifier' : '/FOODWISE/recettes/' . $recette->id_recette . '/modifier')
+  : ($is_backoffice ? '/FOODWISE/admin/recettes/ajouter' : '/FOODWISE/recettes/ajouter');
 ?>
 
-<!-- Fil d'Ariane -->
+<style>
+    .input-erreur {
+        border-color: #C0392B !important;
+        background: #FEF0EE !important;
+    }
+    .input-erreur:focus {
+        border-color: #C0392B !important;
+        box-shadow: 0 0 0 3px rgba(192,57,43,0.15) !important;
+    }
+</style>
+
 <nav style="font-size:13px;color:var(--texte-leger);margin-bottom:16px;">
-  <a href="<?= $backoffice ? '/admin/recettes' : '/recettes' ?>" style="color:var(--brun-chaud);text-decoration:none;">
+  <a href="<?= $backoffice ? '/FOODWISE/admin/recettes' : '/FOODWISE/recettes' ?>" style="color:var(--brun-chaud);text-decoration:none;">
     <?= $backoffice ? 'Gestion des recettes' : 'Mes Recettes' ?>
   </a>
   <span style="margin:0 6px;">›</span>
@@ -36,18 +48,6 @@ $action = $estModif
 <h1 class="page-title"><?= $estModif ? '✏️ Modifier la recette' : '➕ Nouvelle recette' ?></h1>
 <p class="page-subtitle"><?= $estModif ? 'Mettez à jour les informations de la recette.' : 'Remplissez le formulaire pour ajouter une nouvelle recette.' ?></p>
 
-<!-- Affichage des erreurs de validation -->
-<?php if (!empty($erreurs)): ?>
-<div style="background:#FADBD8;border:1.5px solid var(--alerte-rouge);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;">
-  <strong style="color:var(--alerte-rouge);">⚠️ Erreurs de validation :</strong>
-  <ul style="margin:6px 0 0 18px;font-size:14px;color:#922B21;">
-    <?php foreach ($erreurs as $err): ?>
-      <li><?= htmlspecialchars($err) ?></li>
-    <?php endforeach; ?>
-  </ul>
-</div>
-<?php endif; ?>
-
 <form method="POST" action="<?= $action ?>" id="recipe-form" enctype="multipart/form-data" novalidate>
   <?php if ($estModif): ?>
     <input type="hidden" name="_method" value="PUT">
@@ -55,18 +55,17 @@ $action = $estModif
 
 <div style="display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start;">
 
-  <!-- ══ Colonne principale ══ -->
   <div>
-
-    <!-- Informations de base -->
     <div class="card">
       <div class="card-header"><h2 class="card-title">📋 Informations générales</h2></div>
 
       <div class="form-group">
         <label class="form-label" for="nom">Nom de la recette *</label>
-        <input type="text" id="nom" name="nom" class="form-control"
+        <input type="text" id="nom" name="nom" 
+               class="form-control <?= !empty($erreurs['nom']) ? 'input-erreur' : '' ?>"
                value="<?= htmlspecialchars($recette->nom ?? '') ?>"
-               placeholder="Ex : Pâtes au Pesto d'Avocat" required>
+               placeholder="Ex : Pâtes au Pesto d'Avocat">
+        <?php erreur($erreurs, 'nom'); ?>
       </div>
 
       <div class="form-group">
@@ -78,24 +77,31 @@ $action = $estModif
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
         <div class="form-group">
           <label class="form-label" for="temps_prep">Temps de prépa. (min) *</label>
-          <input type="number" id="temps_prep" name="temps_prep" class="form-control"
-                 value="<?= $recette->temps_prep ?? '' ?>" min="1" max="600" placeholder="15">
+          <input type="number" id="temps_prep" name="temps_prep" 
+                 class="form-control <?= !empty($erreurs['temps_prep']) ? 'input-erreur' : '' ?>"
+                 value="<?= $recette->temps_prep ?? '' ?>" placeholder="15">
+          <?php erreur($erreurs, 'temps_prep'); ?>
         </div>
+        
         <div class="form-group">
           <label class="form-label" for="temps_cuisson">Temps de cuisson (min)</label>
           <input type="number" id="temps_cuisson" name="temps_cuisson" class="form-control"
-                 value="<?= $recette->temps_cuisson ?? '' ?>" min="0" max="600" placeholder="0">
+                 value="<?= $recette->temps_cuisson ?? '' ?>" placeholder="0">
         </div>
+
         <div class="form-group">
           <label class="form-label" for="portions">Nombre de portions *</label>
-          <input type="number" id="portions" name="portions" class="form-control"
-                 value="<?= $recette->portions ?? '' ?>" min="1" max="50" placeholder="4">
+          <input type="number" id="portions" name="portions" 
+                 class="form-control <?= !empty($erreurs['portions']) ? 'input-erreur' : '' ?>"
+                 value="<?= $recette->portions ?? '' ?>" placeholder="4">
+          <?php erreur($erreurs, 'portions'); ?>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="niveau_difficulte">Niveau de difficulté *</label>
-        <select id="niveau_difficulte" name="niveau_difficulte" class="form-control">
+        <select id="niveau_difficulte" name="niveau_difficulte" 
+                class="form-control <?= !empty($erreurs['niveau_difficulte']) ? 'input-erreur' : '' ?>">
           <option value="">-- Sélectionner --</option>
           <?php foreach (['facile' => '⭐ Facile', 'moyen' => '⭐⭐ Moyen', 'difficile' => '⭐⭐⭐ Difficile'] as $val => $label): ?>
             <option value="<?= $val ?>" <?= ($recette->niveau_difficulte ?? '') === $val ? 'selected' : '' ?>>
@@ -103,9 +109,9 @@ $action = $estModif
             </option>
           <?php endforeach; ?>
         </select>
+        <?php erreur($erreurs, 'niveau_difficulte'); ?>
       </div>
 
-      <!-- Image -->
       <div class="form-group">
         <label class="form-label" for="image">Image de la recette</label>
         <?php if (!empty($recette->image_url)): ?>
@@ -120,7 +126,6 @@ $action = $estModif
       </div>
     </div>
 
-    <!-- Régimes alimentaires -->
     <div class="card">
       <div class="card-header"><h2 class="card-title">🥗 Régimes alimentaires</h2></div>
       <div style="display:flex;flex-wrap:wrap;gap:20px;">
@@ -142,7 +147,6 @@ $action = $estModif
       </div>
     </div>
 
-    <!-- Ingrédients dynamiques -->
     <div class="card">
       <div class="card-header">
         <h2 class="card-title">🧺 Ingrédients</h2>
@@ -150,14 +154,12 @@ $action = $estModif
           + Ajouter un ingrédient
         </button>
       </div>
-
       <div id="ingredients-container">
         <?php
           $lignes = !empty($recette_ingredients) ? $recette_ingredients : [null];
           foreach ($lignes as $i => $ri):
         ?>
-        <div class="ingredient-row" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px;"
-             id="ing-row-<?= $i ?>">
+        <div class="ingredient-row" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px;" id="ing-row-<?= $i ?>">
           <div class="form-group" style="margin-bottom:0;">
             <label class="form-label" style="font-size:11px;">Ingrédient</label>
             <select name="ingredients[<?= $i ?>][id_ingredient]" class="form-control ingredient-select">
@@ -194,46 +196,29 @@ $action = $estModif
         </div>
         <?php endforeach; ?>
       </div>
-
       <div id="allergene-warning" style="display:none;" class="substitut-alert" style="margin-top:10px;">
         ⚠️ Certains ingrédients sélectionnés sont des allergènes ou indisponibles. Des substituts seront proposés automatiquement.
       </div>
     </div>
+  </div>
 
-  </div><!-- /colonne principale -->
-
-  <!-- ══ Colonne latérale ══ -->
   <div>
     <div class="card" style="position:sticky;top:80px;">
       <div class="card-header"><h2 class="card-title">💾 Enregistrement</h2></div>
-
       <p style="font-size:13px;color:var(--texte-leger);margin-bottom:18px;">
         Les valeurs nutritionnelles seront <strong>calculées automatiquement</strong> à partir des ingrédients renseignés.
       </p>
-
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button type="submit" name="action" value="publier" class="btn btn-primary" style="justify-content:center;">
           ✅ <?= $estModif ? 'Enregistrer les modifications' : 'Publier la recette' ?>
         </button>
-        <button type="submit" name="action" value="brouillon" class="btn btn-outline" style="justify-content:center;">
-          📄 Sauvegarder en brouillon
-        </button>
-        <a href="<?= $backoffice ? '/admin/recettes' : '/recettes' ?>" class="btn" style="justify-content:center;background:none;color:var(--texte-leger);">
+        <a href="<?= $backoffice ? '/FOODWISE/admin/recettes' : '/FOODWISE/recettes' ?>" class="btn" style="justify-content:center;background:none;color:var(--texte-leger);">
           ✕ Annuler
         </a>
       </div>
-
-      <?php if ($estModif): ?>
-      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--creme-fonce);">
-        <p style="font-size:12px;color:var(--texte-leger);margin-bottom:8px;">
-          Recette créée le <?= date('d/m/Y', strtotime($recette->date_creation)) ?>
-        </p>
-      </div>
-      <?php endif; ?>
     </div>
   </div>
-
-</div><!-- /grid -->
+</div>
 </form>
 
 <script>
@@ -326,5 +311,3 @@ document.getElementById('recipe-form').addEventListener('submit', function(e) {
 document.querySelectorAll('.ingredient-select').forEach(s => s.addEventListener('change', checkAllergenes));
 checkAllergenes();
 </script>
-
-<?php include __DIR__ . '/../../layout/footer.php'; ?>
