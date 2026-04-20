@@ -74,11 +74,11 @@ $backoffice = $backoffice ?? true;
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         Tableau de bord
       </a>
-      <a href="#" class="nav-item <?= $activeNav === 'gestion_recettes' ? 'active' : '' ?>">
+      <a href="index.php?route=admin_recettes" class="nav-item <?= $activeNav === 'gestion_recettes' ? 'active' : '' ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Gestion Recettes
       </a>
-      <a href="#" class="nav-item <?= $activeNav === 'gestion_ingredients' ? 'active' : '' ?>">
+      <a href="index.php?route=admin_ingredients" class="nav-item <?= $activeNav === 'gestion_ingredients' ? 'active' : '' ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg>
         Base Ingrédients
       </a>
@@ -117,3 +117,4 @@ document.getElementById('search-input').addEventListener('keydown', function(e){
   if (e.key === 'Enter') doSearch();
 });
 </script>
+ 

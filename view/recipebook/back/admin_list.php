@@ -21,13 +21,6 @@ include __DIR__ . '/layout/header.php';
   <div>
     <h1 class="page-title">📋 Gestion des Recettes</h1>
   </div>
-  <a href="/FOODWISE/admin/recettes/ajouter" class="btn btn-primary">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-      <line x1="12" y1="5" x2="12" y2="19"/>
-      <line x1="5" y1="12" x2="19" y2="12"/>
-    </svg>
-    Ajouter une recette
-  </a>
 </div>
 
 <!-- ── Statistiques ── -->

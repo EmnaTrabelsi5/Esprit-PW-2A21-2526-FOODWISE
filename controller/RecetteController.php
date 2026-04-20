@@ -69,7 +69,7 @@ class RecetteController
         include 'view/recipebook/front/detail.php';
     }
 
-/*public function showAdmin(int $id, bool $admin): void
+public function showAdmin(int $id, bool $admin): void
 {
     $recette = Recette::getById($id);
 
@@ -103,8 +103,6 @@ class RecetteController
    include 'view/recipebook/back/detail.php';
 }
 
-
-*/
 
 
 

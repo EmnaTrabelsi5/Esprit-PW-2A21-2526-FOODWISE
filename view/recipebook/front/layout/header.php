@@ -33,12 +33,19 @@ $backoffice = $backoffice ?? false;
   top: 0; left: 0;
   width: var(--sidebar-w);
   height: 100vh;
-  background: linear-gradient(180deg, #3A1A06 0%, #6B2E10 100%);
+  background: linear-gradient(180deg, #2b3627 0%, #8FAF87 100%);
+  color: #3e2723;
   display: flex;
   flex-direction: column;
   z-index: 100;
   box-shadow: 3px 0 20px rgba(0,0,0,0.25);
   overflow-y: auto;
+}
+.sidebar .nav-item,
+.sidebar .sidebar-logo,
+.sidebar .sidebar-logo img,
+.sidebar svg {
+  color: inherit;
 }
 .sidebar-logo {
   display: flex;
@@ -121,8 +128,8 @@ $backoffice = $backoffice ?? false;
     <a href="#" class="<?= $activeNav === 'marche' ? 'active' : '' ?>">Le Marché</a>
   </nav>
   <div class="topbar-user">
-    <img src="https://ui-avatars.com/api/?name=Lucas+Organic&background=A0522D&color=FDF6EC&bold=true&size=64" alt="Avatar">
-    <span>Lucas_Organic</span>
+    <img src="https://ui-avatars.com/api/?name=Emna+Trabelsi&background=A0522D&color=FDF6EC&bold=true&size=64" alt="Avatar">
+    <span>Emna_Trabelsi</span>
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;display:block;"><path d="M6 9l6 6 6-6"/></svg>
   </div>
   <?php endif; ?>

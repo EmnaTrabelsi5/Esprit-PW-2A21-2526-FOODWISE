@@ -212,6 +212,7 @@ $action = $estModif
         <button type="submit" name="action" value="publier" class="btn btn-primary" style="justify-content:center;">
           ✅ <?= $estModif ? 'Enregistrer les modifications' : 'Publier la recette' ?>
         </button>
+        
         <a href="<?= $backoffice ? '/FOODWISE/admin/recettes' : '/FOODWISE/recettes' ?>" class="btn" style="justify-content:center;background:none;color:var(--texte-leger);">
           ✕ Annuler
         </a>
@@ -222,14 +223,14 @@ $action = $estModif
 </form>
 
 <script>
-let rowCount = <?= count($lignes ?? [1]) ?>;
-
+let rowCount = document.querySelectorAll('.ingredient-row').length;
 function ajouterIngredient() {
-  const i = rowCount++;
-  const ingOptions = document.querySelector('.ingredient-select').innerHTML;
-  const row = document.createElement('div');
-  row.className = 'ingredient-row';
-  row.id = 'ing-row-' + i;
+    const i = document.querySelectorAll('.ingredient-row').length; 
+    
+    const ingOptions = document.querySelector('.ingredient-select').innerHTML;
+    const row = document.createElement('div');
+    row.className = 'ingredient-row';
+    row.id = 'ing-row-' + i;
   row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:12px;';
   row.innerHTML = `
     <div class="form-group" style="margin-bottom:0;">
@@ -274,35 +275,48 @@ function checkAllergenes() {
   document.getElementById('allergene-warning').style.display = hasWarning ? 'flex' : 'none';
 }
 
-// Validation JS côté client (pas de validation HTML5 comme demandé)
 document.getElementById('recipe-form').addEventListener('submit', function(e) {
+
+  document.querySelectorAll('.input-erreur').forEach(el => el.classList.remove('input-erreur'));
+  document.querySelectorAll('.erreur-msg').forEach(el => el.remove());
+
   const erreurs = [];
   const nom = document.getElementById('nom').value.trim();
   const temps = document.getElementById('temps_prep').value;
   const portions = document.getElementById('portions').value;
   const diff = document.getElementById('niveau_difficulte').value;
 
-  if (!nom) erreurs.push('Le nom de la recette est obligatoire.');
-  if (!temps || temps < 1) erreurs.push('Le temps de préparation doit être supérieur à 0.');
-  if (!portions || portions < 1) erreurs.push('Le nombre de portions doit être au moins 1.');
-  if (!diff) erreurs.push('Veuillez choisir un niveau de difficulté.');
 
-  const ingredients = document.querySelectorAll('.ingredient-select');
-  let hasIng = false;
-  ingredients.forEach(sel => { if (sel.value) hasIng = true; });
-  if (!hasIng) erreurs.push('Veuillez ajouter au moins un ingrédient.');
+  function afficherErreur(idChamp, message) {
+    const input = document.getElementById(idChamp);
+    input.classList.add('input-erreur');
+    const p = document.createElement('p');
+    p.className = 'erreur-msg';
+    p.style.cssText = 'color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;';
+    p.innerHTML = '⚠️ ' + message;
+    input.parentNode.appendChild(p);
+  }
+
+
+  if (!nom) {
+    erreurs.push({champ: 'nom', msg: 'Le nom est obligatoire.'});
+  }
+  if (!temps || temps < 1) {
+    erreurs.push({champ: 'temps_prep', msg: 'Le temps doit être > 0.'});
+  }
+  if (!portions || portions < 1) {
+    erreurs.push({champ: 'portions', msg: 'Au moins 1 portion.'});
+  }
+  if (!diff) {
+    erreurs.push({champ: 'niveau_difficulte', msg: 'Niveau requis.'});
+  }
+
 
   if (erreurs.length > 0) {
     e.preventDefault();
-    let div = document.getElementById('form-errors');
-    if (!div) {
-      div = document.createElement('div');
-      div.id = 'form-errors';
-      div.style.cssText = 'background:#FADBD8;border:1.5px solid var(--alerte-rouge);border-radius:var(--radius);padding:14px 18px;margin-bottom:20px;';
-      document.querySelector('.page-subtitle').after(div);
-    }
-    div.innerHTML = '<strong style="color:var(--alerte-rouge);">⚠️ Erreurs :</strong><ul style="margin:6px 0 0 18px;font-size:14px;color:#922B21;">'
-      + erreurs.map(e => `<li>${e}</li>`).join('') + '</ul>';
+    erreurs.forEach(err => {
+      afficherErreur(err.champ, err.msg);
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 });
