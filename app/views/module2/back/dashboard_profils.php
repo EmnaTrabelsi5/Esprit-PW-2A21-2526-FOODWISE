@@ -39,7 +39,7 @@ $lignesProfils = $lignesProfils ?? [
     ],
 ];
 
-$pageTitle = $pageTitle ?? 'Module 2 – NutriProfile – Profil nutritionnel';
+$pageTitle = $pageTitle ?? 'FoodWise – Administration – Gestion des profils';
 $activeNav = 'suivi_nutritionnel';
 
 require dirname(__DIR__) . '/routes_defaults.php';
@@ -47,11 +47,13 @@ require dirname(__DIR__) . '/routes_defaults.php';
 require __DIR__ . '/layouts/header.php';
 ?>
 
-<form class="fw-search" role="search" action="<?= htmlspecialchars($routesModule2['back_dashboard_profils'] ?? '', ENT_QUOTES, 'UTF-8') ?>" method="get">
+<form class="fw-search" role="search" method="get">
+  <input type="hidden" name="route" value="module2.back.dashboard.profils">
   <div class="fw-search__inner">
     <span aria-hidden="true">🔍</span>
     <label class="fw-skip-link" for="fw-admin-search">Recherche</label>
-    <input type="search" id="fw-admin-search" name="q" placeholder="Rechercher des utilisateurs, régimes, ou allergies..." autocomplete="off">
+    <input type="search" id="fw-admin-search" name="q" value="<?= htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="Rechercher des utilisateurs, régimes, allergies, objectifs..." autocomplete="off">
+    <button type="submit" style="padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">Chercher</button>
   </div>
 </form>
 
@@ -94,6 +96,7 @@ require __DIR__ . '/layouts/header.php';
           <table class="fw-table">
             <thead>
               <tr>
+                <th scope="col">Photo</th>
                 <th scope="col">Utilisateur</th>
                 <th scope="col">Courriel</th>
                 <th scope="col">Objectif</th>
@@ -108,6 +111,16 @@ require __DIR__ . '/layouts/header.php';
                   $complet = $score === 100;
                   ?>
                 <tr>
+                  <td style="text-align: center; padding: 0.5rem;">
+                    <?php 
+                      $photoProfil = $ligne['photo_profil'] ?? null;
+                      $nomAffiche = trim(($ligne['prenom'] ?? '') . ' ' . ($ligne['nom'] ?? ''));
+                      if ($photoProfil && file_exists(__DIR__ . '/../../' . $photoProfil)): ?>
+                        <img src="<?= htmlspecialchars($photoProfil, ENT_QUOTES, 'UTF-8') ?>" alt="Photo de <?= htmlspecialchars($nomAffiche, ENT_QUOTES, 'UTF-8') ?>" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                      <?php else: ?>
+                        <img src="<?= generateAvatarSVG($nomAffiche) ?>" alt="Avatar de <?= htmlspecialchars($nomAffiche, ENT_QUOTES, 'UTF-8') ?>" style="width: 50px; height: 50px; border-radius: 50%;">
+                      <?php endif; ?>
+                  </td>
                   <td><?= htmlspecialchars((string) ($ligne['prenom'] ?? '') . ' ' . ($ligne['nom'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars((string) ($ligne['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars((string) ($ligne['objectif'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
@@ -115,6 +128,7 @@ require __DIR__ . '/layouts/header.php';
                   <td>
                     <a class="fw-btn" href="<?= htmlspecialchars($routesModule2['back_profil_form'] ?? '', ENT_QUOTES, 'UTF-8') ?>&id=<?= $id ?>">Éditer</a>
                     <a class="fw-btn fw-btn--ghost" href="<?= htmlspecialchars($routesModule2['back_dashboard_profils'] ?? '', ENT_QUOTES, 'UTF-8') ?>&action=delete&id=<?= $id ?>">Supprimer</a>
+                    <a class="fw-btn fw-btn--ghost" href="<?= htmlspecialchars('index.php?route=module2.back.modification.history&user_id=' . $id, ENT_QUOTES, 'UTF-8') ?>">Historique</a>
                   </td>
                 </tr>
               <?php endforeach; ?>

@@ -17,5 +17,6 @@ declare(strict_types=1);
     </footer>
   </div>
 </div>
+<script src="../assets/js/validation.js"></script>
 </body>
 </html>

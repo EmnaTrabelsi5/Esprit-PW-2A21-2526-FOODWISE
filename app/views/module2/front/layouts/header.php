@@ -32,5 +32,6 @@ $cssHref = $cssUrl;
       <div class="fw-topbar__links">
         <a href="<?= htmlspecialchars($routesModule2['front_mon_profil'] ?? '#', ENT_QUOTES, 'UTF-8') ?>"><span aria-hidden="true">👤</span> Mon Compte</a>
         <a href="#"><span aria-hidden="true">❓</span> Aide</a>
+        <a href="<?= htmlspecialchars($routesModule2['front_logout'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" style="color:var(--fw-alert)"><span aria-hidden="true">🚪</span> Déconnexion</a>
       </div>
     </header>

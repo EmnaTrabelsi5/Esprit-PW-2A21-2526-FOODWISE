@@ -17,7 +17,7 @@ require __DIR__ . '/layouts/header.php';
     <section class="fw-card" aria-labelledby="fw-admin-profil-title">
       <h2 id="fw-admin-profil-title" class="fw-card__head"><span aria-hidden="true">🧾</span> <?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?></h2>
       <div class="fw-card__body">
-        <form class="fw-form" method="post" action="<?= htmlspecialchars($routesModule2['back_profil_form'] ?? '', ENT_QUOTES, 'UTF-8') ?><?= empty($old['id']) ? '' : '&id=' . urlencode((string) $old['id']) ?>">
+        <form class="fw-form" method="post" action="<?= htmlspecialchars($routesModule2['back_profil_form'] ?? '', ENT_QUOTES, 'UTF-8') ?><?= empty($old['id']) ? '' : '&id=' . urlencode((string) $old['id']) ?>" enctype="multipart/form-data">
           <input type="hidden" name="id" value="<?= htmlspecialchars((string) ($old['id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
 
           <div class="fw-form__row fw-form__row--2">
@@ -44,6 +44,13 @@ require __DIR__ . '/layouts/header.php';
               <input type="password" id="fw-admin-password" name="password" value="">
             </div>
           <?php endif; ?>
+
+          <div class="fw-form__group">
+            <label for="fw-admin-photo">Photo de profil (optionnel)</label>
+            <input type="file" id="fw-admin-photo" name="photo_profil" accept="image/jpeg,image/png,image/webp,image/gif">
+            <small style="color:var(--fw-text-muted)">JPG, PNG, WebP ou GIF. Max 5MB.</small>
+            <?php if (!empty($errors['photo_profil'])) : ?><small style="color:var(--fw-alert)"><?= htmlspecialchars((string) $errors['photo_profil'], ENT_QUOTES, 'UTF-8') ?></small><?php endif; ?>
+          </div>
 
           <div class="fw-form__row fw-form__row--2">
             <div class="fw-form__group">

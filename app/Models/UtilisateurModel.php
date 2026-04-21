@@ -40,6 +40,21 @@ class UtilisateurModel
         return $user;
     }
 
+    public function authenticateAsAdmin(string $email, string $password): ?array
+    {
+        $user = $this->authenticate($email, $password);
+        if ($user === null) {
+            return null;
+        }
+
+        // Vérifier que l'utilisateur a le rôle 'admin'
+        if (($user['role'] ?? 'user') !== 'admin') {
+            return null;
+        }
+
+        return $user;
+    }
+
     public function create(string $nom, string $prenom, string $email, string $password): int
     {
         $hash = password_hash($password, PASSWORD_DEFAULT);
@@ -87,5 +102,17 @@ class UtilisateurModel
         $stmt = $this->pdo->prepare('SELECT id FROM utilisateurs WHERE email = :email AND id != :id');
         $stmt->execute([':email' => $email, ':id' => $exceptId]);
         return $stmt->fetch() !== false;
+    }
+
+    public function updateProfilePhoto(int $id, string $photoPath): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE utilisateurs SET photo_profil = :photo_profil WHERE id = :id');
+        $stmt->execute([':photo_profil' => $photoPath, ':id' => $id]);
+    }
+
+    public function deleteProfile(int $id): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM utilisateurs WHERE id = :id');
+        $stmt->execute([':id' => $id]);
     }
 }

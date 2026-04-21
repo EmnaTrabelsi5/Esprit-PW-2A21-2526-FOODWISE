@@ -38,7 +38,7 @@ require __DIR__ . '/layouts/header.php';
           <button type="submit" class="fw-btn" style="width:100%;padding:0.65rem">Se connecter</button>
         </form>
         <p class="fw-auth-links">Pas encore de compte ? <a href="<?= htmlspecialchars($routesModule2['front_inscription'] ?? '#', ENT_QUOTES, 'UTF-8') ?>">Inscription</a></p>
-        <p class="fw-auth-links"><a href="#">Mot de passe oublié</a></p>
+        <p class="fw-auth-links"><a href="<?= htmlspecialchars($routesModule2['front_password_reset'] ?? '#', ENT_QUOTES, 'UTF-8') ?>">Mot de passe oublié</a></p>
       </div>
     </section>
   </div>
