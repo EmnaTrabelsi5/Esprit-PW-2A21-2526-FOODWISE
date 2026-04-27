@@ -22,9 +22,13 @@
       <thead>
         <tr>
           <th>Titre</th>
+          <th>Description</th>
           <th>Prix</th>
           <th>Stock</th>
           <th>Statut</th>
+          <th>Commerçant</th>
+          <th>Catégorie</th>
+          <th>Expire le</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -33,17 +37,22 @@
         <?php foreach ($offres as $offre): ?>
         <tr>
           <td><?= htmlspecialchars($offre['titre']) ?></td>
-          <td><?= $offre['prix_unitaire'] ?> TND</td>
+          <td><?= htmlspecialchars(strlen($offre['description']) > 80 ? substr($offre['description'], 0, 80) . '...' : $offre['description']) ?></td>
+          <td><?= number_format($offre['prix_unitaire'], 2) ?> TND</td>
           <td><?= $offre['stock'] ?></td>
-          <td><?= $offre['statut'] ?></td>
+          <td><?= htmlspecialchars($offre['statut']) ?></td>
+          <td><?= htmlspecialchars($offre['commercant_nom'] ?? '') ?></td>
+          <td><?= htmlspecialchars($offre['categorie'] ?? '') ?></td>
+          <td><?= !empty($offre['date_expiration']) ? date('d/m/Y', strtotime($offre['date_expiration'])) : '-' ?></td>
 
           <td class="table-actions">
-            <a href="offre.php?action=show&id=<?= $offre['id'] ?>">👁</a>
-            <a href="offre.php?action=edit&id=<?= $offre['id'] ?>">✏️</a>
+            <a href="offre.php?action=show&id=<?= $offre['id'] ?>" class="btn btn--secondary btn-sm" title="Voir les détails">👁</a>
+            <a href="offre.php?action=edit&id=<?= $offre['id'] ?>" class="btn btn--primary btn-sm" title="Modifier">✏️</a>
+            <a href="/FOODWISE1/commande.php?action=create&id_offre=<?= $offre['id'] ?>" class="btn btn--success btn-sm" title="Commander">🛒</a>
 
             <form method="POST" action="offre.php?action=delete" style="display:inline;">
               <input type="hidden" name="id" value="<?= $offre['id'] ?>">
-              <button class="btn btn--danger">🗑</button>
+              <button type="submit" class="btn btn--danger btn-sm" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')">🗑</button>
             </form>
           </td>
         </tr>

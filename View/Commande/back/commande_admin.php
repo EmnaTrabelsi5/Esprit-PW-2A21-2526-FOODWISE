@@ -1,107 +1,120 @@
-<?php
+﻿<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pageTitle = 'Les Offres';
+$pageTitle = 'Commandes & Paiements';
 $activeModule = 'offre';
 
-require_once __DIR__ . '/../../../Model/OffreModel.php';
+require_once __DIR__ . '/../../../Model/CommandeModel.php';
 require __DIR__ . '/../../layouts/back/header.php';
 
-$offreModel = new OffreModel();
-$offres = $offreModel->findAll();
+$commandes = CommandeModel::getAll();
 
 $stats = [
-    'total' => count($offres),
-    'disponible' => 0,
-    'epuise' => 0,
-    'total_stock' => 0,
+    'total' => 0,
+    'confirme' => 0,
+    'annule' => 0,
+    'en_attente' => 0,
+    'paye_dernieres_24h' => 0,
 ];
 
-foreach ($offres as $offre) {
-    if ($offre['statut'] === 'disponible') {
-        $stats['disponible']++;
-    } elseif ($offre['statut'] === 'epuise') {
-        $stats['epuise']++;
+foreach ($commandes as $commande) {
+    $stats['total']++;
+    if ($commande['statut'] === 'confirme') {
+        $stats['confirme']++;
+    } elseif ($commande['statut'] === 'annule') {
+        $stats['annule']++;
+    } elseif ($commande['statut'] === 'en_attente') {
+        $stats['en_attente']++;
     }
-    $stats['total_stock'] += $offre['stock'];
+
+    if ($commande['paiement_status'] === 'paye' && strtotime($commande['date_commande']) >= strtotime('-24 hours')) {
+        $stats['paye_dernieres_24h']++;
+    }
 }
+
+$pendingOrders = $stats['en_attente'];
+$validatedPayments = $stats['paye_dernieres_24h'];
 ?>
 
 <div class="page-intro">
   <div class="page-intro__header">
     <div>
       <p class="eyebrow"></p>
-      <h1>Liste des Offres</h1>
+      <h1>Commandes & Paiements</h1>
       <p class="text-muted"></p>
     </div>
-    <a href="/FOODWISE1/View/Commande/back/commande_admin.php" class="button button--secondary">Retour aux Commandes</a>
+    <a href="../../Offre/back/detail_offre.php" class="button button--secondary">Retour aux offres</a>
   </div>
 
   <div class="dashboard-grid">
     <section class="dashboard-card dashboard-card--primary">
       <div class="card-header">
-        <h2>Statistiques des offres</h2>
+        <h2>Statistiques des commandes</h2>
       </div>
       <div class="card-body">
         <div class="stat-row">
-          <span>Total offres</span>
+          <span>Total commandes</span>
           <strong><?= $stats['total'] ?></strong>
         </div>
         <div class="stat-row">
-          <span>Offres disponibles</span>
-          <strong><?= $stats['disponible'] ?></strong>
+          <span>Commandes confirmées</span>
+          <strong><?= $stats['confirme'] ?></strong>
         </div>
         <div class="stat-row">
-          <span>Offres épuisées</span>
-          <strong><?= $stats['epuise'] ?></strong>
-        </div>
-        <div class="stat-row">
-          <span>Stock total</span>
-          <strong><?= $stats['total_stock'] ?></strong>
+          <span>Commandes annulées</span>
+          <strong><?= $stats['annule'] ?></strong>
         </div>
       </div>
     </section>
 
     <section class="dashboard-card dashboard-card--wide">
       <div class="card-header">
-        <h2>Liste des offres</h2>
+        <h2>Liste des commandes</h2>
       </div>
       <div class="card-body card-body--table">
         <table class="table-dashboard">
           <thead>
             <tr>
-              <th>Titre</th>
-              <th>Prix</th>
-              <th>Stock</th>
+              <th>ID</th>
+              <th>Offre</th>
+              <th>Quantité</th>
               <th>Statut</th>
+              <th>Paiement</th>
+              <th>Date</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <?php if (empty($offres)): ?>
+            <?php if (empty($commandes)): ?>
               <tr>
-                <td colspan="5" class="table-empty">Aucune offre disponible.</td>
+                <td colspan="7" class="table-empty">Aucune commande pour le moment.</td>
               </tr>
             <?php else: ?>
-              <?php foreach ($offres as $offre): ?>
+              <?php foreach ($commandes as $commande): ?>
                 <tr>
-                  <td><?= htmlspecialchars($offre['titre']) ?></td>
-                  <td><?= htmlspecialchars($offre['prix_unitaire']) ?> TND</td>
-                  <td><?= htmlspecialchars($offre['stock']) ?></td>
+                  <td>#<?= htmlspecialchars($commande['id_commande']) ?></td>
+                  <td><?= htmlspecialchars($commande['offre_nom']) ?></td>
+                  <td><?= htmlspecialchars($commande['quantite']) ?></td>
                   <td>
-                    <span class="badge badge--<?= $offre['statut'] === 'disponible' ? 'success' : ($offre['statut'] === 'epuise' ? 'danger' : 'secondary') ?>">
-                      <?= ucfirst($offre['statut']) ?>
+                    <span class="badge badge--<?= $commande['statut'] === 'confirme' ? 'success' : ($commande['statut'] === 'annule' ? 'danger' : 'warning') ?>">
+                      <?= $commande['statut'] === 'confirme' ? 'Confirmé' : ($commande['statut'] === 'annule' ? 'Annulé' : 'En attente') ?>
                     </span>
                   </td>
+                  <td>
+                    <span class="badge badge--<?= $commande['paiement_status'] === 'paye' ? 'success' : 'secondary' ?>">
+                      <?= $commande['paiement_status'] === 'paye' ? 'Payé' : 'Non payé' ?>
+                    </span>
+                  </td>
+                  <td><?= date('Y-m-d H:i', strtotime($commande['date_commande'])) ?></td>
                   <td class="actions-cell">
-                    <a href="/FOODWISE1/offre.php?action=show&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Voir</a>
-                    <a href="/FOODWISE1/offre.php?action=edit&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Éditer</a>
-                    <form method="GET" action="/FOODWISE1/offre.php?action=delete" style="display:inline;">
-                      <input type="hidden" name="id" value="<?= $offre['id'] ?>">
-                      <button class="button button--small button--danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')">Supprimer</button>
-                    </form>
+                    <?php if ($commande['statut'] === 'en_attente'): ?>
+                      <a href="commande.php?action=adminUpdate&id=<?= $commande['id_commande'] ?>&status=confirme" class="button button--small button--success">Confirmer</a>
+                      <a href="commande.php?action=adminUpdate&id=<?= $commande['id_commande'] ?>&status=annule" class="button button--small button--ghost button--danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?')">Annuler</a>
+                    <?php else: ?>
+                      <span class="text-muted">Aucune action</span>
+                    <?php endif; ?>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -117,29 +130,36 @@ foreach ($offres as $offre) {
       </div>
       <div class="card-body">
         <div class="notification notification--info">
-          <strong>Offres actives</strong>
-          <p><?= $stats['disponible'] ?> offre(s) en vente</p>
-        </div>
-
-        <div class="notification notification--warning">
-          <strong>Stock faible</strong>
-          <p>Vérifiez les offres avec stock < 10</p>
+          <strong>Commandes en attente</strong>
+          <p><?= $pendingOrders ?> commande(s) à traiter</p>
         </div>
 
         <div class="notification notification--success">
-          <strong>Mises à jour</strong>
-          <p>Synchronisation automatique activée</p>
+          <strong>Paiements validés</strong>
+          <p><?= $validatedPayments ?> sur les dernières 24 h</p>
+        </div>
+
+        <div class="notification notification--warning">
+          <strong>Alerte système</strong>
+          <p>Synchronisation stock OK</p>
+        </div>
+
+        <div class="notification notification--warning">
+          <strong>Alerte système</strong>
+          <p>API paiement simulée disponible</p>
         </div>
       </div>
     </aside>
 
     <section class="dashboard-card dashboard-card--secondary">
       <div class="card-header">
-        <h2>Actions rapides</h2>
+        <h2>Alertes de stock</h2>
       </div>
       <div class="card-body">
-        <a href="/FOODWISE1/offre.php?action=create" class="button button--success" style="width:100%; margin-bottom:12px;">Ajouter une offre</a>
-        <a href="/FOODWISE1/offre.php?action=index" class="button button--secondary" style="width:100%;">Voir toutes les offres</a>
+        <ul class="alert-list">
+          <li>Produit A : stock critique (5)</li>
+          <li>Produit B : indisponible</li>
+        </ul>
       </div>
     </section>
   </div>
@@ -290,6 +310,15 @@ foreach ($offres as $offre) {
 .notification--info { background: #eef6fc; }
 .notification--warning { background: #fff4e4; }
 .notification strong { display: block; margin-bottom: 8px; }
+.alert-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+.alert-list li {
+    margin-bottom: 10px;
+    color: #50412a;
+}
 @media (max-width: 1120px) {
     .dashboard-grid { grid-template-columns: 1fr; }
 }

@@ -6,9 +6,9 @@
 ═══════════════════════════════════════════ -->
 <footer class="site-footer">
   <p>
-    <a href="../index.php">Dashboard</a> &nbsp;·&nbsp;
-    <a href="offre.php?action=index">Le Marché</a> &nbsp;·&nbsp;
-    <a href="commercant.php?action=index">Commerçants</a> &nbsp;·&nbsp;
+    <a href="/FOODWISE1/index.php">Dashboard</a> &nbsp;·&nbsp;
+    <a href="/FOODWISE1/offre.php?action=index">Le Marché</a> &nbsp;·&nbsp;
+    <a href="/FOODWISE1/commercant.php?action=index">Commerçants</a> &nbsp;·&nbsp;
     <a href="#">Confidentialité</a> &nbsp;·&nbsp;
     <a href="#">Aide</a>
     &emsp;|&emsp;

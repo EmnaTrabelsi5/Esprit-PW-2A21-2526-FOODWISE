@@ -21,7 +21,7 @@
   </div>
  
   <nav class="sidebar-nav">
-    <a href="../index.php"
+    <a href="/FOODWISE1/index.php"
        class="nav-item <?= ($activeModule ?? '') === 'dashboard'   ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
@@ -30,7 +30,7 @@
       Tableau de Bord
     </a>
  
-    <a href="../recipebook/recette.php"
+    <a href="/FOODWISE1/recipebook/recette.php"
        class="nav-item <?= ($activeModule ?? '') === 'recipe'      ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/>
@@ -39,7 +39,7 @@
       Gestion Recettes
     </a>
  
-    <a href="../recipebook/ingredient.php"
+    <a href="/FOODWISE1/recipebook/ingredient.php"
        class="nav-item <?= ($activeModule ?? '') === 'ingredient'  ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M12 2a9 9 0 00-9 9c0 4.17 2.84 7.67 6.69 8.69L12 22l2.31-2.31C18.16 18.67 21 15.17 21 11a9 9 0 00-9-9z"/>
@@ -47,7 +47,7 @@
       Base Ingrédients
     </a>
  
-    <a href="offre.php?action=index"
+    <a href="/FOODWISE1/offre.php?action=index"
        class="nav-item <?= ($activeModule ?? '') === 'offre'       ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -56,7 +56,7 @@
       Offres Partenaires
     </a>
  
-    <a href="commercant.php?action=index"
+    <a href="/FOODWISE1/commercant.php?action=index"
        class="nav-item <?= ($activeModule ?? '') === 'commercant'  ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 9l1-5h16l1 5"/><path d="M3 9h18v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
@@ -65,7 +65,7 @@
       Commerçants
     </a>
  
-    <a href="../nutriprofile/utilisateur.php"
+    <a href="/FOODWISE1/nutriprofile/utilisateur.php"
        class="nav-item <?= ($activeModule ?? '') === 'nutri'       ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
@@ -73,7 +73,7 @@
       Suivi Nutritionnel
     </a>
  
-    <a href="../nutriprofile/utilisateur.php"
+    <a href="/FOODWISE1/nutriprofile/utilisateur.php"
        class="nav-item <?= ($activeModule ?? '') === 'users'       ? 'active' : '' ?>">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
@@ -109,11 +109,11 @@
     </div>
  
     <nav class="topbar-nav">
-      <a href="offre.php?action=index"
+      <a href="/FOODWISE1/offre.php?action=index"
          class="<?= ($activeModule ?? '') === 'offre'      ? 'active' : '' ?>">Le Marché</a>
-      <a href="commercant.php?action=index"
+      <a href="/FOODWISE1/commercant.php?action=index"
          class="<?= ($activeModule ?? '') === 'commercant' ? 'active' : '' ?>">Commerçants</a>
-      <a href="offre.php?action=create">+ Publier</a>
+      <a href="/FOODWISE1/offre.php?action=create">+ Publier</a>
     </nav>
  
     <div class="topbar-user">

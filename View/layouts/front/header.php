@@ -9,8 +9,8 @@
   <!-- CSS module LocalMarket -->
   <link rel="stylesheet" href="/FOODWISE1/assets/mealplanner.css">
 </head>
+<body>
  
-
 <aside class="sidebar">
   <div class="sidebar-logo">
     <img src="/FOODWISE1/assets/logo.png" alt="FoodWise">

@@ -49,7 +49,7 @@ class OffreModel {
         $sql    = "SELECT o.*, c.nom AS commercant_nom, c.ville AS commercant_ville,
                           c.adresse AS commercant_adresse
                      FROM Offre o
-                     JOIN Commercant c ON o.commercant_id = c.id
+                    LEFT JOIN Commercant c ON o.commercant_id = c.id
                     WHERE 1=1";
         $params = [];
 

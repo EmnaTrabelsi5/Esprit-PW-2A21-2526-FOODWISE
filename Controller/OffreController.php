@@ -1,18 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../Model/OffreModel.php';
-require_once __DIR__ . '/../Model/CommercantModel.php';
+require_once __DIR__ . '/../Model/CommandeModel.php';
 /*require_once "../Config.php";*/
+
 
 
 class OffreController {
 
     private OffreModel      $model;
-    private CommercantModel $commercantModel;
+    private CommandeModel $commandeModel;
 
     public function __construct() {
         $this->model           = new OffreModel();
-        $this->commercantModel = new CommercantModel();
+        $this->commandeModel = new CommandeModel();
     }
 
     // ── Routeur ──────────────────────────────────────────────
@@ -36,7 +37,7 @@ class OffreController {
     private function index(): void {
         $filtres = [
             'ville'     => trim($_GET['ville']     ?? ''),
-            'statut'    => trim($_GET['statut']    ?? 'disponible'),
+            'statut' => trim($_GET['statut'] ?? ''),
             'categorie' => trim($_GET['categorie'] ?? ''),
             'search'    => trim($_GET['search']    ?? ''),
             'tri'       => trim($_GET['tri']       ?? 'recent'),
@@ -44,8 +45,8 @@ class OffreController {
 
         $offres      = $this->model->findAll($filtres);
         $stats       = $this->model->getStats();
-        $villes      = $this->commercantModel->getVilles();
-        $commercants = $this->commercantModel->findAll();
+        $villes      = CommandeModel::getVilles();
+        $commercants = CommandeModel::findAll();
 
     require __DIR__ . '/../View/Offre/front/liste_offre.php';
     }
@@ -54,7 +55,10 @@ class OffreController {
     private function show(): void {
         $id    = (int)($_GET['id'] ?? 0);
 
+
         $offre = $this->model->findById($id);
+        //include 'View/Offre/front/show.php';
+        require __DIR__ . '/../View/Offre/front/show.php';
 
         if (!$offre) {
             $_SESSION['flash_error'] = "Offre introuvable.";
@@ -69,7 +73,7 @@ class OffreController {
     private function create(): void {
         $data        = [];
         $errors      = [];
-        $commercants = $this->commercantModel->findAll('', 'actif');
+        $commercants = CommandeModel::findAll('', 'actif');
     require __DIR__ . '/../View/Offre/front/form_offre.php';
     }
 
@@ -82,7 +86,7 @@ class OffreController {
 
         $data        = $_POST;
         $errors      = $this->model->validate($data);
-        $commercants = $this->commercantModel->findAll('', 'actif');
+        $commercants = CommandeModel::findAll('', 'actif');
 
         if (!empty($errors)) {
     require __DIR__ . '/../View/Offre/front/form_offre.php';
@@ -105,7 +109,7 @@ class OffreController {
         $id          = (int)($_GET['id'] ?? 0);
         $data        = $this->model->findById($id);
         $errors      = [];
-        $commercants = $this->commercantModel->findAll('', 'actif');
+        $commercants = CommandeModel::findAll('', 'actif');
 
         if (!$data) {
             $_SESSION['flash_error'] = "Offre introuvable.";
@@ -126,7 +130,7 @@ class OffreController {
         $id          = (int)($_POST['id'] ?? 0);
         $data        = $_POST;
         $errors      = $this->model->validate($data);
-        $commercants = $this->commercantModel->findAll('', 'actif');
+        $commercants = CommandeModel::findAll('', 'actif');
 
         if (!empty($errors)) {
             $data['id'] = $id;

@@ -22,3 +22,6 @@
 <a href="offre.php?action=index">⬅ Retour</a>
 
 <?php require __DIR__ . '/../../layouts/front/footer.php'; ?>
+
+
+
