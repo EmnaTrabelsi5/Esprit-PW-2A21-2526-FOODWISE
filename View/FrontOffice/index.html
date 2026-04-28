@@ -94,7 +94,6 @@
     <div class="main-content">
         <div class="page-body">
 
-            <!-- En-tête de page -->
             <div class="page-title">Communauté · Avis & Réponses</div>
             <div class="page-subtitle">Partagez votre expérience, répondez aux avis</div>
 
@@ -107,33 +106,30 @@
                     <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
                         <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);" id="statNoteMoyenne">0</div>
                         <div style="font-size: 14px; color: var(--texte-moyen);">Note Moyenne / 5</div>
-                        <div class="badge badge-vert" style="margin-top: 8px;">Excellente</div>
                     </div>
                     <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
                         <div style="font-size: 36px; font-weight: 700; color: var(--vert-moyen);" id="statPopularite">Top 15%</div>
                         <div style="font-size: 14px; color: var(--texte-moyen);">Classement popularité</div>
-                        <div class="badge badge-brun" style="margin-top: 8px;">Toutes mes recettes</div>
                     </div>
                     <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
                         <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);" id="statTotalAvis">0</div>
                         <div style="font-size: 14px; color: var(--texte-moyen);">Avis rédigés</div>
-                        <div class="badge badge-info" style="margin-top: 8px;" id="statNouveauxAvis">+2 ce mois</div>
                     </div>
                 </div>
             </div>
 
-            <!-- ========== MES AVIS (DESIGN CARTES) ========== -->
+            <!-- ========== FORMULAIRE AVIS ========== -->
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">✍️ Mes Avis</div>
                     <button class="btn btn-primary btn-sm" id="showAddReviewBtn">+ Nouvel avis</button>
                 </div>
 
-                <!-- Formulaire d'ajout d'avis -->
-                <div id="addReviewForm" style="display: none; margin-bottom: 24px; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
+                <div id="addReviewForm" style="display: none; margin-bottom: 24px; padding: 20px; background: var(--creme-fonce); border-radius: var(--radius);">
+                    <div id="formErrors" style="display: none;"></div>
                     <form id="reviewForm">
                         <div class="form-group">
-                            <label class="form-label">Recette *</label>
+                            <label class="form-label">🍽️ RECETTE *</label>
                             <select class="form-control" id="recipeSelect" required>
                                 <option value="">Sélectionner une recette</option>
                                 <option value="Poulet Granola">Poulet Granola</option>
@@ -142,13 +138,26 @@
                                 <option value="Tajine Légumes">Tajine Légumes</option>
                             </select>
                         </div>
+                        
                         <div class="form-group">
-                            <label class="form-label">Votre avis *</label>
-                            <textarea class="form-control" id="reviewText" rows="3" placeholder="Partagez votre expérience... (min. 5 caractères)" required></textarea>
+                            <label class="form-label">📌 TITRE (facultatif)</label>
+                            <input type="text" class="form-control" id="reviewTitle" placeholder="Ex: Un délice !" maxlength="100">
+                            <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+                                <small><span id="titleCharCount">0</span> / 100</small>
+                            </div>
                         </div>
+                        
                         <div class="form-group">
-                            <label class="form-label">Note *</label>
-                            <div class="star-rating" id="starRating" style="display: flex; gap: 8px; font-size: 28px; cursor: pointer;">
+                            <label class="form-label">✍️ VOTRE AVIS *</label>
+                            <textarea class="form-control" id="reviewText" rows="4" placeholder="Partagez votre expérience... (5 à 500 caractères)" required></textarea>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 5px;">
+                                <small><span id="reviewCharCount">0</span> / 500</small>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">⭐ NOTE *</label>
+                            <div class="star-rating" id="starRating" style="display: flex; gap: 10px; font-size: 30px; cursor: pointer;">
                                 <span data-rating="1">☆</span>
                                 <span data-rating="2">☆</span>
                                 <span data-rating="3">☆</span>
@@ -157,14 +166,14 @@
                             </div>
                             <input type="hidden" id="ratingValue" value="0">
                         </div>
-                        <div style="display: flex; gap: 12px;">
-                            <button type="submit" class="btn btn-primary">Publier l'avis</button>
+                        
+                        <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
                             <button type="button" class="btn btn-outline" id="cancelReviewBtn">Annuler</button>
+                            <button type="submit" class="btn btn-primary">📤 Publier l'avis</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Conteneur des cartes d'avis -->
                 <div id="reviewsContainer">
                     <div style="text-align: center; padding: 20px;">Chargement des avis...</div>
                 </div>
@@ -177,15 +186,10 @@
                 </div>
                 <table class="fw-table">
                     <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Avis concerné</th>
-                            <th>Ma Réponse</th>
-                            <th>Actions</th>
-                        </tr>
+                        <tr><th>Date</th><th>Avis concerné</th><th>Ma Réponse</th><th>Actions</th></tr>
                     </thead>
                     <tbody id="responsesList">
-                        <tr><td colspan="4" style="text-align: center;">Chargement des réponses...</td</tr>
+                        <tr><td colspan="4">Chargement...</td\(
                     </tbody>
                 </table>
             </div>
@@ -213,29 +217,28 @@
 
         </div>
 
-        <!-- Footer -->
         <footer class="site-footer">
-            <a href="#">Dashboard Links</a> · <a href="#">Content</a> · <a href="#">Imations</a> ·
-            <a href="#">Privacy</a> · <a href="#">Help</a> · <a href="#">Aide</a> ·
-            <a href="#">Confidentialité</a> · <a href="#">Plan du Site</a>
-            <br><br>
             © 2026 FoodWise. Tous Droits Réservés
         </footer>
     </div>
 
-    <!-- Modal Modification Avis -->
+    <!-- ==================== MODAL MODIFICATION AVIS ==================== -->
     <div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
-            <h3 style="margin-bottom: 20px;">✏️ Modifier mon avis</h3>
+            <h3>✏️ Modifier mon avis</h3>
             <form id="editReviewForm">
                 <input type="hidden" id="editReviewId">
                 <div class="form-group">
-                    <label class="form-label">Votre avis</label>
+                    <label>Titre</label>
+                    <input type="text" class="form-control" id="editReviewTitle">
+                </div>
+                <div class="form-group">
+                    <label>Avis</label>
                     <textarea class="form-control" id="editReviewText" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Note</label>
-                    <select class="form-control" id="editReviewRating" required>
+                    <label>Note</label>
+                    <select class="form-control" id="editReviewRating">
                         <option value="1">⭐ 1 étoile</option>
                         <option value="2">⭐⭐ 2 étoiles</option>
                         <option value="3">⭐⭐⭐ 3 étoiles</option>
@@ -251,36 +254,37 @@
         </div>
     </div>
 
-    <!-- Modal Ajouter Réponse -->
+    <!-- ==================== MODAL RÉPONSE ==================== -->
     <div id="reponseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
-            <h3 style="margin-bottom: 20px;">💬 Répondre à cet avis</h3>
+            <h3>💬 Répondre</h3>
+            <div id="reponseErrors" style="display: none;"></div>
             <form id="reponseForm">
                 <input type="hidden" id="reponseReviewId">
                 <div class="form-group">
-                    <label class="form-label">Avis concerné</label>
+                    <label>Avis concerné</label>
                     <textarea id="reponseOriginalAvis" class="form-control" rows="2" readonly style="background: var(--creme-fonce);"></textarea>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Votre réponse *</label>
-                    <textarea class="form-control" id="reponseContent" rows="3" placeholder="Écrivez votre réponse..." required></textarea>
+                    <label>Votre réponse</label>
+                    <textarea class="form-control" id="reponseContent" rows="3" placeholder="2 à 300 caractères" required></textarea>
+                    <div style="text-align: right; margin-top: 5px;"><small><span id="reponseCharCount">0</span> / 300</small></div>
                 </div>
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
                     <button type="button" class="btn btn-outline" id="closeReponseBtn">Annuler</button>
-                    <button type="submit" class="btn btn-primary">Publier la réponse</button>
+                    <button type="submit" class="btn btn-primary">Publier</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal Modifier Réponse -->
     <div id="editReponseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
-            <h3 style="margin-bottom: 20px;">✏️ Modifier ma réponse</h3>
+            <h3>✏️ Modifier réponse</h3>
             <form id="editReponseForm">
                 <input type="hidden" id="editReponseId">
                 <div class="form-group">
-                    <label class="form-label">Votre réponse</label>
+                    <label>Réponse</label>
                     <textarea class="form-control" id="editReponseContent" rows="3" required></textarea>
                 </div>
                 <div style="display: flex; gap: 12px; justify-content: flex-end;">
@@ -290,6 +294,7 @@
             </form>
         </div>
     </div>
+    
 
     <script src="js/main.js"></script>
 </body>

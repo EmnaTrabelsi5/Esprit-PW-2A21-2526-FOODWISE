@@ -806,3 +806,89 @@ select.form-control { cursor: pointer; }
         font-size: 11px;
     }
 }
+/* ==================== LIKES / DISLIKES ==================== */
+
+.response-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.response-reactions {
+    display: flex;
+    gap: 15px;
+}
+
+.reaction-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.reaction-btn:hover {
+    transform: scale(1.05);
+}
+
+.like-btn:hover {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.dislike-btn:hover {
+    background: #fdeaea;
+    color: #c62828;
+}
+
+.like-btn.active {
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.dislike-btn.active {
+    background: #fdeaea;
+    color: #c62828;
+    font-weight: bold;
+}
+
+.response-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.response-actions button {
+    background: none;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 15px;
+    transition: all 0.2s;
+}
+
+.response-actions button:first-child {
+    color: var(--vert-moyen);
+}
+
+.response-actions button:first-child:hover {
+    background: #e8f5e9;
+}
+
+.response-actions button:last-child {
+    color: var(--alerte-rouge);
+}
+
+.response-actions button:last-child:hover {
+    background: #fdeaea;
+}

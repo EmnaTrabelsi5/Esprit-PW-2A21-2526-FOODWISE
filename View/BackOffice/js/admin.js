@@ -1,96 +1,83 @@
-// Configuration - CHANGEZ LE CHEMIN SELON VOTRE DOSSIER
+// Configuration
 const API_URL = 'http://localhost/modulecommunity/Controller/ReviewController.php';
 const RESPONSE_API_URL = 'http://localhost/modulecommunity/Controller/ResponseController.php';
 
-// Variables
 let allReviews = [];
 let allResponses = [];
 let currentPage = 1;
 let currentPageResponses = 1;
-let itemsPerPage = 10;
+let itemsPerPage = 5;
 
-// Au chargement
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("BackOffice chargé - Démarrage...");
     chargerAvis();
     chargerReponses();
     setupEventListeners();
 });
 
-// ==================== CHARGEMENT ====================
-
 function chargerAvis() {
-    console.log("Chargement des avis depuis:", API_URL);
-    const tbody = document.getElementById('reviewsTableBody');
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">⏳ Chargement...</td\(';
-    
     fetch(API_URL)
-        .then(response => {
-            console.log("Réponse status:", response.status);
-            if(!response.ok) throw new Error('HTTP ' + response.status);
-            return response.json();
-        })
+        .then(r => r.json())
         .then(data => {
-            console.log("Données reçues:", data);
-            if(data.success && data.data) {
+            if(data.success) {
                 allReviews = data.data;
                 afficherAvis();
                 calculerStatistiques();
-            } else {
-                tbody.innerHTML = '<tr><td colspan="8" style="color: red; text-align: center;">❌ Erreur: ' + (data.errors || 'Données invalides') + '</td\(';
             }
-        })
-        .catch(error => {
-            console.error("Erreur détaillée:", error);
-            tbody.innerHTML = '<tr><td colspan="8" style="color: red; text-align: center;">❌ Erreur de connexion: ' + error.message + '</td\(';
         });
 }
 
 function chargerReponses() {
-    console.log("Chargement des réponses depuis:", RESPONSE_API_URL);
     fetch(RESPONSE_API_URL)
-        .then(response => response.json())
+        .then(r => r.json())
         .then(data => {
-            if(data.success && data.data) {
+            if(data.success) {
                 allResponses = data.data;
                 afficherReponses();
                 calculerStatistiques();
             }
-        })
-        .catch(error => console.error('Erreur chargement réponses:', error));
+        });
 }
 
-// ==================== AFFICHAGE AVIS ====================
-
 function afficherAvis() {
-    const tbody = document.getElementById('reviewsTableBody');
-    
-    if(allReviews.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">📭 Aucun avis trouvé</td\(';
-        return;
-    }
-    
+    const container = document.getElementById('reviewsContainer');
     const start = (currentPage - 1) * itemsPerPage;
     const paginated = allReviews.slice(start, start + itemsPerPage);
     
-    let html = '';
-    for(let i = 0; i < paginated.length; i++) {
-        const a = paginated[i];
-        html += '<tr>';
-        html += '<td><input type="checkbox" class="review-checkbox" data-id="' + a.id + '"></td>';
-        html += '<td>' + a.id + '</td>';
-        html += '<td>Utilisateur ' + (a.user_id || 1) + '</td>';
-        html += '<td><strong>' + escapeHtml(a.recipe_name) + '</strong></td>';
-        html += '<td style="max-width: 300px;">' + escapeHtml(a.content) + '</td>';
-        html += '<td class="rating-stars">' + '⭐'.repeat(a.rating) + '</td>';
-        html += '<td>' + formatDate(a.created_at) + '</td>';
-        html += '<td>';
-        html += '<button class="btn-edit" onclick="ouvrirModalModificationAvis(' + a.id + ')">✏️ Modifier</button>';
-        html += '<button class="btn-delete" onclick="supprimerAvis(' + a.id + ')">🗑️ Supprimer</button>';
-        html += '</td>';
-        html += '</tr>';
+    if(paginated.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:40px;">📭 Aucun avis</div>';
+        return;
     }
-    tbody.innerHTML = html;
+    
+    let html = '<div class="reviews-grid">';
+    for(let a of paginated) {
+        html += `
+            <div class="review-card">
+                <div class="review-header">
+                    <div class="recipe-name">${escapeHtml(a.recipe_name)}</div>
+                    <div class="rating">${'⭐'.repeat(a.rating)}</div>
+                </div>
+                <div class="review-meta">
+                    <span>📅 ${formatDate(a.created_at)}</span>
+                    <span>👤 Utilisateur ${a.user_id || 1}</span>
+                </div>
+                <div class="review-content">"${escapeHtml(a.content)}"</div>
+                <div class="review-actions">
+                    <button class="btn-edit" onclick="editReview(${a.id})">✏️ Modifier</button>
+                    <button class="btn-delete" onclick="deleteReview(${a.id})">🗑️ Supprimer</button>
+                </div>
+                <div class="responses-section">
+                    <div class="responses-title">💬 Réponses</div>
+                    <div id="responses-list-${a.id}">Chargement...</div>
+                </div>
+            </div>
+        `;
+    }
+    html += '</div>';
+    container.innerHTML = html;
+    
+    for(let a of paginated) {
+        chargerReponsesPourAvis(a.id);
+    }
     
     const totalPages = Math.ceil(allReviews.length / itemsPerPage);
     document.getElementById('pageInfo').innerHTML = `Page ${currentPage} / ${totalPages || 1}`;
@@ -98,36 +85,68 @@ function afficherAvis() {
     document.getElementById('nextPage').disabled = currentPage === totalPages;
 }
 
-// ==================== AFFICHAGE RÉPONSES ====================
+function chargerReponsesPourAvis(reviewId) {
+    fetch(`${RESPONSE_API_URL}?review_id=${reviewId}`)
+        .then(r => r.json())
+        .then(data => {
+            if(data.success) {
+                const container = document.getElementById(`responses-list-${reviewId}`);
+                if(!container) return;
+                
+                if(data.data.length === 0) {
+                    container.innerHTML = '<div style="font-size:12px; color:#999;">Aucune réponse</div>';
+                    return;
+                }
+                
+                let html = '';
+                for(let r of data.data) {
+                    html += `
+                        <div class="response-card">
+                            <div class="response-header">
+                                <span class="response-author">💬 Utilisateur ${r.user_id}</span>
+                                <span class="response-date">${formatDate(r.created_at)}</span>
+                            </div>
+                            <div class="response-content">${escapeHtml(r.content)}</div>
+                            <div class="response-actions">
+                                <button onclick="editReponse(${r.id})">✏️ Modifier</button>
+                                <button onclick="deleteReponse(${r.id})">🗑️ Supprimer</button>
+                            </div>
+                        </div>
+                    `;
+                }
+                container.innerHTML = html;
+            }
+        });
+}
 
 function afficherReponses() {
-    const tbody = document.getElementById('responsesTableBody');
-    
-    if(allResponses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">📭 Aucune réponse trouvée</td\(';
-        return;
-    }
-    
+    const container = document.getElementById('responsesContainer');
     const start = (currentPageResponses - 1) * itemsPerPage;
     const paginated = allResponses.slice(start, start + itemsPerPage);
     
-    let html = '';
-    for(let i = 0; i < paginated.length; i++) {
-        const r = paginated[i];
-        html += '<tr>';
-        html += '<td><input type="checkbox" class="response-checkbox" data-id="' + r.id + '"></td>';
-        html += '<td>' + r.id + '</td>';
-        html += '<td>Utilisateur ' + r.user_id + '</td>';
-        html += '<td>Avis #' + r.review_id + '</td>';
-        html += '<td style="max-width: 300px;">' + escapeHtml(r.content) + '</td>';
-        html += '<td>' + formatDate(r.created_at) + '</td>';
-        html += '<td>';
-        html += '<button class="btn-edit" onclick="ouvrirModalModificationReponse(' + r.id + ')">✏️ Modifier</button>';
-        html += '<button class="btn-delete" onclick="supprimerReponse(' + r.id + ')">🗑️ Supprimer</button>';
-        html += '</td>';
-        html += '</tr>';
+    if(paginated.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding:40px;">📭 Aucune réponse</div>';
+        return;
     }
-    tbody.innerHTML = html;
+    
+    let html = '<div class="responses-grid">';
+    for(let r of paginated) {
+        html += `
+            <div class="response-item">
+                <div class="response-info">
+                    <div class="response-id">#${r.id} - Avis #${r.review_id}</div>
+                    <div class="response-text">${escapeHtml(r.content)}</div>
+                    <div style="font-size:11px; color:#999; margin-top:5px;">📅 ${formatDate(r.created_at)}</div>
+                </div>
+                <div class="response-actions-item">
+                    <button class="btn-edit" onclick="editReponse(${r.id})">✏️</button>
+                    <button class="btn-delete" onclick="deleteReponse(${r.id})">🗑️</button>
+                </div>
+            </div>
+        `;
+    }
+    html += '</div>';
+    container.innerHTML = html;
     
     const totalPages = Math.ceil(allResponses.length / itemsPerPage);
     document.getElementById('pageInfoResponses').innerHTML = `Page ${currentPageResponses} / ${totalPages || 1}`;
@@ -135,132 +154,58 @@ function afficherReponses() {
     document.getElementById('nextPageResponses').disabled = currentPageResponses === totalPages;
 }
 
-// ==================== STATISTIQUES ====================
-
 function calculerStatistiques() {
-    const total = allReviews.length;
     let sommeNotes = 0;
-    for(let i = 0; i < allReviews.length; i++) {
-        sommeNotes += allReviews[i].rating;
-    }
-    const moyenne = total > 0 ? (sommeNotes / total).toFixed(1) : 0;
+    for(let r of allReviews) sommeNotes += r.rating;
+    const moyenne = allReviews.length > 0 ? (sommeNotes / allReviews.length).toFixed(1) : 0;
+    const usersUniques = new Set(allReviews.map(r => r.user_id));
     
-    const utilisateursUniques = new Set();
-    for(let i = 0; i < allReviews.length; i++) {
-        utilisateursUniques.add(allReviews[i].user_id);
-    }
-    
-    document.getElementById('totalReviews').innerHTML = total;
+    document.getElementById('totalReviews').innerHTML = allReviews.length;
     document.getElementById('avgRating').innerHTML = moyenne;
     document.getElementById('totalResponses').innerHTML = allResponses.length;
-    document.getElementById('activeUsers').innerHTML = utilisateursUniques.size;
+    document.getElementById('activeUsers').innerHTML = usersUniques.size;
 }
 
-// ==================== ACTIONS SUR AVIS ====================
-
-function ouvrirModalModificationAvis(id) {
-    const avis = allReviews.find(a => a.id == id);
-    if(!avis) return;
-    
-    document.getElementById('editReviewId').value = avis.id;
-    document.getElementById('editRecipeName').value = avis.recipe_name;
-    document.getElementById('editUserName').value = 'Utilisateur ' + (avis.user_id || 1);
-    document.getElementById('editContent').value = avis.content;
-    document.getElementById('editRating').value = avis.rating;
-    
+function editReview(id) {
+    const review = allReviews.find(r => r.id == id);
+    if(!review) return;
+    document.getElementById('editReviewId').value = review.id;
+    document.getElementById('editRecipeName').value = review.recipe_name;
+    document.getElementById('editUserName').value = 'Utilisateur ' + (review.user_id || 1);
+    document.getElementById('editContent').value = review.content;
+    document.getElementById('editRating').value = review.rating;
     document.getElementById('editModal').style.display = 'flex';
 }
 
-function sauvegarderModificationAvis(event) {
-    event.preventDefault();
-    
-    const id = document.getElementById('editReviewId').value;
-    const content = document.getElementById('editContent').value;
-    const rating = document.getElementById('editRating').value;
-    
-    fetch(API_URL, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: parseInt(id), content: content, rating: parseInt(rating)})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            alert('✅ Avis modifié avec succès !');
-            fermerModalModification();
-            chargerAvis();
-            chargerReponses();
-        } else {
-            alert('❌ Erreur: ' + (data.errors || 'Inconnue'));
-        }
-    });
-}
-
-function supprimerAvis(id) {
-    if(confirm('Supprimer cet avis ? Toutes les réponses seront aussi supprimées.')) {
+function deleteReview(id) {
+    if(confirm('Supprimer cet avis ?')) {
         fetch(API_URL + '?id=' + id, {method: 'DELETE'})
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                if(data.success) {
-                    alert('✅ Avis supprimé avec succès !');
-                    chargerAvis();
-                    chargerReponses();
-                }
+                if(data.success) { alert('✅ Avis supprimé'); chargerAvis(); chargerReponses(); }
             });
     }
 }
 
-// ==================== ACTIONS SUR RÉPONSES ====================
-
-function ouvrirModalModificationReponse(id) {
+function editReponse(id) {
     const reponse = allResponses.find(r => r.id == id);
     if(!reponse) return;
-    
     document.getElementById('editReponseId').value = reponse.id;
     document.getElementById('editReponseReviewId').value = 'Avis #' + reponse.review_id;
     document.getElementById('editReponseAuthor').value = 'Utilisateur ' + reponse.user_id;
     document.getElementById('editReponseContent').value = reponse.content;
-    
     document.getElementById('editReponseModal').style.display = 'flex';
 }
 
-function sauvegarderModificationReponse(event) {
-    event.preventDefault();
-    
-    const id = document.getElementById('editReponseId').value;
-    const content = document.getElementById('editReponseContent').value;
-    
-    fetch(RESPONSE_API_URL, {
-        method: 'PUT',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({id: parseInt(id), content: content})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.success) {
-            alert('✅ Réponse modifiée avec succès !');
-            fermerModalModificationReponse();
-            chargerReponses();
-        } else {
-            alert('❌ Erreur');
-        }
-    });
-}
-
-function supprimerReponse(id) {
+function deleteReponse(id) {
     if(confirm('Supprimer cette réponse ?')) {
         fetch(RESPONSE_API_URL + '?id=' + id, {method: 'DELETE'})
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                if(data.success) {
-                    alert('✅ Réponse supprimée avec succès !');
-                    chargerReponses();
-                }
+                if(data.success) { alert('✅ Réponse supprimée'); chargerAvis(); chargerReponses(); }
             });
     }
 }
-
-// ==================== ONGLETS ====================
 
 function showTab(tab) {
     const tabAvis = document.getElementById('tab-avis');
@@ -272,7 +217,6 @@ function showTab(tab) {
         tabReponses.style.display = 'none';
         btns[0].classList.add('active');
         btns[1].classList.remove('active');
-        afficherAvis();
     } else {
         tabAvis.style.display = 'none';
         tabReponses.style.display = 'block';
@@ -282,85 +226,52 @@ function showTab(tab) {
     }
 }
 
-// ==================== FERMETURE MODALES ====================
-
-function fermerModalModification() {
-    document.getElementById('editModal').style.display = 'none';
-}
-
-function fermerModalModificationReponse() {
-    document.getElementById('editReponseModal').style.display = 'none';
-}
-
-// ==================== ÉVÉNEMENTS ====================
-
 function setupEventListeners() {
-    // Refresh
-    const refreshBtn = document.getElementById('refreshBtn');
-    if(refreshBtn) refreshBtn.onclick = () => { currentPage = 1; chargerAvis(); };
-    
-    const refreshResponsesBtn = document.getElementById('refreshResponsesBtn');
-    if(refreshResponsesBtn) refreshResponsesBtn.onclick = () => { currentPageResponses = 1; chargerReponses(); };
-    
-    // Pagination avis
-    const prevPage = document.getElementById('prevPage');
-    if(prevPage) prevPage.onclick = () => { if(currentPage > 1) { currentPage--; afficherAvis(); } };
-    
-    const nextPage = document.getElementById('nextPage');
-    if(nextPage) nextPage.onclick = () => {
-        const totalPages = Math.ceil(allReviews.length / itemsPerPage);
-        if(currentPage < totalPages) { currentPage++; afficherAvis(); }
+    document.getElementById('refreshBtn').onclick = () => { chargerAvis(); chargerReponses(); };
+    document.getElementById('prevPage').onclick = () => { if(currentPage > 1) { currentPage--; afficherAvis(); } };
+    document.getElementById('nextPage').onclick = () => {
+        if(currentPage < Math.ceil(allReviews.length / itemsPerPage)) { currentPage++; afficherAvis(); }
+    };
+    document.getElementById('prevPageResponses').onclick = () => {
+        if(currentPageResponses > 1) { currentPageResponses--; afficherReponses(); }
+    };
+    document.getElementById('nextPageResponses').onclick = () => {
+        if(currentPageResponses < Math.ceil(allResponses.length / itemsPerPage)) { currentPageResponses++; afficherReponses(); }
     };
     
-    // Pagination réponses
-    const prevPageResponses = document.getElementById('prevPageResponses');
-    if(prevPageResponses) prevPageResponses.onclick = () => { if(currentPageResponses > 1) { currentPageResponses--; afficherReponses(); } };
-    
-    const nextPageResponses = document.getElementById('nextPageResponses');
-    if(nextPageResponses) nextPageResponses.onclick = () => {
-        const totalPages = Math.ceil(allResponses.length / itemsPerPage);
-        if(currentPageResponses < totalPages) { currentPageResponses++; afficherReponses(); }
+    document.getElementById('editReviewForm').onsubmit = (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editReviewId').value;
+        const content = document.getElementById('editContent').value;
+        const rating = document.getElementById('editRating').value;
+        fetch(API_URL, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: parseInt(id), content, rating: parseInt(rating)})
+        }).then(r => r.json()).then(data => {
+            if(data.success) { alert('✅ Avis modifié'); document.getElementById('editModal').style.display = 'none'; chargerAvis(); chargerReponses(); }
+        });
     };
     
-    // Formulaires
-    const editForm = document.getElementById('editReviewForm');
-    if(editForm) editForm.onsubmit = sauvegarderModificationAvis;
-    
-    const editReponseForm = document.getElementById('editReponseForm');
-    if(editReponseForm) editReponseForm.onsubmit = sauvegarderModificationReponse;
-    
-    // Fermeture modales
-    const closeModal = document.getElementById('closeModal');
-    if(closeModal) closeModal.onclick = fermerModalModification;
-    
-    const cancelModal = document.getElementById('cancelModalBtn');
-    if(cancelModal) cancelModal.onclick = fermerModalModification;
-    
-    const closeReponseModal = document.getElementById('closeReponseModal');
-    if(closeReponseModal) closeReponseModal.onclick = fermerModalModificationReponse;
-    
-    const cancelReponse = document.getElementById('cancelReponseBtn');
-    if(cancelReponse) cancelReponse.onclick = fermerModalModificationReponse;
-    
-    // Fermer en cliquant dehors
-    window.onclick = function(event) {
-        if(event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
+    document.getElementById('editReponseForm').onsubmit = (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editReponseId').value;
+        const content = document.getElementById('editReponseContent').value;
+        fetch(RESPONSE_API_URL, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: parseInt(id), content})
+        }).then(r => r.json()).then(data => {
+            if(data.success) { alert('✅ Réponse modifiée'); document.getElementById('editReponseModal').style.display = 'none'; chargerAvis(); chargerReponses(); }
+        });
     };
+    
+    document.getElementById('closeModal').onclick = () => document.getElementById('editModal').style.display = 'none';
+    document.getElementById('cancelModalBtn').onclick = () => document.getElementById('editModal').style.display = 'none';
+    document.getElementById('closeReponseModal').onclick = () => document.getElementById('editReponseModal').style.display = 'none';
+    document.getElementById('cancelReponseBtn').onclick = () => document.getElementById('editReponseModal').style.display = 'none';
+    window.onclick = (e) => { if(e.target.classList.contains('modal')) e.target.style.display = 'none'; };
 }
 
-// ==================== UTILITAIRES ====================
-
-function formatDate(dateString) {
-    if(!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('fr-FR');
-}
-
-function escapeHtml(text) {
-    if(!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+function formatDate(date) { return date ? new Date(date).toLocaleDateString('fr-FR') : ''; }
+function escapeHtml(text) { if(!text) return ''; return text.replace(/[&<>]/g, function(m) { if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m; }); }

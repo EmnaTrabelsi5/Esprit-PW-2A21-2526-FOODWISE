@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoodWise - BackOffice | Gestion des Avis & Réponses</title>
+    <title>FoodWise - BackOffice | Avis & Réponses</title>
     <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
 
-    <!-- ==================== SIDEBAR ADMIN ==================== -->
-    <aside class="admin-sidebar">
-        <div class="sidebar-header">
-            <div class="logo">Food<span>Wise</span></div>
-            <div class="admin-badge">Administrateur</div>
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="../FrontOffice/images/logo.png" alt="FoodWise">
+            <div class="sidebar-logo-text">Food<span>Wise</span></div>
         </div>
-        
-        <nav class="admin-nav">
+        <div class="admin-badge-side">Administrateur</div>
+        <nav class="sidebar-nav">
             <a href="#" class="nav-item">
                 <span class="icon">📊</span>
                 <span>Tableau de bord</span>
@@ -40,52 +40,45 @@
     </aside>
 
     <!-- ==================== MAIN CONTENT ==================== -->
-    <div class="admin-main">
-        
-        <!-- Topbar -->
-        <div class="admin-topbar">
-            <div class="page-title">
-                <h1>📝 Gestion des Avis & Réponses</h1>
-                <p>Liste complète des avis et réponses du FrontOffice</p>
+    <div class="main-content">
+        <div class="topbar">
+            <div class="topbar-search">
+                <input type="text" placeholder="Rechercher...">
+                <button>🔍</button>
             </div>
-            <div class="admin-user">
-                <span class="user-name">Admin FoodWise</span>
-                <img src="https://via.placeholder.com/40" alt="Admin" class="user-avatar">
+            <div class="topbar-user">
+                <span>Admin FoodWise</span>
+                <img src="../FrontOffice/images/avatar.png" alt="Admin">
             </div>
         </div>
 
-        <!-- Contenu principal -->
-        <div class="admin-content">
+        <div class="page-body">
             
-            <!-- Statistiques -->
+            <!-- En-tête -->
+            <div class="page-title">📋 Administration des Avis & Réponses</div>
+            <div class="page-subtitle">Gérez tous les avis et réponses de la communauté</div>
+
+            <!-- ========== STATISTIQUES ========== -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">📝</div>
-                    <div class="stat-info">
-                        <h3 id="totalReviews">0</h3>
-                        <p>Total avis</p>
-                    </div>
+                    <div class="stat-number" id="totalReviews">0</div>
+                    <div class="stat-label">Total avis</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">⭐</div>
-                    <div class="stat-info">
-                        <h3 id="avgRating">0.0</h3>
-                        <p>Note moyenne</p>
-                    </div>
+                    <div class="stat-number" id="avgRating">0.0</div>
+                    <div class="stat-label">Note moyenne</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">💬</div>
-                    <div class="stat-info">
-                        <h3 id="totalResponses">0</h3>
-                        <p>Total réponses</p>
-                    </div>
+                    <div class="stat-number" id="totalResponses">0</div>
+                    <div class="stat-label">Total réponses</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">👥</div>
-                    <div class="stat-info">
-                        <h3 id="activeUsers">0</h3>
-                        <p>Auteurs uniques</p>
-                    </div>
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div class="stat-label">Auteurs uniques</div>
                 </div>
             </div>
 
@@ -95,72 +88,40 @@
                 <button class="tab-btn" onclick="showTab('reponses')">💬 Réponses</button>
             </div>
 
-            <!-- ========== TABLEAU DES AVIS ========== -->
+            <!-- Bouton actualiser -->
+            <div class="actions-bar">
+                <button class="btn-refresh" id="refreshBtn">🔄 Actualiser</button>
+            </div>
+
+            <!-- ========== SECTION AVIS (CARTES) ========== -->
             <div id="tab-avis" class="tab-content active">
-                <div class="actions-bar">
-                    <button class="btn-refresh" id="refreshBtn">🔄 Actualiser</button>
+                <div class="reviews-grid" id="reviewsContainer">
+                    <div style="text-align: center; padding: 40px;">Chargement des avis...</div>
                 </div>
-
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="selectAll"></th>
-                                <th>ID</th>
-                                <th>Utilisateur</th>
-                                <th>Recette</th>
-                                <th>Avis</th>
-                                <th>Note</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="reviewsTableBody">
-                            <tr><td colspan="8" style="text-align: center;">Chargement des avis...</td\(
-                        </tbody>
-                    </table>
-                </div>
-
                 <div class="pagination">
-                    <button id="prevPage" class="page-btn">◀ Précédent</button>
+                    <button class="page-btn" id="prevPage">◀ Précédent</button>
                     <span id="pageInfo">Page 1 / 1</span>
-                    <button id="nextPage" class="page-btn">Suivant ▶</button>
+                    <button class="page-btn" id="nextPage">Suivant ▶</button>
                 </div>
             </div>
 
-            <!-- ========== TABLEAU DES RÉPONSES ========== -->
+            <!-- ========== SECTION RÉPONSES (CARTES) ========== -->
             <div id="tab-reponses" class="tab-content" style="display: none;">
-                <div class="actions-bar">
-                    <button class="btn-refresh" id="refreshResponsesBtn">🔄 Actualiser</button>
+                <div class="responses-grid" id="responsesContainer">
+                    <div style="text-align: center; padding: 40px;">Chargement des réponses...</div>
                 </div>
-
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"><input type="checkbox" id="selectAllResponses"></th>
-                                <th>ID</th>
-                                <th>Auteur</th>
-                                <th>Avis #</th>
-                                <th>Réponse</th>
-                                <th>Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="responsesTableBody">
-                            <tr><td colspan="7" style="text-align: center;">Chargement des réponses...</td\(
-                        </tbody>
-                    </table>
-                </div>
-
                 <div class="pagination">
-                    <button id="prevPageResponses" class="page-btn">◀ Précédent</button>
+                    <button class="page-btn" id="prevPageResponses">◀ Précédent</button>
                     <span id="pageInfoResponses">Page 1 / 1</span>
-                    <button id="nextPageResponses" class="page-btn">Suivant ▶</button>
+                    <button class="page-btn" id="nextPageResponses">Suivant ▶</button>
                 </div>
             </div>
 
         </div>
+
+        <footer class="site-footer">
+            © 2026 FoodWise - BackOffice Administration
+        </footer>
     </div>
 
     <!-- ==================== MODAL MODIFICATION AVIS ==================== -->
@@ -173,19 +134,19 @@
             <form id="editReviewForm">
                 <input type="hidden" id="editReviewId">
                 <div class="form-group">
-                    <label>Recette :</label>
-                    <input type="text" id="editRecipeName" readonly class="form-control-readonly">
+                    <label>Recette</label>
+                    <input type="text" id="editRecipeName" class="form-control" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Utilisateur :</label>
-                    <input type="text" id="editUserName" readonly class="form-control-readonly">
+                    <label>Utilisateur</label>
+                    <input type="text" id="editUserName" class="form-control" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Avis :</label>
+                    <label>Avis</label>
                     <textarea id="editContent" rows="4" class="form-control" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label>Note :</label>
+                    <label>Note</label>
                     <select id="editRating" class="form-control" required>
                         <option value="1">⭐ 1 étoile</option>
                         <option value="2">⭐⭐ 2 étoiles</option>
@@ -212,15 +173,15 @@
             <form id="editReponseForm">
                 <input type="hidden" id="editReponseId">
                 <div class="form-group">
-                    <label>Avis concerné :</label>
-                    <input type="text" id="editReponseReviewId" readonly class="form-control-readonly">
+                    <label>Avis concerné</label>
+                    <input type="text" id="editReponseReviewId" class="form-control" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Auteur :</label>
-                    <input type="text" id="editReponseAuthor" readonly class="form-control-readonly">
+                    <label>Auteur</label>
+                    <input type="text" id="editReponseAuthor" class="form-control" readonly>
                 </div>
                 <div class="form-group">
-                    <label>Réponse :</label>
+                    <label>Réponse</label>
                     <textarea id="editReponseContent" rows="4" class="form-control" required></textarea>
                 </div>
                 <div class="modal-buttons">

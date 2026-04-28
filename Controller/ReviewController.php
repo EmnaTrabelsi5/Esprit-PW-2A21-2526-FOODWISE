@@ -24,10 +24,11 @@ try {
             break;
             
         case 'POST':
-            // Ajouter un avis
+            // Ajouter un avis (avec titre)
             $input = json_decode(file_get_contents('php://input'), true);
             
             $recipe_name = $input['recipe_name'];
+            $title = isset($input['title']) ? $input['title'] : null;
             $content = trim($input['content']);
             $rating = $input['rating'];
             
@@ -42,19 +43,19 @@ try {
                 break;
             }
             
-            // Insérer dans la base
-            $stmt = $pdo->prepare("INSERT INTO reviews (recipe_name, content, rating, created_at) VALUES (?, ?, ?, NOW())");
-            $stmt->execute([$recipe_name, $content, $rating]);
+            // Insérer dans la base (avec titre)
+            $stmt = $pdo->prepare("INSERT INTO reviews (recipe_name, title, content, rating, created_at) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->execute([$recipe_name, $title, $content, $rating]);
             
             echo json_encode(['success' => true, 'message' => 'Avis ajouté avec succès']);
             break;
             
         case 'PUT':
-            // Modifier un avis
+            // Modifier un avis (avec titre)
             $input = json_decode(file_get_contents('php://input'), true);
             
-            $stmt = $pdo->prepare("UPDATE reviews SET content = ?, rating = ? WHERE id = ?");
-            $stmt->execute([$input['content'], $input['rating'], $input['id']]);
+            $stmt = $pdo->prepare("UPDATE reviews SET title = ?, content = ?, rating = ? WHERE id = ?");
+            $stmt->execute([$input['title'], $input['content'], $input['rating'], $input['id']]);
             
             echo json_encode(['success' => true, 'message' => 'Avis modifié']);
             break;
