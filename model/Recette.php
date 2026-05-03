@@ -1,4 +1,5 @@
 <?php
+/* model : Recette.php */
 require_once __DIR__ . '/../config/config.php';
 
 class Recette
@@ -290,4 +291,115 @@ public static function valider(array $data): array
         ";
         return (array)$db->query($sql)->fetch(PDO::FETCH_ASSOC);
     }
+
+public static function getOffresParRecette(int $idRecette): array
+    {
+        $db  = config::getConnexion();
+ 
+        /*
+         * Sous-requête : pour chaque ingrédient, trouver
+         * le prix minimum parmi les offres actives correspondantes.
+         * On filtre statut = 'disponible' et date_expiration > NOW().
+         */
+        $sql = "
+            SELECT
+                i.id_ingredient,
+                i.nom                          AS ingredient_nom,
+                ri.quantite,
+                ri.unite,
+                ri.est_optionnel,
+ 
+                o.id                           AS offre_id,
+                o.titre                        AS offre_titre,
+                o.prix_unitaire,
+                o.unite                        AS offre_unite,
+                o.stock,
+                o.statut                       AS offre_statut,
+                o.date_expiration,
+                o.image                        AS offre_image,
+ 
+                c.id                           AS commercant_id,
+                c.nom                          AS commercant_nom,
+                c.ville                        AS commercant_ville,
+                c.adresse                      AS commercant_adresse,
+                c.telephone                    AS commercant_tel
+ 
+            FROM recette_ingredient ri
+            JOIN ingredient i
+                ON i.id_ingredient = ri.id_ingredient
+ 
+            
+            LEFT JOIN Offre o
+            ON (
+                o.titre LIKE CONCAT('%', i.nom, '%')
+                OR o.titre LIKE CONCAT('%', i.nom, 's%')
+                OR o.titre LIKE CONCAT('%', TRIM(TRAILING 's' FROM i.nom), '%')
+                 OR SOUNDEX(o.titre) = SOUNDEX(i.nom)
+                )
+                AND o.statut        = 'disponible'
+                AND o.date_expiration > NOW()
+ 
+            LEFT JOIN Commercant c
+                ON c.id = o.commercant_id
+ 
+            WHERE ri.id_recette = ?
+ 
+            /* Garder uniquement l'offre la moins chère par ingrédient */
+            AND (
+                o.prix_unitaire = (
+                    SELECT MIN(o2.prix_unitaire)
+                    FROM Offre o2
+                    WHERE (
+                        o2.titre LIKE CONCAT('%', i.nom, '%')
+                        OR o2.titre LIKE CONCAT('%', i.nom, 's%')
+                        OR o2.titre LIKE CONCAT('%', TRIM(TRAILING 's' FROM i.nom), '%')
+                        OR SOUNDEX(o2.titre) = SOUNDEX(i.nom)
+                    )
+                      AND o2.statut        = 'disponible'
+                      AND o2.date_expiration > NOW()
+                )
+                OR o.id IS NULL
+            )
+ 
+            ORDER BY ri.ordre_affichage ASC
+        ";
+ 
+        $stmt = $db->prepare($sql);
+        $stmt->execute([$idRecette]);
+        $rows = $stmt->fetchAll(PDO::FETCH_OBJ);
+ 
+        /*
+         * On structure le résultat en deux groupes :
+         *  - avec_offre  : ingrédients qui ont au moins une offre active
+         *  - sans_offre  : ingrédients sans offre trouvée
+         *
+         * On calcule aussi le coût total estimé de la liste.
+         */
+        $avecOffre  = [];
+        $sansOffre  = [];
+        $coutTotal  = 0.0;
+        $economies  = 0;  // nombre d'ingrédients couverts par une offre
+ 
+        foreach ($rows as $row) {
+            if (!empty($row->offre_id)) {
+                $avecOffre[]  = $row;
+                /* Coût estimé = (quantite / 1000) * prix_unitaire (prix au kg/L) */
+                $coutTotal   += ($row->quantite / 1000) * $row->prix_unitaire;
+                $economies++;
+            } else {
+                $sansOffre[] = $row;
+            }
+        }
+ 
+        return [
+            'avec_offre' => $avecOffre,
+            'sans_offre' => $sansOffre,
+            'cout_total' => round($coutTotal, 2),
+            'economies'  => $economies,
+            'total_ing'  => count($rows),
+        ];
+    }
+
 }
+
+

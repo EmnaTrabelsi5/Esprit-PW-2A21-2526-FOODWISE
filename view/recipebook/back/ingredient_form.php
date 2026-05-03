@@ -23,8 +23,8 @@ $unites = ['g', 'kg', 'ml', 'L', 'unité', 'pincée'];*/
 include __DIR__ . '/layout/header.php';
 
 $action = $estModif
-    ? '/FOODWISE/index.php?route=admin_ingredients&action=modifier&id=' . $ingredient->id_ingredient
-    : '/FOODWISE/index.php?route=admin_ingredients&action=ajouter';
+    ? '/FOODWISE/index.php?route=admin/ingredients/' . $ingredient->id_ingredient . '/modifier'
+    : '/FOODWISE/index.php?route=admin/ingredients/ajouter';
 
 /* ── Helpers ── */
 function erreurChamp(array $e, string $c): void {
@@ -99,6 +99,11 @@ function classeErreur(array $e, string $c): string {
 
   <!-- ══ Colonne principale ══ -->
   <div>
+
+    <form method="POST" action="<?= $action ?>" id="ingredient-form" novalidate>
+      <?php if ($estModif): ?>
+        <input type="hidden" name="_method" value="PUT">
+      <?php endif; ?>
 
     <!-- Identification -->
     <div class="card">
@@ -244,6 +249,8 @@ function classeErreur(array $e, string $c): string {
       </div>
     </div><!-- /card nutrition -->
 
+    </form>
+
   </div><!-- /colonne principale -->
 
   <!-- ══ Colonne latérale ══ -->
@@ -270,7 +277,7 @@ function classeErreur(array $e, string $c): string {
       <?php endif; ?>
 
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <button type="submit" class="btn btn-primary" style="justify-content:center;">
+        <button type="submit" form="ingredient-form" class="btn btn-primary" style="justify-content:center;">
           💾 <?= $estModif ? 'Enregistrer' : 'Créer l\'ingrédient' ?>
         </button>
         <a href="/FOODWISE/index.php?route=admin_ingredients"
@@ -284,7 +291,7 @@ function classeErreur(array $e, string $c): string {
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--creme-fonce);">
         <p style="font-size:12px;color:var(--texte-leger);margin-bottom:10px;">Zone dangereuse</p>
         <form method="POST"
-              action="/FOODWISE/index.php?route=admin_ingredients&action=supprimer&id=<?= $ingredient->id_ingredient ?>"
+              action="/FOODWISE/index.php?route=admin/ingredients/<?= $ingredient->id_ingredient ?>/supprimer"
               onsubmit="return confirm('Supprimer «<?= htmlspecialchars(addslashes($ingredient->nom)) ?>» ?\n\nImpossible si cet ingrédient est utilisé dans des recettes.');">
           <input type="hidden" name="_method" value="DELETE">
           <button type="submit" class="btn btn-danger btn-sm" style="width:100%;justify-content:center;">
@@ -293,21 +300,14 @@ function classeErreur(array $e, string $c): string {
         </form>
       </div>
       <?php endif; ?>
-
     </div>
   </div>
 
 </div><!-- /grid -->
 </form>
 
-<!-- ══════════════════════════════════════════════
-     VALIDATION JAVASCRIPT — contrôle de saisie
-     Toutes les règles sont ici, sans HTML5.
-     Chaque erreur s'affiche sous son champ.
-     ══════════════════════════════════════════════ -->
 <script>
-
-/* ── 1. Compteur de caractères sur le nom ── */
+/* ──  Compteur de caractères sur le nom ── */
 const nomInput  = document.getElementById('nom');
 const nomCount  = document.getElementById('nom-count');
 
@@ -320,7 +320,7 @@ nomInput.addEventListener('input', majCompteurNom);
 majCompteurNom(); // initialisation
 
 
-/* ── 2. Barre macros dynamique ── */
+/* ──  Barre macros dynamique ── */
 function updateMacroBar() {
   const prot = parseFloat(document.getElementById('proteines_100g').value) || 0;
   const gluc = parseFloat(document.getElementById('glucides_100g').value)  || 0;
@@ -342,7 +342,7 @@ function updateMacroBar() {
 updateMacroBar(); // initialisation
 
 
-/* ── 3. Helpers d'affichage d'erreur JS ── */
+/* ──  Helpers d'affichage d'erreur JS ── */
 function afficherErreurJS(champId, message) {
   const field = document.getElementById(champId);
   if (!field) return;
@@ -366,7 +366,7 @@ function effacerErreursJS() {
 }
 
 
-/* ── 4. Validation complète au submit ── */
+/* ──  Validation complète au submit ── */
 document.getElementById('ingredient-form').addEventListener('submit', function(e) {
 
   effacerErreursJS();
@@ -465,7 +465,7 @@ document.getElementById('ingredient-form').addEventListener('submit', function(e
 });
 
 
-/* ── 5. Validation à la saisie (feedback immédiat) ── */
+/* ──  Validation à la saisie (feedback immédiat) ── */
 
 /* Nom : vérif en temps réel */
 nomInput.addEventListener('blur', function() {

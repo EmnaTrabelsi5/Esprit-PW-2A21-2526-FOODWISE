@@ -7,7 +7,7 @@
 // --- 1. FONCTION HELPER POUR LES ERREURS ---
 function erreur(array $erreurs, string $champ): void {
     if (!empty($erreurs[$champ])) {
-        echo '<p style="color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;">⚠️ '
+        echo '<p style="color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;">⚠ '
              . htmlspecialchars($erreurs[$champ]) . '</p>';
     }
 }
@@ -22,8 +22,8 @@ $erreurs       = $erreurs ?? []; // Sécurité si la variable n'existe pas
 include __DIR__ . '/layout/header.php';
 
 $action = $estModif
-  ? ($is_backoffice ? '/FOODWISE/admin/recettes/' . $recette->id_recette . '/modifier' : '/FOODWISE/recettes/' . $recette->id_recette . '/modifier')
-  : ($is_backoffice ? '/FOODWISE/admin/recettes/ajouter' : '/FOODWISE/recettes/ajouter');
+  ? ($is_backoffice ? '?route=admin/recettes/' . $recette->id_recette . '/modifier' : '?route=recettes/' . $recette->id_recette . '/modifier')
+  : ($is_backoffice ? '?route=admin/recettes/ajouter' : '?route=recettes/ajouter');
 ?>
 
 <style>
@@ -38,7 +38,7 @@ $action = $estModif
 </style>
 
 <nav style="font-size:13px;color:var(--texte-leger);margin-bottom:16px;">
-  <a href="<?= $backoffice ? '/FOODWISE/admin/recettes' : '/FOODWISE/recettes' ?>" style="color:var(--brun-chaud);text-decoration:none;">
+  <a href="<?= $backoffice ? '?route=admin/recettes' : '?route=recettes' ?>" style="color:var(--brun-chaud);text-decoration:none;">
     <?= $backoffice ? 'Gestion des recettes' : 'Mes Recettes' ?>
   </a>
   <span style="margin:0 6px;">›</span>
@@ -57,7 +57,7 @@ $action = $estModif
 
   <div>
     <div class="card">
-      <div class="card-header"><h2 class="card-title">📋 Informations générales</h2></div>
+      <div class="card-header"><h2 class="card-title"> Informations générales</h2></div>
 
       <div class="form-group">
         <label class="form-label" for="nom">Nom de la recette *</label>
@@ -170,7 +170,7 @@ $action = $estModif
                   data-allergene="<?= $ing->est_allergene ? '1' : '0' ?>"
                   data-disponible="<?= $ing->est_disponible ? '1' : '0' ?>">
                   <?= htmlspecialchars($ing->nom) ?>
-                  <?= $ing->est_allergene ? ' ⚠️' : '' ?>
+                  <?= $ing->est_allergene ? ' ⚠' : '' ?>
                   <?= !$ing->est_disponible ? ' ❌' : '' ?>
                 </option>
               <?php endforeach; ?>
@@ -197,7 +197,7 @@ $action = $estModif
         <?php endforeach; ?>
       </div>
       <div id="allergene-warning" style="display:none;" class="substitut-alert" style="margin-top:10px;">
-        ⚠️ Certains ingrédients sélectionnés sont des allergènes ou indisponibles. Des substituts seront proposés automatiquement.
+        ⚠ Certains ingrédients sélectionnés sont des allergènes ou indisponibles. Des substituts seront proposés automatiquement.
       </div>
     </div>
   </div>
@@ -210,10 +210,10 @@ $action = $estModif
       </p>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button type="submit" name="action" value="publier" class="btn btn-primary" style="justify-content:center;">
-          ✅ <?= $estModif ? 'Enregistrer les modifications' : 'Publier la recette' ?>
+           <?= $estModif ? 'Enregistrer les modifications' : 'Publier la recette' ?>
         </button>
         
-        <a href="<?= $backoffice ? '/FOODWISE/admin/recettes' : '/FOODWISE/recettes' ?>" class="btn" style="justify-content:center;background:none;color:var(--texte-leger);">
+        <a href="<?= $backoffice ? '?route=admin/recettes' : '?route=recettes' ?>" class="btn" style="justify-content:center;background:none;color:var(--texte-leger);">
           ✕ Annuler
         </a>
       </div>
@@ -288,15 +288,69 @@ document.getElementById('recipe-form').addEventListener('submit', function(e) {
 
 
   function afficherErreur(idChamp, message) {
+    if (idChamp === 'ingredients') {
+      const select = document.querySelector('.ingredient-row .ingredient-select');
+      if (select) {
+        select.classList.add('input-erreur');
+        const p = document.createElement('p');
+        p.className = 'erreur-msg';
+        p.style.cssText = 'color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;';
+        p.innerHTML = '⚠ ' + message;
+        const wrapper = select.closest('.form-group') || select.parentNode;
+        wrapper.appendChild(p);
+      }
+      return;
+    }
+
     const input = document.getElementById(idChamp);
     input.classList.add('input-erreur');
     const p = document.createElement('p');
     p.className = 'erreur-msg';
     p.style.cssText = 'color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;';
-    p.innerHTML = '⚠️ ' + message;
+    p.innerHTML = '⚠ ' + message;
     input.parentNode.appendChild(p);
   }
 
+  function afficherErreurInput(input, message) {
+    input.classList.add('input-erreur');
+    if (input.name && input.name.endsWith('[quantite]')) {
+      input.setAttribute('title', message);
+    } else {
+      const p = document.createElement('p');
+      p.className = 'erreur-msg';
+      p.style.cssText = 'color:#C0392B; font-size:12px; margin-top:4px; font-weight:bold;';
+      p.innerHTML = '⚠' + message;
+      const wrapper = input.closest('.form-group') || input.parentNode;
+      wrapper.appendChild(p);
+    }
+  }
+
+  function validerIngredients() {
+    const ingredientRows = document.querySelectorAll('.ingredient-row');
+    let hasIngredient = false;
+    ingredientRows.forEach(row => {
+      const ingredientSelect = row.querySelector('.ingredient-select');
+      const quantiteInput = row.querySelector('input[name$="[quantite]"]');
+      if (!ingredientSelect || !quantiteInput) {
+        return;
+      }
+
+      const selectedIngredient = ingredientSelect.value.trim();
+      const quantiteValeur = quantiteInput.value.trim();
+      if (selectedIngredient) {
+        hasIngredient = true;
+      }
+      if (selectedIngredient && (!quantiteValeur || Number(quantiteValeur) <= 0)) {
+        erreurs.push({champ: quantiteInput, msg: 'La quantité de l\'ingrédient est requise et doit être supérieure à 0.'});
+      } else {
+        quantiteInput.removeAttribute('title');
+      }
+    });
+
+    if (!hasIngredient) {
+      erreurs.push({champ: 'ingredients', msg: 'Ajoutez au moins un ingrédient à la recette.'});
+    }
+  }
 
   if (!nom) {
     erreurs.push({champ: 'nom', msg: 'Le nom est obligatoire.'});
@@ -311,11 +365,16 @@ document.getElementById('recipe-form').addEventListener('submit', function(e) {
     erreurs.push({champ: 'niveau_difficulte', msg: 'Niveau requis.'});
   }
 
+  validerIngredients();
 
   if (erreurs.length > 0) {
     e.preventDefault();
     erreurs.forEach(err => {
-      afficherErreur(err.champ, err.msg);
+      if (typeof err.champ === 'string') {
+        afficherErreur(err.champ, err.msg);
+      } else {
+        afficherErreurInput(err.champ, err.msg);
+      }
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }

@@ -1,12 +1,12 @@
 <?php
 /**
  * FoodWise — Vue : Liste des ingrédients (Back Office)
- * view/recipebook/back/ingredient_list.php
+ * view/recipebook/back/ingredient_list.php 
  */
 include __DIR__ . '/layout/header.php';
 
 /* Afficher le message flash s'il existe */
-if (session_status() === PHP_SESSION_NONE) session_start();
+
 $flash = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 

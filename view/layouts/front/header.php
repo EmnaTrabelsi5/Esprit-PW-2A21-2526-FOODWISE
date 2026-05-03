@@ -1,24 +1,21 @@
 <?php
-/**
- * FoodWise — Layout : Sidebar + Topbar
- * CSS embarqué — fonctionne sans routing, directement sous XAMPP
- * views/layout/header.php
- */
+
 $pageTitle  = $pageTitle  ?? 'FoodWise';
 $activeNav  = $activeNav  ?? '';
 $backoffice = $backoffice ?? false;
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($pageTitle) ?> — FoodWise</title>
+  <title><?= htmlspecialchars($pageTitle ?? 'LocalMarket') ?> — FoodWise</title>
   <link rel="stylesheet" href="/FOODWISE/assets/foodwise.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
-  <style>
-    body {
+  <!-- CSS module LocalMarket -->
+  <link rel="stylesheet" href="/FOODWISE/assets/mealplanner.css">
+<style>
+  body {
   font-family: 'Lato', Arial, sans-serif;
   background-color: var(--creme);
   color: var(--texte-sombre);
@@ -26,8 +23,7 @@ $backoffice = $backoffice ?? false;
   line-height: 1.6;
   min-height: 100vh;
 }
-
-/* ─── Sidebar ─── */
+  /* ─── Sidebar ─── */
 .sidebar {
   position: fixed;
   top: 0; left: 0;
@@ -64,12 +60,11 @@ $backoffice = $backoffice ?? false;
   object-fit: contain;
 }
   </style>
+
 </head>
 
-<!-- modificationnnnn  -->
 <body class="<?= $backoffice ? 'backoffice' : 'frontoffice' ?>">
-
-<!-- ========== SIDEBAR ========== -->
+ 
 <aside class="sidebar">
   <div class="sidebar-logo">
    <img src="/FOODWISE/assets/img/logo.png" alt="FoodWise Logo">
@@ -109,41 +104,61 @@ $backoffice = $backoffice ?? false;
   </nav>
 </aside>
 
-<!-- ========== TOPBAR ========== -->
-<header class="topbar">
-  <?php if (!$backoffice): ?>
-  <div class="topbar-search">
-    <input type="text" id="search-input"
-           placeholder=""
-           autocomplete="off">
-    <button type="button" onclick="doSearch()">Rechercher</button>
+ 
+<!-- ═══════════════════════════════════════════
+     TOPBAR
+═══════════════════════════════════════════ -->
+<div class="main-content">
+  <header class="topbar">
+    <div class="topbar-search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--texte-leger)" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="topbarSearch"
+             placeholder="Rechercher des commerçants, offres, localisation..."
+             autocomplete="off">
+      <button onclick="doTopbarSearch()">Chercher</button>
+    </div>
+ 
+    <nav class="topbar-nav">
+      <a href="offre.php?action=index"
+         class="<?= ($activeModule ?? '') === 'offre'      ? 'active' : '' ?>">Le Marché</a>
+      <a href="commercant.php?action=index"
+         class="<?= ($activeModule ?? '') === 'commercant' ? 'active' : '' ?>">Commerçants</a>
+      <a href="offre.php?action=create">+ Publier</a>
+    </nav>
+ 
+    <div class="topbar-user">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--texte-moyen)" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+      <span>Mon Compte</span>
+    </div>
+  </header>
+ 
+  <!-- Flash messages -->
+  <?php if (!empty($_SESSION['flash_success'])): ?>
+  <div class="flash flash-success" id="flash-msg">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <?= $_SESSION['flash_success'] ?>
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
   </div>
-  <nav class="topbar-nav">
-    <a href="/FOODWISE/recettes" 
-   class="<?= $activeNav === 'recettes' ? 'active' : '' ?>">
-   Mes Recettes
-    </a>
-    <a href="#" class="<?= $activeNav === 'planificateur' ? 'active' : '' ?>">Planificateur</a>
-    <a href="#" class="<?= $activeNav === 'objectifs' ? 'active' : '' ?>">Mes Objectifs</a>
-    <a href="/FOODWISE/offres" class="<?= $activeNav === 'marche' ? 'active' : '' ?>">Le Marché</a>
-  </nav>
-  <div class="topbar-user">
-    <img src="https://ui-avatars.com/api/?name=Emna+Trabelsi&background=A0522D&color=FDF6EC&bold=true&size=64" alt="Avatar">
-    <span>Emna_Trabelsi</span>
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;display:block;"><path d="M6 9l6 6 6-6"/></svg>
-  </div>
+  <?php unset($_SESSION['flash_success']); ?>
   <?php endif; ?>
-</header>
-
-
-<main class="main-content">
-<div class="page-body">
-<script>
-function doSearch() {
-  var q = document.getElementById('search-input').value.trim();
-  if (q) window.location.href = '?q=' + encodeURIComponent(q);
-}
-document.getElementById('search-input').addEventListener('keydown', function(e){
-  if (e.key === 'Enter') doSearch();
-});
-</script>
+ 
+  <?php if (!empty($_SESSION['flash_error'])): ?>
+  <div class="flash flash-error" id="flash-msg">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <?= $_SESSION['flash_error'] ?>
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  <?php unset($_SESSION['flash_error']); ?>
+  <?php endif; ?>
+ 
+  <div class="page-body">

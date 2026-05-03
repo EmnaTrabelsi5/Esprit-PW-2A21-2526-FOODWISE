@@ -1,4 +1,5 @@
 <?php
+/* controller : RecetteController.php */ 
 require_once __DIR__ . '/../model/Recette.php';
 
 class RecetteController
@@ -298,6 +299,31 @@ public function showAdmin(int $id, bool $admin): void
 
         include 'view/recipebook/back/admin_list.php';
     }
+/* ════════════════════════════════════════════════
+       LISTE DE COURSES INTELLIGENTE
+       Route : GET /recettes/{id}/courses
+       ════════════════════════════════════════════════ */
+
+    public function courses(int $id): void
+    {
+        $recette = Recette::getById($id);
+
+        if (!$recette) {
+            http_response_code(404);
+            $this->renderErreur('Recette introuvable', 'Cette recette n\'existe pas.');
+            return;
+        }
+
+        /* Récupère les ingrédients + offres correspondantes (Module 3) */
+        $courses    = Recette::getOffresParRecette($id);
+
+        $pageTitle  = 'Liste de courses — ' . $recette->nom;
+        $activeNav  = 'recettes';
+        $backoffice = false;
+
+        include 'view/recipebook/front/courses.php';
+    }
+
 
     /* ════════════════════════════════════════════════
        MÉTHODES PRIVÉES — Helpers internes

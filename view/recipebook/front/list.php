@@ -24,14 +24,14 @@ include __DIR__ . '/layout/header.php';
       <?= $pagination['total'] ?? 0 ?> recette<?= ($pagination['total'] ?? 0) > 1 ? 's' : '' ?> disponible<?= ($pagination['total'] ?? 0) > 1 ? 's' : '' ?>
     </p>
   </div>
-  <a href="/FOODWISE/recettes/ajouter" class="btn btn-primary">
+  <a href="?route=recettes/ajouter" class="btn btn-primary">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Nouvelle recette
   </a>
 </div>
 
 <!-- ── Barre de filtres ── -->
-<form method="GET" action="/FOODWISE/recettes">
+<form method="GET" action="?route=recettes">
 <div class="filter-bar">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--texte-leger)" stroke-width="2" style="flex-shrink:0;"><path d="M22 3H2l8 9.46V19l4 2v-8.54z"/></svg>
 
@@ -69,7 +69,7 @@ include __DIR__ . '/layout/header.php';
   <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
 
   <?php if (!empty(array_filter($filtres ?? []))): ?>
-    <a href="/FOODWISE/recettes" class="btn btn-outline btn-sm">✕ Effacer</a>
+    <a href="?route=recettes" class="btn btn-outline btn-sm">✕ Effacer</a>
   <?php endif; ?>
 </div>
 </form>

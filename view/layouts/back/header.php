@@ -1,22 +1,20 @@
 <?php
-/**
- * FoodWise — Layout : Sidebar + Topbar
- * CSS embarqué — fonctionne sans routing, directement sous XAMPP
- * views/layout/header.php
- */
 $pageTitle  = $pageTitle  ?? 'FoodWise';
 $activeNav  = $activeNav  ?? '';
 $backoffice = $backoffice ?? true;
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($pageTitle) ?> — FoodWise</title>
+  <title><?= htmlspecialchars($pageTitle ?? 'LocalMarket') ?> — FoodWise</title>
+  <!-- CSS commun FoodWise -->
   <link rel="stylesheet" href="/FOODWISE/assets/foodwise.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <!-- CSS module LocalMarket -->
+  <link rel="stylesheet" href="/FOODWISE/assets/localmarket.css">
+
   <style>
     body {
   font-family: 'Lato', Arial, sans-serif;
@@ -58,8 +56,6 @@ $backoffice = $backoffice ?? true;
 }
   </style>
 </head>
-
-<!-- modificationnnnn  -->
 <body class="backoffice">
 
 <!-- ========== SIDEBAR ========== -->
@@ -102,15 +98,32 @@ $backoffice = $backoffice ?? true;
   </nav>
 </aside>
 
-<main class="main-content">
-<div class="page-body">
-<script>
-function doSearch() {
-  var q = document.getElementById('search-input').value.trim();
-  if (q) window.location.href = '?q=' + encodeURIComponent(q);
-}
-document.getElementById('search-input').addEventListener('keydown', function(e){
-  if (e.key === 'Enter') doSearch();
-});
-</script>
  
+
+<div class="main-content">
+ 
+  <!-- Flash messages -->
+  <?php if (!empty($_SESSION['flash_success'])): ?>
+  <div class="flash flash-success" id="flash-msg">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <?= $_SESSION['flash_success'] ?>
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  <?php unset($_SESSION['flash_success']); ?>
+  <?php endif; ?>
+ 
+  <?php if (!empty($_SESSION['flash_error'])): ?>
+  <div class="flash flash-error" id="flash-msg">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <?= $_SESSION['flash_error'] ?>
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  <?php unset($_SESSION['flash_error']); ?>
+  <?php endif; ?>
+ 
+  <div class="page-body">

@@ -21,7 +21,7 @@ include __DIR__ . '/layout/header.php';
 
 <!-- ── Fil d'Ariane ── -->
 <nav style="font-size:13px;color:var(--texte-leger);margin-bottom:16px;">
-  <a href="/FOODWISE/recettes" style="color:var(--brun-chaud);text-decoration:none;">Mes Recettes</a>
+  <a href="?route=recettes" style="color:var(--brun-chaud);text-decoration:none;">Mes Recettes</a>
   <span style="margin:0 6px;">›</span>
   <span><?= htmlspecialchars($recette->nom) ?></span>
 </nav>
@@ -48,10 +48,10 @@ include __DIR__ . '/layout/header.php';
           </h1>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <?php if (!$backoffice): ?>
-             <a href="/FOODWISE/recettes/<?= $recette->id_recette ?>/modifier" class="btn btn-outline btn-sm">✏️ Modifier</a>
+             <a href="?route=recettes/<?= $recette->id_recette ?>/modifier" class="btn btn-outline btn-sm" style="flex:1;">  Modifier</a>
             <?php endif; ?>
-             <form method="POST" action="/FOODWISE/recettes/<?= $recette->id_recette ?>/supprimer"
-                  onsubmit="return confirm('Supprimer cette recette ?');" style="display:inline;">
+             <form method="POST" action="?route=recettes/<?= $recette->id_recette ?>/supprimer"
+                  onsubmit="return confirm('Supprimer cette recette ?');" style="display:inline;flex:1;">
               <input type="hidden" name="_method" value="DELETE">
               <button type="submit" class="btn btn-danger btn-sm">🗑 Supprimer</button>
             </form>
@@ -135,7 +135,7 @@ include __DIR__ . '/layout/header.php';
         <span style="font-size:18px;">⚠️</span>
         <div>
           <strong><?= htmlspecialchars($sub->nom_source) ?></strong>
-          <?= $sub->ingredient_source->est_allergene ? '(allergène)' : '(indisponible)' ?>
+          <?= isset($sub->ingredient_source) && $sub->ingredient_source ? ($sub->ingredient_source->est_allergene ? '(allergène)' : '(indisponible)') : '(indisponible)' ?>
           <span style="margin:0 6px;">→</span>
           <strong style="color:var(--vert-fonce);">
             <?= htmlspecialchars($sub->nom_substitut) ?>
@@ -174,7 +174,7 @@ include __DIR__ . '/layout/header.php';
       <div class="card-header">
         <h2 class="card-title">🔬 Valeurs nutritionnelles</h2>
       </div>
-      <p style="font-size:12px;color:var(--texte-leger);margin-bottom:14px;">Pour <?= $recette->portions ?> portion<?= $recette->portions > 1 ? 's' : '' ?> — calculé automatiquement</p>
+      <p style="font-size:12px;color:var(--texte-leger);margin-bottom:14px;">Pour <?= $recette->portions ?> portion<?= $recette->portions > 1 ? 's' : '' ?> </p>
 
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
         <div style="padding:14px;background:var(--creme);border-radius:8px;text-align:center;">
@@ -222,6 +222,10 @@ include __DIR__ . '/layout/header.php';
 
     <!-- Actions -->
 <div class="card">
+  <a href="/FOODWISE/index.php?url=recettes/<?= $recette->id_recette ?>/courses"
+     class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">
+    🛒 Voir la liste de courses
+  </a>
   <a href="/FOODWISE/planificateur/ajouter?recette=<?= $recette->id_recette ?>" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">
     📅 Ajouter au planificateur
   </a>

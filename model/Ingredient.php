@@ -138,8 +138,8 @@ class Ingredient
             (float)($data['proteines_100g'] ?? 0),
             (float)($data['glucides_100g']  ?? 0),
             (float)($data['lipides_100g']   ?? 0),
-            isset($data['est_allergene'])  ? 1 : 0,
-            isset($data['est_disponible']) ? 1 : 0,
+            !empty($data['est_allergene'])  ? 1 : 0,
+            !empty($data['est_disponible']) ? 1 : 0,
             $data['unite_defaut'] ?? 'g',
         ]);
         return (int)$db->lastInsertId();
@@ -173,8 +173,8 @@ class Ingredient
             (float)($data['proteines_100g'] ?? 0),
             (float)($data['glucides_100g']  ?? 0),
             (float)($data['lipides_100g']   ?? 0),
-            isset($data['est_allergene'])  ? 1 : 0,
-            isset($data['est_disponible']) ? 1 : 0,
+            !empty($data['est_allergene'])  ? 1 : 0,
+            !empty($data['est_disponible']) ? 1 : 0,
             $data['unite_defaut'] ?? 'g',
             $id,
         ]);

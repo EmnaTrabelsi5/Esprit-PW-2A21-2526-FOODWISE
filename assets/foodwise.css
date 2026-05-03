@@ -57,17 +57,17 @@ body {
 .sidebar-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 10px;
-  padding: 20px 18px 16px;
-  border-bottom: 1px solid rgba(255,255,255,0.10);
-  flex-shrink: 0;
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.12);
 }
-.sidebar-logo img {
-  width: 100px ;   
-  height: auto ;
-  object-fit: contain;
-}
+
+.sidebar-logo img { width: 44px; height: 44px; }
+
+.sidebar-logo-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: var(--creme); letter-spacing: 0.5px; }
+
+.sidebar-logo-text span { color: var(--brun-pale); }
+
 .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
 
 .nav-item {
@@ -186,6 +186,7 @@ body {
   margin-left: var(--sidebar-w);
   padding-top: 64px;
   min-height: 100vh;
+  padding-bottom: 120px;
 }
 
 .page-body {
@@ -309,6 +310,37 @@ body {
 .btn-danger:hover { background: #922B21; }
 
 .btn-sm { padding: 5px 14px; font-size: 13px; }
+.btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  background: linear-gradient(135deg, var(--vert-moyen), var(--vert-fonce));
+  color: var(--blanc);
+
+  font-size: 14px;
+  font-weight: 700;
+
+  padding: 12px 20px;
+  min-width: 240px;
+
+  border-radius: 30px;
+  text-decoration: none;
+  border: none;
+
+  box-shadow: 0 6px 18px rgba(92,122,62,0.25);
+  transition: all 0.25s ease;
+}
+.btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(92,122,62,0.35);
+
+  background: linear-gradient(135deg, var(--vert-fonce), var(--vert-moyen));
+}
+.btn-confirm:active {
+  transform: scale(0.97);
+}
 
 /* ── Formulaires ── */
 .form-group { margin-bottom: 18px; }
@@ -435,6 +467,10 @@ select.form-control { cursor: pointer; }
   font-size: 13px;
   color: var(--texte-moyen);
 }
+.row-critical {
+    background: #fff3f3 !important;
+    border-left: 4px solid #e74c3c;
+}
 
 .notif-item:last-child { border-bottom: none; }
 
@@ -503,7 +539,4 @@ select.form-control { cursor: pointer; }
   .main-content { margin-left: 0; }
   .topbar { left: 0; }
   .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
-}
-.card:hover {
-  transform: translateY(-5px) scale(1.01);
 }

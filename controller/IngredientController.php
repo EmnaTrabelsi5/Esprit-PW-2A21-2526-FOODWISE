@@ -79,9 +79,6 @@ class IngredientController
         $activeNav  = 'gestion_ingredients';
         $backoffice = true;
 
-        $categories = ['Légumes', 'Fruits', 'Céréales', 'Viandes', 'Produits laitiers']; // Ou requête BDD
-        $unites = ['g', 'kg', 'ml', 'L', 'unité', 'pincée'];
-
         include 'view/recipebook/back/ingredient_form.php';
     }
 
@@ -132,8 +129,6 @@ class IngredientController
         $activeNav  = 'gestion_ingredients';
         $backoffice = true;
 
-        $categories = ['Légumes', 'Fruits', 'Céréales', 'Viandes', 'Produits laitiers']; // Ou requête BDD
-        $unites = ['g', 'kg', 'ml', 'L', 'unité', 'pincée'];
 
         include 'view/recipebook/back/ingredient_form.php';
     }

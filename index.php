@@ -2,9 +2,11 @@
 require_once 'config/config.php';
 require_once 'controller/RecetteController.php';
 require_once 'controller/IngredientController.php';
+require_once 'controller/OffreController.php';
+require_once 'controller/CommandeController.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-$controller = new RecetteController();
+$RecetteController = new RecetteController();
 
 $route = $_GET['route'] ?? $_GET['url'] ?? 'recettes';
 $params = explode('/', trim($route, '/'));
@@ -15,27 +17,46 @@ switch ($params[0]) {
     case 'recettes':
 
         if (!isset($params[1]) || $params[1] === '') {
-            $controller->index();
+            $RecetteController->index();
 
         } elseif ($params[1] === 'ajouter') {
-            $controller->create();
+            $RecetteController->create();
+        
+        } elseif (is_numeric($params[1]) && isset($params[2]) && $params[2] === 'courses') {
+            $RecetteController->courses((int)$params[1]);
 
         } elseif (is_numeric($params[1])) {
             $id = (int)$params[1];
 
             if (isset($params[2]) && $params[2] === 'modifier') {
-                $controller->edit($id);
+                $RecetteController->edit($id);
 
             } elseif (isset($params[2]) && $params[2] === 'supprimer') {
-                $controller->delete($id);
+                $RecetteController->delete($id);
 
             } else {
-                $controller->show($id);
+                $RecetteController->show($id);
             }
         } else {
             http_response_code(404);
             echo "404 — Page introuvable";
         }
+        break;
+
+    case 'offres':
+        $offreController = new OffreController();
+        $action = $params[1] ?? 'index';
+        $_GET['action'] = $action;
+        if (isset($params[2])) $_GET['id'] = $params[2];
+        $offreController->handleRequest();
+        break;
+
+    case 'commandes':
+        $commandeController = new CommandeController();
+        $action = $params[1] ?? 'index';
+        $_GET['action'] = $action;
+        if (isset($params[2])) $_GET['id'] = $params[2];
+        $commandeController->handleRequest();
         break;
 
     // ================= BACK =================
@@ -44,22 +65,22 @@ switch ($params[0]) {
         if (isset($params[1])) {
             if ($params[1] === 'recettes') {
                 if (!isset($params[2]) || $params[2] === '') {
-                    $controller->adminIndex();
+                    $RecetteController->adminIndex();
 
                 } elseif ($params[2] === 'ajouter') {
-                    $controller->create(true);
+                    $RecetteController->create(true);
 
                 } elseif (is_numeric($params[2])) {
                     $id = (int)$params[2];
 
                     if (isset($params[3]) && $params[3] === 'modifier') {
-                        $controller->edit($id, true);
+                        $RecetteController->edit($id, true);
 
                     } elseif (isset($params[3]) && $params[3] === 'supprimer') {
-                        $controller->delete($id);
+                        $RecetteController->delete($id);
 
                     } else {
-                        $controller->showAdmin($id, true);
+                        $RecetteController->showAdmin($id, true);
                     }
                 } else {
                     http_response_code(404);
@@ -90,6 +111,18 @@ switch ($params[0]) {
                     http_response_code(404);
                     echo "404 — Page introuvable";
                 }
+            } elseif ($params[1] === 'offres') {
+                $offreController = new OffreController();
+                $action = $params[2] ?? 'indexAdmin';
+                $_GET['action'] = $action;
+                if (isset($params[3])) $_GET['id'] = $params[3];
+                $offreController->handleAdminRequest();
+            } elseif ($params[1] === 'commandes') {
+                $commandeController = new CommandeController();
+                $action = $params[2] ?? 'indexAdmin';
+                $_GET['action'] = $action;
+                if (isset($params[3])) $_GET['id'] = $params[3];
+                $commandeController->handleAdminRequest();
             } else {
                 http_response_code(404);
                 echo "404 — Page introuvable";
@@ -101,7 +134,7 @@ switch ($params[0]) {
         break;
 
     case 'admin_recettes':
-        $controller->adminIndex();
+        $RecetteController->adminIndex();
         break;
 
     case 'admin_ingredients':
