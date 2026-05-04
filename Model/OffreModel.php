@@ -11,7 +11,7 @@ class OffreModel {
     }
 
     // ── Expirer automatiquement les offres échues ────────────
-    public function expireOffres(): int {
+    /*public function expireOffres(): int {
         $stmt = $this->pdo->prepare(
             "UPDATE Offre
                 SET statut = 'expire'
@@ -20,7 +20,18 @@ class OffreModel {
         );
         $stmt->execute();
         return $stmt->rowCount();
-    }
+    }*/
+        /*public function updateExpiredOffers() {
+        $query = "
+            UPDATE offre 
+            SET statut = 'expire' 
+            WHERE date_expiration <= NOW()
+            AND statut != 'expire'
+        ";
+
+        $stmt = $this->pdo->prepare($query);
+        return $stmt->execute();
+    }*/
 
     // ── Épuiser si stock = 0 ─────────────────────────────────
     public function syncStockStatut(): void {
@@ -43,7 +54,7 @@ class OffreModel {
     // ── Lister toutes les offres (avec filtre) ───────────────
     public function findAll(array $filtres = []): array {
         // Expire d'abord
-        $this->expireOffres();
+        $this->updateExpiredOffers();
         $this->syncStockStatut();
 
         $sql    = "SELECT o.*, c.nom AS commercant_nom, c.ville AS commercant_ville,
@@ -92,7 +103,7 @@ class OffreModel {
 
     // ── Trouver par ID ───────────────────────────────────────
     public function findById(int $id): array|false {
-        $this->expireOffres();
+        $this->updateExpiredOffers();
         $stmt = $this->pdo->prepare(
             "SELECT o.*, c.nom AS commercant_nom, c.ville AS commercant_ville,
                     c.adresse AS commercant_adresse, c.telephone AS commercant_tel
@@ -191,7 +202,7 @@ class OffreModel {
 
     // ── Stats pour le dashboard ──────────────────────────────
     public function getStats(): array {
-        $this->expireOffres();
+        $this->updateExpiredOffers();
         $stmt = $this->pdo->query(
             "SELECT
                 COUNT(*)                                           AS total,
@@ -231,4 +242,187 @@ class OffreModel {
 
         return $errors;
     }
+
+    // 🔥 2. Vérifier disponibilité
+    public function isAvailable($id_offre, $quantite) {
+        $query = "SELECT stock, statut 
+                  FROM offre 
+                  WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(":id", $id_offre);
+        $stmt->execute();
+
+        $offre = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$offre) return false;
+
+        if ($offre['statut'] !== 'disponible') return false;
+
+        if ($offre['stock'] < $quantite) return false;
+
+        return true;
+    }
+
+    // 🔥 3. Décrémenter stock
+    /*public static function decrementStock($id_offre, $quantite) {
+        $pdo = config::getConnexion();
+        $query = "UPDATE offre 
+                  SET stock = stock - :qte 
+                  WHERE id = :id";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(":qte", $quantite);
+        $stmt->bindParam(":id", $id_offre);
+        $stmt->execute();
+
+        // Mise à jour statut si stock = 0
+        $this->updateStockStatus($id_offre);
+    }*/
+    public static function decrementStock($id_offre, $quantite) {
+    $pdo = config::getConnexion(); // ✔ PAS $this
+
+    $query = "UPDATE offre 
+              SET stock = stock - :qte 
+              WHERE id = :id";
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([
+        ':qte' => $quantite,
+        ':id'  => $id_offre
+    ]);
+
+    // Mise à jour statut
+    $pdo->prepare("
+        UPDATE offre 
+        SET statut = 'epuise' 
+        WHERE id = :id AND stock <= 0
+    ")->execute([':id' => $id_offre]);
 }
+
+    public function updateStockStatus($id_offre) {
+        $query = "UPDATE offre 
+                  SET statut = 'epuise' 
+                  WHERE id = :id AND stock <= 0";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id_offre);
+        $stmt->execute();
+    }
+
+    // 🔥 4. Filtrage par localisation
+/*public function findAll($filtres = []) {
+    $pdo = config::getConnexion();
+
+    $sql = "SELECT o.*, c.ville 
+            FROM offre o
+            JOIN commercant c ON o.commercant_id = c.id
+            WHERE 1=1";
+
+    if (!empty($filtres['ville'])) {
+        $sql .= " AND c.ville = :ville";
+    }
+
+    $stmt = $pdo->prepare($sql);
+
+    if (!empty($filtres['ville'])) {
+        $stmt->bindValue(':ville', $filtres['ville']);
+    }
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}*/
+    /*public static function decrementStock($id_offre, $quantite) {
+    $pdo = config::getConnexion();
+
+    $query = "UPDATE offre 
+              SET stock = stock - :qte 
+              WHERE id = :id";
+
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([
+        ':qte' => $quantite,
+        ':id'  => $id_offre
+    ]);
+
+    // Si stock <= 0 → épuisé
+    $pdo->prepare("
+        UPDATE offre 
+        SET statut = 'epuise' 
+        WHERE id = :id AND stock <= 0
+    ")->execute([':id' => $id_offre]);
+}*/
+public function updateExpiredOffers() {
+    try {
+        $query = "UPDATE offre 
+                  SET statut = 'expire' 
+                  WHERE date_expiration <= NOW()
+                  AND statut != 'expire'";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute();
+
+        return $stmt->rowCount(); // nombre d'offres mises à jour
+
+    } catch (PDOException $e) {
+        error_log("Erreur expiration offres: " . $e->getMessage());
+        return false;
+    }
+}
+public function enrichWithStockStatus(array $offres): array {
+    foreach ($offres as &$offre) {
+
+        $stockInitial = $offre['stock_initial'] ?? 0;
+        $stock = $offre['stock'] ?? 0;
+
+        $ratio = $stockInitial > 0 ? $stock / $stockInitial : 0;
+
+        // 🔥 logique métier
+        $offre['stock_ratio'] = $ratio;
+        $offre['is_critical'] = $ratio <= 0.1;
+        $offre['stock_state'] = $this->getStockState($ratio);
+    }
+
+    return $offres;
+}
+private function getStockState(float $ratio): string {
+    if ($ratio <= 0.1) return 'critique';
+    if ($ratio <= 0.3) return 'faible';
+    return 'ok';
+}
+public function applyDynamicPricing($offre)
+{
+    $now = new DateTime();
+    $expiration = new DateTime($offre['date_expiration']);
+
+    $interval = $now->diff($expiration);
+    $hoursLeft = ($interval->days * 24) + $interval->h;
+
+    $ratio = $offre['stock_initial'] > 0 
+        ? $offre['stock'] / $offre['stock_initial'] 
+        : 0;
+
+    $remise = 0;
+
+    // 🔥 Conditions métier
+    if ($hoursLeft <= 24 && $ratio > 0.3 && $offre['statut'] === 'disponible') {
+
+        // 💡 logique intelligente
+        if ($hoursLeft <= 6) {
+            $remise = 40; // urgence max
+        } elseif ($hoursLeft <= 12) {
+            $remise = 30;
+        } else {
+            $remise = 20;
+        }
+    }
+
+    $prixFinal = $offre['prix_unitaire'] * (1 - $remise / 100);
+
+    $offre['prix_final'] = round($prixFinal, 2);
+    $offre['remise'] = $remise;
+
+    return $offre;
+}
+}
+

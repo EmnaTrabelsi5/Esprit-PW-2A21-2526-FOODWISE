@@ -40,28 +40,28 @@ require __DIR__ . '/../../layouts/front/header.php';
                         <!-- Quantité -->
                         <div class="mb-3">
                             <label class="form-label">Quantité</label>
-                            <input type="number" class="form-control" id="quantite" name="quantite" min="1">
+                            <input type="number" class="form-control" id="quantite" name="quantite" min="1" required>
                             <small id="err_qte" class="text-danger"></small>
                         </div>
 
                         <!-- Adresse -->
                         <div class="mb-3">
                             <label class="form-label">Adresse de livraison</label>
-                            <input type="text" class="form-control" id="adresse" name="adresse">
+                            <input type="text" class="form-control" id="adresse" name="adresse" required minlength="5">
                             <small id="err_adresse" class="text-danger"></small>
                         </div>
 
                         <!-- Téléphone -->
                         <div class="mb-3">
                             <label class="form-label">Téléphone</label>
-                            <input type="text" class="form-control" id="telephone" name="telephone">
+                            <input type="tel" class="form-control" id="telephone" name="telephone" pattern="[0-9]{8}" placeholder="8 chiffres" required>
                             <small id="err_tel" class="text-danger"></small>
                         </div>
 
                         <!-- Paiement -->
                         <div class="mb-3">
                             <label class="form-label">Mode de paiement</label>
-                            <select class="form-control" id="paiement" name="mode_paiement">
+                            <select class="form-control" id="paiement" name="mode_paiement" required>
                                 <option value="">-- Choisir --</option>
                                 <option value="carte">Carte</option>
                                 <option value="especes">Espèces</option>
@@ -78,8 +78,10 @@ require __DIR__ . '/../../layouts/front/header.php';
                         <!-- BUTTONS -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success">✔ Confirmer la commande</button>
+                            <a href="/FOODWISE1/offre.php?action=index" 
+                               class="btn btn-secondary">← Retour aux offres</a>
                             <a href="/FOODWISE1/offre.php?action=show&id=<?= $id_offre ?>" 
-                               class="btn btn-secondary">Annuler</a>
+                               class="btn btn-outline-secondary">Annuler</a>
                         </div>
 
                     </form>
@@ -95,7 +97,7 @@ function validateCommande() {
 
     let valid = true;
 
-    let qte = document.getElementById("quantite").value;
+    let qte = parseInt(document.getElementById("quantite").value) || 0;
     let stock = <?= $offre['stock'] ?>;
     let adresse = document.getElementById("adresse").value.trim();
     let tel = document.getElementById("telephone").value.trim();
@@ -107,7 +109,7 @@ function validateCommande() {
     document.getElementById("err_paiement").innerText = "";
 
     // Quantité
-    if (qte <= 0 || qte === "") {
+    if (qte <= 0) {
         document.getElementById("err_qte").innerText = "Quantité invalide";
         valid = false;
     } else if (qte > stock) {

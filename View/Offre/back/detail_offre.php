@@ -20,6 +20,11 @@ $stats = [
 ];
 
 foreach ($offres as $offre) {
+  $ratio = $offre['stock_initial'] > 0 
+    ? $offre['stock'] / $offre['stock_initial'] 
+    : 0;
+
+$isCritical = $ratio <= 0.1;
     if ($offre['statut'] === 'disponible') {
         $stats['disponible']++;
     } elseif ($offre['statut'] === 'epuise') {
@@ -28,6 +33,20 @@ foreach ($offres as $offre) {
     $stats['total_stock'] += $offre['stock'];
 }
 ?>
+<div class="search-bar">
+  <form method="GET" action="/FOODWISE1/router/offreAdminRouter.php">
+    <input type="hidden" name="action" value="indexAdmin">
+
+    <input 
+      type="text" 
+      name="search" 
+      placeholder="🔎 Rechercher une offre..." 
+      value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"
+    >
+
+    <button type="submit">Rechercher</button>
+  </form>
+</div>
 
 <div class="page-intro">
   <div class="page-intro__header">
@@ -86,22 +105,37 @@ foreach ($offres as $offre) {
               </tr>
             <?php else: ?>
               <?php foreach ($offres as $offre): ?>
-                <tr>
+                <?php
+$ratio = $offre['stock_initial'] > 0 
+    ? $offre['stock'] / $offre['stock_initial'] 
+    : 0;
+
+$isCritical = $ratio <= 0.1;
+?>
+
+<tr class="<?= $isCritical ? 'row-critical' : '' ?>">
                   <td><?= htmlspecialchars($offre['titre']) ?></td>
                   <td><?= htmlspecialchars($offre['prix_unitaire']) ?> TND</td>
-                  <td><?= htmlspecialchars($offre['stock']) ?></td>
+                  <td>
+                    <?= htmlspecialchars($offre['stock']) ?>
+
+                    <?php if ($isCritical): ?>
+                    <span class="badge badge--warning">⚠ Stock critique</span>
+                    <?php endif; ?>
+                  </td>
                   <td>
                     <span class="badge badge--<?= $offre['statut'] === 'disponible' ? 'success' : ($offre['statut'] === 'epuise' ? 'danger' : 'secondary') ?>">
                       <?= ucfirst($offre['statut']) ?>
                     </span>
                   </td>
                   <td class="actions-cell">
-                    <a href="/FOODWISE1/offre.php?action=show&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Voir</a>
-                    <a href="/FOODWISE1/offre.php?action=edit&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Éditer</a>
-                    <form method="GET" action="/FOODWISE1/offre.php?action=delete" style="display:inline;">
-                      <input type="hidden" name="id" value="<?= $offre['id'] ?>">
-                      <button class="button button--small button--danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')">Supprimer</button>
-                    </form>
+                    <a href="/FOODWISE1/router/offreAdminRouter.php?action=show&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Voir</a>
+                    <a href="/FOODWISE1/router/offreAdminRouter.php?action=edit&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Éditer</a>
+<form method="GET" action="/FOODWISE1/router/offreAdminRouter.php">
+  <input type="hidden" name="action" value="delete">
+  <input type="hidden" name="id" value="<?= $offre['id'] ?>">
+  <button class="button button--small button--danger">Supprimer</button>
+</form>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -123,7 +157,15 @@ foreach ($offres as $offre) {
 
         <div class="notification notification--warning">
           <strong>Stock faible</strong>
-          <p>Vérifiez les offres avec stock < 10</p>
+          <?php
+            $criticalCount = 0;
+            foreach ($offres as $o) {
+              $r = $o['stock_initial'] > 0 ? $o['stock'] / $o['stock_initial'] : 0;
+              if ($r <= 0.1) $criticalCount++;
+            }
+          ?>
+
+<p><?= $criticalCount ?> offre(s) en stock critique ⚠</p>
         </div>
 
         <div class="notification notification--success">
@@ -138,14 +180,62 @@ foreach ($offres as $offre) {
         <h2>Actions rapides</h2>
       </div>
       <div class="card-body">
-        <a href="/FOODWISE1/offre.php?action=create" class="button button--success" style="width:100%; margin-bottom:12px;">Ajouter une offre</a>
-        <a href="/FOODWISE1/offre.php?action=index" class="button button--secondary" style="width:100%;">Voir toutes les offres</a>
+        <a href="/FOODWISE1/router/offreAdminRouter.php?action=create" class="button button--success" style="width:100%; margin-bottom:12px;">Ajouter une offre</a>
+        <a href="/FOODWISE1/router/offreAdminRouter.php?action=index" class="button button--secondary" style="width:100%;">Voir toutes les offres</a>
       </div>
     </section>
   </div>
 </div>
 
 <style>
+
+.search-bar {
+    margin-bottom: 10px;
+}
+
+.search-bar form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    border: 1px solid rgba(146, 122, 84, 0.2);
+    max-width: 420px;
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 0.95rem;
+    background: transparent;
+    padding: 6px;
+    color: #333;
+}
+
+.search-bar input::placeholder {
+    color: #999;
+}
+
+.search-bar button {
+    border: none;
+    background: #7c5528;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.search-bar button:hover {
+    background: #5e3f1c;
+}
+.row-critical {
+    background: rgba(255, 100, 100, 0.08);
+}
 .page-intro {
     display: flex;
     flex-direction: column;

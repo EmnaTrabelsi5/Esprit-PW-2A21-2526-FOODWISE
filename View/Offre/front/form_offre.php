@@ -25,7 +25,7 @@ $unites = ['kg','g','L','ml','pièce','boîte','bouteille','paquet','sachet','lo
       <?= $isEdit ? 'Mettez à jour les détails de cette offre' : 'Partagez vos produits locaux avec la communauté FoodWise' ?>
     </p>
   </div>
-  <a href="offre.php?action=index" class="btn btn-outline">← Retour aux offres</a>
+  <a href="/FOODWISE1/router/offreRouter.php?action=index" class="btn btn-outline">← Retour aux offres</a>
 </div>
  
 <div style="max-width:780px">
@@ -35,9 +35,9 @@ $unites = ['kg','g','L','ml','pièce','boîte','bouteille','paquet','sachet','lo
     </div>
  
     <form method="post"
-          action="<?= $isEdit 
-    ? '/FOODWISE1/offre.php?action=update' 
-    : '/FOODWISE1/offre.php?action=store' ?>"
+action="<?= $isEdit 
+? '/FOODWISE1/router/offreRouter.php?action=update' 
+: '/FOODWISE1/router/offreRouter.php?action=store' ?>"
           novalidate>
  
       <?php if ($isEdit): ?>
@@ -181,7 +181,7 @@ $unites = ['kg','g','L','ml','pièce','boîte','bouteille','paquet','sachet','lo
         <button type="submit" class="btn btn-primary">
           <?= $isEdit ? '💾 Enregistrer les modifications' : '🌿 Publier l\'offre' ?>
         </button>
-        <a href="offre.php?action=index" class="btn btn-outline">Annuler</a>
+        <a href="/FOODWISE1/router/offreRouter.php?action=index" class="btn btn-outline">Annuler</a>
       </div>
     </form>
   </div>

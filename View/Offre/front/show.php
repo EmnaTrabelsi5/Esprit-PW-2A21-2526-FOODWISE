@@ -16,10 +16,16 @@
 <p><strong>Ville:</strong> <?= $offre['commercant_ville'] ?></p>
 
 <hr>
-
-<a href="offre.php?action=edit&id=<?= $offre['id'] ?>">✏️ Modifier</a>
-<a href="offre.php?action=cloture&id=<?= $offre['id'] ?>">🚫 Clôturer</a>
-<a href="offre.php?action=index">⬅ Retour</a>
+<a href="/FOODWISE1/router/offreRouter.php?action=edit&id=<?= $offre['id'] ?>">✏️ Modifier</a>
+<a href="/FOODWISE1/router/offreRouter.php?action=cloture&id=<?= $offre['id'] ?>">🚫 Clôturer</a>
+<a href="/FOODWISE1/router/offreRouter.php?action=index">⬅ Retour</a>
+<?php if ($offre['statut'] === 'disponible'): ?>
+<a href="/FOODWISE1/router/commandeRouter.php?action=create&id_offre=<?= $offre['id'] ?>">
+    Commander
+</a>
+<?php else: ?>
+    <button disabled>Indisponible</button>
+<?php endif; ?>
 
 <?php require __DIR__ . '/../../layouts/front/footer.php'; ?>
 

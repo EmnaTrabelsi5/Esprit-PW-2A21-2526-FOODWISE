@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../Model/OffreModel.php';
 require_once __DIR__ . '/../Model/CommandeModel.php';
-/*require_once "../Config.php";*/
+require_once __DIR__ . '/../Config.php';
 
 
 
@@ -12,8 +12,17 @@ class OffreController {
     private CommandeModel $commandeModel;
 
     public function __construct() {
+        // Auto-fix: Ensure all offers are available
+        try {
+            $db = config::getConnexion();
+            $db->query("UPDATE `Offre` SET statut = 'disponible' WHERE statut = 'expire'");
+        } catch (Exception $e) {
+            error_log("Warning: Could not update Offre statuses: " . $e->getMessage());
+        }
+        
         $this->model           = new OffreModel();
         $this->commandeModel = new CommandeModel();
+        $this->model->updateExpiredOffers();
     }
 
     // ── Routeur ──────────────────────────────────────────────
@@ -32,6 +41,20 @@ class OffreController {
             default   => $this->index(),
         };
     }
+    public function handleAdminRequest(): void {
+    $action = $_GET['action'] ?? 'indexAdmin';
+
+    match ($action) {
+        'indexAdmin' => $this->indexAdmin(),
+        'show'       => $this->showAdmin(),
+        'edit'       => $this->editAdmin(),
+        'update'     => $this->updateAdmin(),
+        'delete'     => $this->deleteAdmin(),
+        'create'     => $this->createAdmin(),
+        'store'     => $this->storeAdmin(),
+        default      => $this->indexAdmin(),
+    };
+}
 
     // ── Liste des offres (front) ─────────────────────────────
     private function index(): void {
@@ -43,16 +66,33 @@ class OffreController {
             'tri'       => trim($_GET['tri']       ?? 'recent'),
         ];
 
-        $offres      = $this->model->findAll($filtres);
+
+
+        $offres = $this->model->findAll($filtres);
+        
+        $offres = $this->model->enrichWithStockStatus($offres);
+        foreach ($offres as &$offre) {
+            $offre = $this->model->applyDynamicPricing($offre);
+        }
         $stats       = $this->model->getStats();
+
+
         $villes      = CommandeModel::getVilles();
         $commercants = CommandeModel::findAll();
+
+        $stats['critical'] = 0;
+
+        foreach ($offres as $o) {
+            if ($o['is_critical']) {
+            $stats['critical']++;
+            }
+        }
 
     require __DIR__ . '/../View/Offre/front/liste_offre.php';
     }
 
     // ── Détail d'une offre ───────────────────────────────────
-    private function show(): void {
+    /*private function show(): void {
         $id    = (int)($_GET['id'] ?? 0);
 
 
@@ -62,12 +102,25 @@ class OffreController {
 
         if (!$offre) {
             $_SESSION['flash_error'] = "Offre introuvable.";
-            header('Location: offre.php?action=index');
+            header('Location: /FOODWISE1/router/offreRouter.php?action=index');
             exit;
         }
 
     require __DIR__ . '/../View/Offre/front/show.php';
+    }*/
+    private function show(): void {
+    $id = (int)($_GET['id'] ?? 0);
+
+    $offre = $this->model->findById($id);
+
+    if (!$offre) {
+        $_SESSION['flash_error'] = "Offre introuvable.";
+        header('Location: /FOODWISE1/router/offreRouter.php?action=index');
+        exit;
     }
+
+    require __DIR__ . '/../View/Offre/front/show.php';
+}
 
     // ── Formulaire de création ───────────────────────────────
     private function create(): void {
@@ -80,7 +133,7 @@ class OffreController {
     // ── Enregistrer une nouvelle offre ───────────────────────
     private function store(): void {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: offre.php?action=create');
+            header('Location: /FOODWISE1/router/offreRouter.php?action=index');
             exit;
         }
 
@@ -96,7 +149,7 @@ class OffreController {
         $id = $this->model->create($data);
         if ($id) {
             $_SESSION['flash_success'] = "Offre <strong>{$data['titre']}</strong> publiée avec succès !";
-            header("Location: offre.php?action=show&id={$id}");
+            header('Location: /FOODWISE1/router/offreRouter.php?action=index');
         } else {
             $_SESSION['flash_error'] = "Erreur lors de la publication.";
     require __DIR__ . '/../View/Offre/front/form_offre.php';
@@ -113,7 +166,7 @@ class OffreController {
 
         if (!$data) {
             $_SESSION['flash_error'] = "Offre introuvable.";
-            header('Location: offre.php?action=index');
+            header('Location: /FOODWISE1/router/offreRouter.php?action=index');
             exit;
         }
 
@@ -123,7 +176,7 @@ class OffreController {
     // ── Mettre à jour une offre ──────────────────────────────
     private function update(): void {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: offre.php?action=index');
+            header('Location: /FOODWISE1/router/offreRouter.php?action=index');
             exit;
         }
 
@@ -140,12 +193,12 @@ class OffreController {
 
         if ($this->model->update($id, $data)) {
             $_SESSION['flash_success'] = "Offre mise à jour avec succès.";
-            header("Location: offre.php?action=show&id={$id}");
+            header("Location: /FOODWISE1/router/offreRouter.php?action=show&id={$id}");
         } else {
             $_SESSION['flash_error'] = "Erreur lors de la mise à jour.";
-            header("Location: offre.php?action=edit&id={$id}");
-        }
+            header("Location: /FOODWISE1/router/offreRouter.php?action=edit&id={$id}");
         exit;
+    }
     }
 
     // ── Clôturer une offre ───────────────────────────────────
@@ -158,7 +211,7 @@ class OffreController {
             $_SESSION['flash_error'] = "Impossible de clôturer cette offre.";
         }
 
-        $ref = $_SERVER['HTTP_REFERER'] ?? 'offre.php?action=index';
+        $ref = $_SERVER['HTTP_REFERER'] ?? 'offreRouter.php?action=index';
         header("Location: $ref");
         exit;
     }
@@ -173,7 +226,111 @@ class OffreController {
             $_SESSION['flash_error'] = "Impossible de supprimer cette offre.";
         }
 
-        header('Location: offre.php?action=index');
+        header('Location: /FOODWISE1/router/offreRouter.php?action=index');
+        exit;
+    }
+    private function indexAdmin(): void {
+
+    $search = trim($_GET['search'] ?? '');
+
+    $offres = $this->model->findAll([
+        'search' => $search
+    ]);
+
+    $offres = $this->model->enrichWithStockStatus($offres);
+
+    require __DIR__ . '/../View/Offre/back/detail_offre.php';
+}
+private function deleteAdmin(): void {
+
+    $id = (int)($_GET['id'] ?? 0);
+
+    if ($this->model->delete($id)) {
+        $_SESSION['flash_success'] = "Offre supprimée avec succès.";
+    } else {
+        $_SESSION['flash_error'] = "Erreur lors de la suppression.";
+    }
+
+    header('Location: /FOODWISE1/router/offreAdminRouter.php?action=indexAdmin');
+    exit;
+}
+private function showAdmin(): void {
+    $id = (int)($_GET['id'] ?? 0);
+
+    $offre = $this->model->findById($id);
+
+    if (!$offre) {
+        $_SESSION['flash_error'] = "Offre introuvable.";
+        header('Location: /FOODWISE1/router/offreAdminRouter.php');
+        exit;
+    }
+
+    require __DIR__ . '/../View/Offre/back/show_admin.php';
+}
+private function editAdmin(): void {
+    $id = (int)($_GET['id'] ?? 0);
+
+    $data = $this->model->findById($id);
+    $errors = [];
+    $commercants = CommandeModel::findAll('', 'actif');
+
+    if (!$data) {
+        $_SESSION['flash_error'] = "Offre introuvable.";
+        header('Location: /FOODWISE1/router/offreAdminRouter.php');
+        exit;
+    }
+
+    require __DIR__ . '/../View/Offre/back/form_admin.php';
+}
+private function updateAdmin(): void {
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: /FOODWISE1/router/offreAdminRouter.php');
+        exit;
+    }
+
+    $id = (int)($_POST['id'] ?? 0);
+    $data = $_POST;
+
+    if ($this->model->update($id, $data)) {
+        $_SESSION['flash_success'] = "Offre mise à jour.";
+    } else {
+        $_SESSION['flash_error'] = "Erreur.";
+    }
+
+    header('Location: /FOODWISE1/router/offreAdminRouter.php');
+    exit;
+}
+    private function createAdmin(): void {
+        $data        = [];
+        $errors      = [];
+        $commercants = CommandeModel::findAll('', 'actif');
+    require __DIR__ . '/../View/Offre/back/form_offre.php';
+    }
+
+    private function storeAdmin(): void {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: /FOODWISE1/router/offreAdminRouter.php?action=index');
+            exit;
+        }
+
+        $data        = $_POST;
+        $errors      = $this->model->validate($data);
+        $commercants = CommandeModel::findAll('', 'actif');
+
+        if (!empty($errors)) {
+    require __DIR__ . '/../View/Offre/back/form_offre.php';
+            return;
+        }
+
+        $id = $this->model->create($data);
+        if ($id) {
+            $_SESSION['flash_success'] = "Offre <strong>{$data['titre']}</strong> publiée avec succès !";
+            header('Location: /FOODWISE1/router/offreAdminRouter.php?action=index');
+        } else {
+            $_SESSION['flash_error'] = "Erreur lors de la publication.";
+    require __DIR__ . '/../View/Offre/back/form_offre.php';
+        }
         exit;
     }
 }

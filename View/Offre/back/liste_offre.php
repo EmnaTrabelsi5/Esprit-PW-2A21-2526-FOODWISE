@@ -1,10 +1,7 @@
-<?php require __DIR__ . '/../../layouts/front/header.php'; ?>
+<?php require __DIR__ . '/../../layouts/back/header.php'; ?>
 
 
-<?php if (!isset($offres) || !is_array($offres)): ?>
-    <p>Aucune donnée disponible.</p>
-    <?php return; ?>
-<?php endif; ?>
+
 
 
 <div class="card">
@@ -38,36 +35,10 @@
 
       <tbody>
         <?php foreach ($offres as $offre): ?>
-
         <tr>
           <td><?= htmlspecialchars($offre['titre']) ?></td>
           <td><?= htmlspecialchars(strlen($offre['description']) > 80 ? substr($offre['description'], 0, 80) . '...' : $offre['description']) ?></td>
-          <td>
-    <?php if (!empty($offre['remise']) && $offre['remise'] > 0): ?>
-        
-        <span style="text-decoration: line-through; color:#999;">
-            <?= number_format($offre['prix_unitaire'], 2) ?> TND
-        </span>
-        <br>
-
-        <strong style="color:#2c6f37;">
-            <?= number_format($offre['prix_final'], 2) ?> TND
-        </strong>
-        <br>
-
-        <span class="badge badge--warning">
-            -<?= $offre['remise'] ?>% 🔥 Anti-gaspillage
-        </span>
-
-    <?php else: ?>
-        <?= number_format($offre['prix_unitaire'], 2) ?> TND
-    <?php endif; ?>
-</td>
-<?php if (!empty($offre['remise']) && $offre['remise'] > 0): ?>
-    <div style="color:#a86b1d; font-size:0.8rem;">
-        ⏳ Expire bientôt
-    </div>
-<?php endif; ?>
+          <td><?= number_format($offre['prix_unitaire'], 2) ?> TND</td>
           <td><?= $offre['stock'] ?></td>
           <td><?= htmlspecialchars($offre['statut']) ?></td>
           <td><?= htmlspecialchars($offre['commercant_nom'] ?? '') ?></td>
@@ -92,4 +63,4 @@
   </div>
 </div>
 
-<?php require __DIR__ . '/../../layouts/front/footer.php'; ?>
+<?php require __DIR__ . '/../../layouts/back/footer.php'; ?>

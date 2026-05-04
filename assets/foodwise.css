@@ -436,6 +436,10 @@ select.form-control { cursor: pointer; }
   font-size: 13px;
   color: var(--texte-moyen);
 }
+.row-critical {
+    background: #fff3f3 !important;
+    border-left: 4px solid #e74c3c;
+}
 
 .notif-item:last-child { border-bottom: none; }
 
