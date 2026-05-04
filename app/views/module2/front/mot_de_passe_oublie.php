@@ -14,6 +14,8 @@ $successMessage = $successMessage ?? null;
 
 $pageTitle = $pageTitle ?? 'Réinitialiser mon mot de passe';
 $activeNav = '';
+$hideSidebar = true;
+$hideTopbar = true;
 
 require dirname(__DIR__) . '/routes_defaults.php';
 
@@ -30,13 +32,24 @@ require __DIR__ . '/layouts/header.php';
             <span aria-hidden="true">✓</span>
             <span><?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8') ?></span>
           </p>
+          <?php
+            $verifyUrl = ($routesModule2['front_verify_reset_code'] ?? '#');
+            if (isset($old['email']) && !empty($old['email'])) {
+              $verifyUrl .= '&email=' . urlencode($old['email']);
+            }
+          ?>
+          <div style="background: #f0f9ff; border-left: 4px solid #667eea; padding: 15px; margin: 20px 0; border-radius: 4px;">
+            <p style="margin: 0; font-size: 0.95rem;">
+              Une fois le code reçu, <a href="<?= htmlspecialchars($verifyUrl, ENT_QUOTES, 'UTF-8') ?>">cliquez ici pour vérifier votre code</a> et définir un nouveau mot de passe.
+            </p>
+          </div>
         <?php endif; ?>
 
         <form class="fw-form" method="post" action="<?= htmlspecialchars($routesModule2['front_password_reset'] ?? '', ENT_QUOTES, 'UTF-8') ?>" novalidate>
           <input type="hidden" name="_token" value="">
           
           <p style="font-size:0.9rem;margin-bottom:1rem;color:var(--fw-text-muted);">
-            Saisissez votre adresse courriel pour recevoir les instructions de réinitialisation au mot de passe.
+            Saisissez votre adresse courriel pour recevoir un code de réinitialisation au mot de passe.
           </p>
 
           <div class="fw-form__group">
@@ -45,7 +58,7 @@ require __DIR__ . '/layouts/header.php';
             <?php if (!empty($errors['email'])) : ?><small style="color:var(--fw-alert)"><?= htmlspecialchars((string) $errors['email'], ENT_QUOTES, 'UTF-8') ?></small><?php endif; ?>
           </div>
 
-          <button type="submit" class="fw-btn" style="width:100%;padding:0.65rem">Réinitialiser le mot de passe</button>
+          <button type="submit" class="fw-btn" style="width:100%;padding:0.65rem">Envoyer le code</button>
         </form>
 
         <p class="fw-auth-links"><a href="<?= htmlspecialchars($routesModule2['front_connexion'] ?? '#', ENT_QUOTES, 'UTF-8') ?>">Retour à la connexion</a></p>

@@ -64,11 +64,38 @@ require __DIR__ . '/layouts/header.php';
         <h2 id="fw-profil-nut-title" class="fw-card__head" style="padding: 0.5rem 0.75rem; font-size: 0.85rem;"><span aria-hidden="true">⇄</span> Profil</h2>
         <div class="fw-card__body" style="padding: 0.5rem 0.75rem;">
           <dl style="margin: 0;">
-            <dt style="font-size: 0.75rem;">Poids</dt>
+            <dt style="font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              Poids
+              <button type="button" class="fw-visibility-toggle" data-field="show_weight" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: background 0.2s;" title="Basculer la visibilité">
+                <span><?= ($profilNutritionnel['show_weight'] ?? 0) ? '👁️' : '🔒' ?></span>
+              </button>
+            </dt>
             <dd style="font-size: 0.75rem; margin: 0.15rem 0;"><?= $profilNutritionnel['poids_kg'] ? htmlspecialchars((string) $profilNutritionnel['poids_kg'], ENT_QUOTES, 'UTF-8') . ' kg' : '—' ?></dd>
-            <dt style="font-size: 0.75rem;">Taille</dt>
+            <dt style="font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              Taille
+              <button type="button" class="fw-visibility-toggle" data-field="show_height" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: background 0.2s;" title="Basculer la visibilité">
+                <span><?= ($profilNutritionnel['show_height'] ?? 0) ? '👁️' : '🔒' ?></span>
+              </button>
+            </dt>
             <dd style="font-size: 0.75rem; margin: 0.15rem 0;"><?= $profilNutritionnel['taille_cm'] ? htmlspecialchars((string) $profilNutritionnel['taille_cm'], ENT_QUOTES, 'UTF-8') . ' cm' : '—' ?></dd>
-            <dt style="font-size: 0.75rem;">Objectif</dt>
+            <?php 
+              $poids = isset($profilNutritionnel['poids_kg']) ? (float) $profilNutritionnel['poids_kg'] : 0;
+              $taille = isset($profilNutritionnel['taille_cm']) ? (int) $profilNutritionnel['taille_cm'] : 0;
+              if ($poids > 0 && $taille > 0) {
+                $imc = calculateIMC($poids, $taille);
+                $interpretation = interpretIMC($imc);
+            ?>
+            <dt style="font-size: 0.75rem;">IMC</dt>
+            <dd style="font-size: 0.75rem; margin: 0.15rem 0;">
+              <strong><?= number_format($imc, 2, '.', '') ?></strong> <span style="font-size: 0.7rem; color: #666;">(<?= htmlspecialchars($interpretation['categorie'], ENT_QUOTES, 'UTF-8') ?>)</span>
+            </dd>
+            <?php } ?>
+            <dt style="font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              Objectif
+              <button type="button" class="fw-visibility-toggle" data-field="show_goal" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: background 0.2s;" title="Basculer la visibilité">
+                <span><?= ($profilNutritionnel['show_goal'] ?? 0) ? '👁️' : '🔒' ?></span>
+              </button>
+            </dt>
             <dd style="font-size: 0.75rem; margin: 0.15rem 0;">
               <?php
               $objectifsLabels = [
@@ -89,24 +116,49 @@ require __DIR__ . '/layouts/header.php';
         <h2 id="fw-restr-title" class="fw-card__head" style="padding: 0.5rem 0.75rem; font-size: 0.85rem;"><span aria-hidden="true">🚫</span> Régimes</h2>
         <div class="fw-card__body" style="padding: 0.5rem 0.75rem;">
           <dl style="margin: 0;">
-            <dt style="font-size: 0.75rem;">Allergies</dt>
+            <dt style="font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              Allergies
+              <button type="button" class="fw-visibility-toggle" data-field="show_allergies" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: background 0.2s;" title="Basculer la visibilité">
+                <span><?= ($profilNutritionnel['show_allergies'] ?? 0) ? '👁️' : '🔒' ?></span>
+              </button>
+            </dt>
             <dd style="font-size: 0.75rem; margin: 0.15rem 0;">
               <?php if (!empty($profilNutritionnel['allergies'])) : ?>
                 <?php foreach (array_slice($profilNutritionnel['allergies'], 0, 2) as $allergie) : ?>
                   <?= htmlspecialchars(trim($allergie), ENT_QUOTES, 'UTF-8') ?><br>
                 <?php endforeach; ?>
               <?php else : ?>
-                —
+                Aucun
               <?php endif; ?>
             </dd>
-            <dt style="font-size: 0.75rem;">Régimes</dt>
+            <dt style="font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              Régimes
+              <button type="button" class="fw-visibility-toggle" data-field="show_diet" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: background 0.2s;" title="Basculer la visibilité">
+                <span><?= ($profilNutritionnel['show_diet'] ?? 0) ? '👁️' : '🔒' ?></span>
+              </button>
+            </dt>
             <dd style="font-size: 0.75rem; margin: 0.15rem 0;">
               <?php if (!empty($profilNutritionnel['regimes'])) : ?>
                 <?php foreach (array_slice($profilNutritionnel['regimes'], 0, 2) as $regime) : ?>
                   <?= htmlspecialchars(trim($regime), ENT_QUOTES, 'UTF-8') ?><br>
                 <?php endforeach; ?>
               <?php else : ?>
-                —
+                Aucun
+              <?php endif; ?>
+            </dd>
+            <dt style="font-size: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+              Intolérances
+              <button type="button" class="fw-visibility-toggle" data-field="show_intolerances" style="background: none; border: none; font-size: 1rem; cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: background 0.2s;" title="Basculer la visibilité">
+                <span><?= ($profilNutritionnel['show_intolerances'] ?? 0) ? '👁️' : '🔒' ?></span>
+              </button>
+            </dt>
+            <dd style="font-size: 0.75rem; margin: 0.15rem 0;">
+              <?php if (!empty($profilNutritionnel['intolerances'])) : ?>
+                <?php foreach (array_slice($profilNutritionnel['intolerances'], 0, 2) as $intolerance) : ?>
+                  <?= htmlspecialchars(trim($intolerance), ENT_QUOTES, 'UTF-8') ?><br>
+                <?php endforeach; ?>
+              <?php else : ?>
+                Aucun
               <?php endif; ?>
             </dd>
           </dl>
@@ -135,8 +187,8 @@ require __DIR__ . '/layouts/header.php';
                   <td><a class="fw-btn" href="<?= htmlspecialchars($routesModule2['front_profil_edit'] ?? '#', ENT_QUOTES, 'UTF-8') ?>">Éditer</a></td>
                 </tr>
                 <tr>
-                  <td>Définir allergies &amp; régimes</td>
-                  <td><?= !empty($profilNutritionnel['allergies']) || !empty($profilNutritionnel['regimes']) ? 'Configuré' : 'Non configuré' ?></td>
+                  <td>Définir allergies, régimes & intolérances</td>
+                  <td><?= !empty($profilNutritionnel['allergies']) || !empty($profilNutritionnel['regimes']) || !empty($profilNutritionnel['intolerances']) ? 'Configuré' : 'Non configuré' ?></td>
                   <td><a class="fw-btn" href="<?= htmlspecialchars($routesModule2['front_allergies'] ?? '#', ENT_QUOTES, 'UTF-8') ?>">Modifier</a></td>
                 </tr>
               </tbody>
@@ -183,5 +235,42 @@ require __DIR__ . '/layouts/header.php';
 
   </div>
 </main>
+
+<script>
+// Gestion des boutons de visibilité
+document.querySelectorAll('.fw-visibility-toggle').forEach(button => {
+  button.addEventListener('click', async function(e) {
+    e.preventDefault();
+    const field = this.dataset.field;
+    const span = this.querySelector('span');
+    
+    try {
+      const response = await fetch('<?= htmlspecialchars($routesModule2['api_toggle_visibility'] ?? '#', ENT_QUOTES, 'UTF-8') ?>', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ field: field })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        // Basculer l'icône
+        span.textContent = data.isPublic ? '👁️' : '🔒';
+        // Feedback visuel
+        this.style.background = data.isPublic ? '#e3f2fd' : '#ffebee';
+        setTimeout(() => {
+          this.style.background = 'none';
+        }, 300);
+      } else {
+        alert('Erreur lors de la mise à jour');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('Erreur de connexion');
+    }
+  });
+});
+</script>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>

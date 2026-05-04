@@ -62,18 +62,28 @@ function validateConnexion(form) {
 function validateInscription(form) {
   const errors = {};
   const nom = form.querySelector('[name="nom"]').value.trim();
+  const prenom = form.querySelector('[name="prenom"]').value.trim();
   const email = form.querySelector('[name="email"]').value.trim();
   const password = form.querySelector('[name="password"]').value.trim();
   const passwordConfirm = form.querySelector('[name="password_confirm"]').value.trim();
   
   // Vider les erreurs précédentes
   clearFieldError('nom');
+  clearFieldError('prenom');
   clearFieldError('email');
   clearFieldError('password');
   clearFieldError('password_confirm');
   
   if (nom === '') {
     errors.nom = 'Le nom est requis.';
+  } else if (!/^[a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ\s\-]*$/.test(nom)) {
+    errors.nom = 'Le nom ne doit contenir que des lettres, espaces ou tirets, et ne pas commencer par un chiffre.';
+  }
+  
+  if (prenom === '') {
+    errors.prenom = 'Le prénom est requis.';
+  } else if (!/^[a-zA-ZÀ-ÿ][a-zA-ZÀ-ÿ\s\-]*$/.test(prenom)) {
+    errors.prenom = 'Le prénom ne doit contenir que des lettres, espaces ou tirets, et ne pas commencer par un chiffre.';
   }
   
   if (email === '') {
@@ -86,6 +96,10 @@ function validateInscription(form) {
     errors.password = 'Le mot de passe est requis.';
   } else if (password.length < 8) {
     errors.password = 'Le mot de passe doit contenir au moins 8 caractères.';
+  } else if (!/[A-Z]/.test(password)) {
+    errors.password = 'Le mot de passe doit contenir au moins une majuscule.';
+  } else if (!/[0-9]/.test(password)) {
+    errors.password = 'Le mot de passe doit contenir au moins un chiffre.';
   }
   
   if (passwordConfirm !== password) {
@@ -94,6 +108,7 @@ function validateInscription(form) {
   
   // Afficher les erreurs
   if (errors.nom) showFieldError('nom', errors.nom);
+  if (errors.prenom) showFieldError('prenom', errors.prenom);
   if (errors.email) showFieldError('email', errors.email);
   if (errors.password) showFieldError('password', errors.password);
   if (errors.password_confirm) showFieldError('password_confirm', errors.password_confirm);
@@ -116,12 +131,16 @@ function validateProfilEdit(form) {
     errors.poids_kg = 'Le poids est requis.';
   } else if (isNaN(parseFloat(poidsKg)) || parseFloat(poidsKg) <= 0) {
     errors.poids_kg = 'Le poids doit être un nombre positif.';
+  } else if (parseFloat(poidsKg) < 25 || parseFloat(poidsKg) > 250) {
+    errors.poids_kg = 'Veuillez entrer une valeur de poids réaliste.';
   }
   
   if (tailleCm === '') {
     errors.taille_cm = 'La taille est requise.';
   } else if (!/^\d+$/.test(tailleCm) || parseInt(tailleCm) <= 0) {
     errors.taille_cm = 'La taille doit être un entier positif.';
+  } else if (parseInt(tailleCm) < 100 || parseInt(tailleCm) > 250) {
+    errors.taille_cm = 'Veuillez entrer une valeur de taille réaliste.';
   }
   
   const allowed = ['perte', 'maintien', 'prise', 'performance'];
@@ -148,23 +167,95 @@ function validateAllergiesRegimes(form) {
   clearFieldError('regimes');
   clearFieldError('intolerances');
   
-  if (allergies === '' && regimes === '' && intolerances === '') {
-    errors.global = 'Au moins un champ doit être renseigné.';
-    // Afficher l'erreur globale au-dessus du formulaire
-    let globalError = form.querySelector('[data-error-global]');
-    if (!globalError) {
-      globalError = document.createElement('div');
-      globalError.setAttribute('data-error-global', 'true');
-      globalError.style.cssText = 'color:var(--fw-alert);margin-bottom:1rem;font-weight:bold';
-      form.insertBefore(globalError, form.firstChild);
-    }
-    globalError.textContent = errors.global;
-  } else {
-    const globalError = form.querySelector('[data-error-global]');
-    if (globalError) globalError.remove();
+  return Object.keys(errors).length === 0;
+}
+
+/**
+ * Calcule l'IMC et l'affiche en temps réel
+ */
+function updateIMCDisplay(form) {
+  const poidsInput = form.querySelector('[name="poids_kg"]');
+  const tailleInput = form.querySelector('[name="taille_cm"]');
+  
+  if (!poidsInput || !tailleInput) return;
+  
+  const poids = parseFloat(poidsInput.value);
+  const taille = parseInt(tailleInput.value);
+  
+  // Ne rien faire si les valeurs sont invalides
+  if (isNaN(poids) || isNaN(taille) || poids <= 0 || taille <= 0) {
+    return;
   }
   
-  return Object.keys(errors).length === 0;
+  // Calculer l'IMC
+  const taille_m = taille / 100;
+  const imc = (poids / (taille_m * taille_m)).toFixed(2);
+  
+  // Déterminer la catégorie
+  let categorie, couleur, description;
+  if (imc < 18.5) {
+    categorie = 'Insuffisance pondérale';
+    couleur = 'info';
+    description = 'Poids insuffisant';
+  } else if (imc < 25) {
+    categorie = 'Normal';
+    couleur = 'success';
+    description = 'Poids normal';
+  } else if (imc < 30) {
+    categorie = 'Surpoids';
+    couleur = 'warning';
+    description = 'Surpoids léger';
+  } else if (imc < 35) {
+    categorie = 'Obésité classe I';
+    couleur = 'alert';
+    description = 'Obésité de classe I';
+  } else if (imc < 40) {
+    categorie = 'Obésité classe II';
+    couleur = 'alert';
+    description = 'Obésité de classe II';
+  } else {
+    categorie = 'Obésité classe III';
+    couleur = 'alert';
+    description = 'Obésité sévère';
+  }
+  
+  // Chercher ou créer l'élément d'affichage IMC
+  let imcDisplay = form.querySelector('[data-imc-display]');
+  if (!imcDisplay) {
+    imcDisplay = document.createElement('div');
+    imcDisplay.setAttribute('data-imc-display', 'true');
+    tailleInput.parentElement.parentElement.insertAdjacentElement('afterend', imcDisplay);
+  }
+  
+  // Déterminer les couleurs
+  let bgColor, textColor;
+  switch(couleur) {
+    case 'success':
+      bgColor = '#d4edda';
+      textColor = '#155724';
+      break;
+    case 'warning':
+      bgColor = '#fff3cd';
+      textColor = '#856404';
+      break;
+    case 'alert':
+      bgColor = '#f8d7da';
+      textColor = '#721c24';
+      break;
+    default:
+      bgColor = '#e7f3ff';
+      textColor = '#004085';
+  }
+  
+  // Afficher l'IMC
+  imcDisplay.style.cssText = `background-color:${bgColor};border:1px solid ${textColor};border-radius:6px;padding:1rem;margin-top:1rem`;
+  imcDisplay.innerHTML = `
+    <strong style="color:${textColor}">Indice de Masse Corporelle (IMC)</strong>
+    <p style="margin:0.5rem 0;color:${textColor}">
+      <strong>${imc}</strong> — ${categorie}
+    </p>
+    <small style="color:${textColor}">${description}</small>
+  `;
 }
 
 // Initialiser les validations au chargement du DOM
@@ -172,6 +263,22 @@ document.addEventListener('DOMContentLoaded', function() {
   const forms = document.querySelectorAll('.fw-form');
   
   forms.forEach(form => {
+    // Ajouter les écouteurs pour le calcul en temps réel de l'IMC
+    const poidsInput = form.querySelector('[name="poids_kg"]');
+    const tailleInput = form.querySelector('[name="taille_cm"]');
+    
+    if (poidsInput && tailleInput) {
+      poidsInput.addEventListener('input', function() {
+        updateIMCDisplay(form);
+      });
+      tailleInput.addEventListener('input', function() {
+        updateIMCDisplay(form);
+      });
+      
+      // Calculer à la première charge
+      updateIMCDisplay(form);
+    }
+    
     form.addEventListener('submit', function(e) {
       let isValid = true;
       

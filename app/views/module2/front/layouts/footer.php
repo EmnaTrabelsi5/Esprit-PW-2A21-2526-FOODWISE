@@ -20,5 +20,20 @@ declare(strict_types=1);
   </div>
 </div>
 <script src="../assets/js/validation.js"></script>
+<script>
+  // Afficher le badge de messages non lus
+  document.addEventListener('DOMContentLoaded', function() {
+    fetch('<?= htmlspecialchars($routesModule2['front_get_unread_count'] ?? '', ENT_QUOTES, 'UTF-8') ?>')
+      .then(response => response.json())
+      .then(data => {
+        const badge = document.getElementById('fw-unread-badge');
+        if (data.unread_count > 0 && badge) {
+          badge.textContent = data.unread_count;
+          badge.style.display = 'inline-flex';
+        }
+      })
+      .catch(err => console.log('Erreur lors du chargement des messages:', err));
+  });
+</script>
 </body>
 </html>

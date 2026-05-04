@@ -13,7 +13,7 @@ $old = $old ?? [];
 $pageTitle = $pageTitle ?? 'Connexion Admin';
 $activeNav = '';
 
-require dirname(__DIR__, 2) . '/routes_defaults.php';
+require dirname(__DIR__) . '/routes_defaults.php';
 ?>
 <!DOCTYPE html>
 <html lang="fr">

@@ -107,3 +107,67 @@ function logModification(PDO $pdo, int $userId, ?int $adminId, string $entityTyp
     }
 }
 
+/**
+ * Calcule l'Indice de Masse Corporelle (IMC)
+ * IMC = poids (kg) / (taille (m))²
+ * 
+ * @param float $poids_kg Poids en kilogrammes
+ * @param int $taille_cm Taille en centimètres
+ * @return float L'IMC arrondi à 2 décimales
+ */
+function calculateIMC(float $poids_kg, int $taille_cm): float
+{
+    if ($taille_cm <= 0 || $poids_kg <= 0) {
+        return 0;
+    }
+    $taille_m = $taille_cm / 100;
+    return round($poids_kg / ($taille_m * $taille_m), 2);
+}
+
+/**
+ * Interprète l'IMC et retourne une catégorie
+ * 
+ * @param float $imc L'Indice de Masse Corporelle
+ * @return array ['categorie' => string, 'couleur' => string, 'description' => string]
+ */
+function interpretIMC(float $imc): array
+{
+    if ($imc < 18.5) {
+        return [
+            'categorie' => 'Insuffisance pondérale',
+            'couleur' => 'info',
+            'description' => 'Poids insuffisant'
+        ];
+    } elseif ($imc < 25) {
+        return [
+            'categorie' => 'Normal',
+            'couleur' => 'success',
+            'description' => 'Poids normal'
+        ];
+    } elseif ($imc < 30) {
+        return [
+            'categorie' => 'Surpoids',
+            'couleur' => 'warning',
+            'description' => 'Surpoids léger'
+        ];
+    } elseif ($imc < 35) {
+        return [
+            'categorie' => 'Obésité classe I',
+            'couleur' => 'alert',
+            'description' => 'Obésité de classe I'
+        ];
+    } elseif ($imc < 40) {
+        return [
+            'categorie' => 'Obésité classe II',
+            'couleur' => 'alert',
+            'description' => 'Obésité de classe II'
+        ];
+    } else {
+        return [
+            'categorie' => 'Obésité classe III',
+            'couleur' => 'alert',
+            'description' => 'Obésité sévère'
+        ];
+    }
+}
+

@@ -25,8 +25,9 @@ $cssHref = $cssUrl;
 <body class="fw-module2 fw-module2--front">
 <a class="fw-skip-link" href="#fw-main-content">Aller au contenu principal</a>
 <div class="fw-app">
-  <?php require __DIR__ . '/sidebar.php'; ?>
+  <?php if (empty($hideSidebar)) { require __DIR__ . '/sidebar.php'; } ?>
   <div class="fw-main-wrap">
+    <?php if (empty($hideTopbar)) { ?>
     <header class="fw-topbar" role="banner">
       <h1 class="fw-topbar__title"><?= htmlspecialchars($pageTitle, ENT_QUOTES, 'UTF-8') ?></h1>
       <div class="fw-topbar__links">
@@ -35,3 +36,4 @@ $cssHref = $cssUrl;
         <a href="<?= htmlspecialchars($routesModule2['front_logout'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" style="color:var(--fw-alert)"><span aria-hidden="true">🚪</span> Déconnexion</a>
       </div>
     </header>
+    <?php } ?>

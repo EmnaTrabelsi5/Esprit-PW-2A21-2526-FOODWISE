@@ -86,21 +86,21 @@ require __DIR__ . '/layouts/header.php';
       </section>
     </div>
 
-    <section class="fw-card" aria-labelledby="fw-crud-admin-title">
+    <section class="fw-card" aria-labelledby="fw-crud-admin-title" style="grid-column: 2 / -1;">
       <h2 id="fw-crud-admin-title" class="fw-crud-title"><span aria-hidden="true">⚙</span> Configuration détaillée du profil nutritionnel (CRUD)</h2>
       <div class="fw-card__body" style="padding-top:0">
         <div style="margin-bottom:1rem">
           <a class="fw-btn" href="<?= htmlspecialchars($routesModule2['back_profil_form'] ?? '', ENT_QUOTES, 'UTF-8') ?>">Créer un nouveau profil</a>
         </div>
         <div class="fw-table-wrap">
-          <table class="fw-table">
+          <table class="fw-table fw-table--compact">
             <thead>
               <tr>
                 <th scope="col">Photo</th>
                 <th scope="col">Utilisateur</th>
                 <th scope="col">Courriel</th>
                 <th scope="col">Objectif</th>
-                <th scope="col">Score complétion</th>
+                <th scope="col">Statut</th>
                 <th scope="col">Actions</th>
               </tr>
             </thead>
@@ -111,24 +111,69 @@ require __DIR__ . '/layouts/header.php';
                   $complet = $score === 100;
                   ?>
                 <tr>
-                  <td style="text-align: center; padding: 0.5rem;">
+                  <td style="text-align: center; padding: 0.2rem;">
                     <?php 
                       $photoProfil = $ligne['photo_profil'] ?? null;
                       $nomAffiche = trim(($ligne['prenom'] ?? '') . ' ' . ($ligne['nom'] ?? ''));
                       if ($photoProfil && file_exists(__DIR__ . '/../../' . $photoProfil)): ?>
-                        <img src="<?= htmlspecialchars($photoProfil, ENT_QUOTES, 'UTF-8') ?>" alt="Photo de <?= htmlspecialchars($nomAffiche, ENT_QUOTES, 'UTF-8') ?>" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                        <img src="<?= htmlspecialchars($photoProfil, ENT_QUOTES, 'UTF-8') ?>" alt="Photo de <?= htmlspecialchars($nomAffiche, ENT_QUOTES, 'UTF-8') ?>" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
                       <?php else: ?>
-                        <img src="<?= generateAvatarSVG($nomAffiche) ?>" alt="Avatar de <?= htmlspecialchars($nomAffiche, ENT_QUOTES, 'UTF-8') ?>" style="width: 50px; height: 50px; border-radius: 50%;">
+                        <img src="<?= generateAvatarSVG($nomAffiche) ?>" alt="Avatar de <?= htmlspecialchars($nomAffiche, ENT_QUOTES, 'UTF-8') ?>" style="width: 32px; height: 32px; border-radius: 50%;">
                       <?php endif; ?>
                   </td>
                   <td><?= htmlspecialchars((string) ($ligne['prenom'] ?? '') . ' ' . ($ligne['nom'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars((string) ($ligne['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                   <td><?= htmlspecialchars((string) ($ligne['objectif'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
-                  <td><?= $score ?> %</td>
                   <td>
-                    <a class="fw-btn" href="<?= htmlspecialchars($routesModule2['back_profil_form'] ?? '', ENT_QUOTES, 'UTF-8') ?>&id=<?= $id ?>">Éditer</a>
-                    <a class="fw-btn fw-btn--ghost" href="<?= htmlspecialchars($routesModule2['back_dashboard_profils'] ?? '', ENT_QUOTES, 'UTF-8') ?>&action=delete&id=<?= $id ?>">Supprimer</a>
-                    <a class="fw-btn fw-btn--ghost" href="<?= htmlspecialchars('index.php?route=module2.back.modification.history&user_id=' . $id, ENT_QUOTES, 'UTF-8') ?>">Historique</a>
+                    <?php
+                      $status = $ligne['status'] ?? 'active';
+                      $suspendedUntil = $ligne['suspended_until'] ?? null;
+                      
+                      if ($status === 'active') {
+                        echo '<span style="color: green; font-weight: bold;">✓ Actif</span>';
+                      } elseif ($status === 'suspended') {
+                        $daysLeft = null;
+                        if ($suspendedUntil) {
+                          $daysLeft = ceil((strtotime($suspendedUntil) - time()) / (24 * 60 * 60));
+                        }
+                        echo '<span style="color: orange; font-weight: bold;">⏸ Suspendu' . ($daysLeft !== null && $daysLeft > 0 ? ' (' . $daysLeft . 'j)' : '') . '</span>';
+                      } elseif ($status === 'banned') {
+                        echo '<span style="color: red; font-weight: bold;">🚫 Banni</span>';
+                      }
+                    ?>
+                  </td>
+                  <td style="padding: 0.5rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                      <a class="fw-btn" href="<?= htmlspecialchars($routesModule2['back_profil_form'] ?? '', ENT_QUOTES, 'UTF-8') ?>&id=<?= $id ?>" style="padding: 6px 12px; font-size: 12px;">Edit</a>
+                      
+                      <?php if ($status === 'active'): ?>
+                        <form method="post" style="display: flex; gap: 0.2rem;" onsubmit="return confirm('Suspendre cet utilisateur ?');">
+                          <input type="hidden" name="user_id" value="<?= $id ?>">
+                          <input type="number" name="days" value="7" min="1" max="365" style="width: 50px; padding: 4px 6px; border: 1px solid #ccc; border-radius: 3px; font-size: 11px;">
+                          <button type="submit" formaction="<?= htmlspecialchars('index.php?route=module2.back.suspend.user', ENT_QUOTES, 'UTF-8') ?>" class="fw-btn fw-btn--ghost" style="flex: 1; padding: 6px 12px; font-size: 12px;">Suspendre</button>
+                        </form>
+                        <form method="post" onsubmit="return confirm('Bannir cet utilisateur ?');">
+                          <input type="hidden" name="user_id" value="<?= $id ?>">
+                          <input type="hidden" name="reason" value="">
+                          <button type="submit" formaction="<?= htmlspecialchars('index.php?route=module2.back.ban.user', ENT_QUOTES, 'UTF-8') ?>" class="fw-btn fw-btn--ghost" style="width: 100%; color: red; padding: 6px 12px; font-size: 12px;">Bannir</button>
+                        </form>
+                      <?php elseif ($status === 'suspended'): ?>
+                        <form method="post">
+                          <input type="hidden" name="user_id" value="<?= $id ?>">
+                          <button type="submit" formaction="<?= htmlspecialchars('index.php?route=module2.back.lift.suspension', ENT_QUOTES, 'UTF-8') ?>" class="fw-btn fw-btn--ghost" style="width: 100%; color: green; padding: 6px 12px; font-size: 12px;">Lever suspen.</button>
+                        </form>
+                      <?php endif; ?>
+                      
+                      <?php if ($status === 'banned'): ?>
+                        <form method="post">
+                          <input type="hidden" name="user_id" value="<?= $id ?>">
+                          <button type="submit" formaction="<?= htmlspecialchars('index.php?route=module2.back.unban.user', ENT_QUOTES, 'UTF-8') ?>" class="fw-btn fw-btn--ghost" style="width: 100%; color: green; padding: 6px 12px; font-size: 12px;">Débannir</button>
+                        </form>
+                      <?php endif; ?>
+                      
+                      <a class="fw-btn fw-btn--ghost" href="<?= htmlspecialchars($routesModule2['back_dashboard_profils'] ?? '', ENT_QUOTES, 'UTF-8') ?>&action=delete&id=<?= $id ?>" style="padding: 6px 12px; font-size: 12px;">Supprimer</a>
+                      <a class="fw-btn fw-btn--ghost" href="<?= htmlspecialchars('index.php?route=module2.back.modification.history&user_id=' . $id, ENT_QUOTES, 'UTF-8') ?>" style="padding: 6px 12px; font-size: 12px;">Historique</a>
+                    </div>
                   </td>
                 </tr>
               <?php endforeach; ?>
@@ -138,21 +183,7 @@ require __DIR__ . '/layouts/header.php';
       </div>
     </section>
 
-    <div class="fw-grid">
-      <section class="fw-card" aria-labelledby="fw-notif-metier-title">
-        <h2 id="fw-notif-metier-title" class="fw-card__head fw-card__head--olive"><span aria-hidden="true">📣</span> Notifications métier</h2>
-        <div class="fw-card__body">
-          <p class="fw-alert-box fw-alert-box--red" role="alert">
-            <span aria-hidden="true">⚠</span>
-            <span>Alerte incohérence : certains objectifs de poids ne correspondent pas aux apports enregistrés.</span>
-          </p>
-          <p class="fw-alert-box fw-alert-box--green" role="status">
-            <span aria-hidden="true">✓</span>
-            <span>Nouveau calcul métier : score de correspondance recalculé. <a href="#">Voir détails</a></span>
-          </p>
-        </div>
-      </section>
-    </div>
+
   </div>
 </main>
 

@@ -65,6 +65,34 @@ require __DIR__ . '/layouts/header.php';
             </div>
           </div>
 
+          <?php 
+            $poids = isset($old['poids_kg']) ? (float) $old['poids_kg'] : 0;
+            $taille = isset($old['taille_cm']) ? (int) $old['taille_cm'] : 0;
+            if ($poids > 0 && $taille > 0) {
+              $imc = calculateIMC($poids, $taille);
+              $interpretation = interpretIMC($imc);
+              $bgColor = match($interpretation['couleur']) {
+                'success' => '#d4edda',
+                'warning' => '#fff3cd',
+                'alert' => '#f8d7da',
+                default => '#e7f3ff'
+              };
+              $textColor = match($interpretation['couleur']) {
+                'success' => '#155724',
+                'warning' => '#856404',
+                'alert' => '#721c24',
+                default => '#004085'
+              };
+          ?>
+          <div style="background-color:<?= $bgColor ?>;border:1px solid <?= $textColor ?>;border-radius:6px;padding:1rem;margin-top:1rem">
+            <strong style="color:<?= $textColor ?>">Indice de Masse Corporelle (IMC)</strong>
+            <p style="margin:0.5rem 0;color:<?= $textColor ?>">
+              <strong><?= number_format($imc, 2, '.', '') ?></strong> — <?= htmlspecialchars($interpretation['categorie'], ENT_QUOTES, 'UTF-8') ?>
+            </p>
+            <small style="color:<?= $textColor ?>"><?= htmlspecialchars($interpretation['description'], ENT_QUOTES, 'UTF-8') ?></small>
+          </div>
+          <?php } ?>
+
           <div class="fw-form__group">
             <label for="fw-admin-objectif">Objectif</label>
             <select id="fw-admin-objectif" name="objectif">

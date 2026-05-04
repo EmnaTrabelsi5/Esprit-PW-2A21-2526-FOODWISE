@@ -166,14 +166,19 @@ class BackController
                     
                     error_log("DEBUG profilForm: userId=$userId, oldProfile=" . json_encode($oldProfile) . ", newPoids=" . $old['poids_kg']);
                     
+                    // Standardiser les allergies, régimes et intolérances
+                    $allergies = AllergenMappings::standardizeAllergenList($old['allergies'] ?? '');
+                    $regimes = AllergenMappings::standardizeRegimeList($old['regimes'] ?? '');
+                    $intolerances = AllergenMappings::standardizeIntoleranceList($old['intolerances'] ?? '');
+                    
                     // Maintenant on modifie
                     $this->profilModel->save($userId, [
                         'poids_kg' => (float) $old['poids_kg'],
                         'taille_cm' => (int) $old['taille_cm'],
                         'objectif' => $old['objectif'],
-                        'allergies' => $old['allergies'] ?? '',
-                        'regimes' => $old['regimes'] ?? '',
-                        'intolerances' => $old['intolerances'] ?? '',
+                        'allergies' => $allergies,
+                        'regimes' => $regimes,
+                        'intolerances' => $intolerances,
                     ]);
                     
                     // Enregistrer les modifications du profil nutritionnel
@@ -248,9 +253,13 @@ class BackController
         }
         if ($data['poids_kg'] === '' || !is_numeric($data['poids_kg']) || (float) $data['poids_kg'] <= 0) {
             $errors['poids_kg'] = 'Le poids doit être un nombre positif.';
+        } elseif ((float) $data['poids_kg'] < 25 || (float) $data['poids_kg'] > 250) {
+            $errors['poids_kg'] = 'Veuillez entrer une valeur de poids réaliste.';
         }
         if ($data['taille_cm'] === '' || !ctype_digit($data['taille_cm']) || (int) $data['taille_cm'] <= 0) {
             $errors['taille_cm'] = 'La taille doit être un entier positif.';
+        } elseif ((int) $data['taille_cm'] < 100 || (int) $data['taille_cm'] > 250) {
+            $errors['taille_cm'] = 'Veuillez entrer une valeur de taille réaliste.';
         }
 
         $allowed = ['perte', 'maintien', 'prise', 'performance'];
@@ -480,6 +489,140 @@ class BackController
         }
 
         return null;
+    }
+
+    /**
+     * Suspendre un utilisateur
+     */
+    public function suspendUser(): void
+    {
+        if (!$this->isAdminAuthenticated()) {
+            http_response_code(403);
+            die('Non autorisé');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(400);
+            die('Requête invalide');
+        }
+
+        $userId = isset($_POST['user_id']) ? (int) $_POST['user_id'] : null;
+        $days = isset($_POST['days']) ? (int) $_POST['days'] : null;
+
+        if ($userId === null || $days === null || $days <= 0) {
+            http_response_code(400);
+            die('Paramètres invalides');
+        }
+
+        try {
+            $this->userModel->suspendUser($userId, $days);
+            $adminId = (int) $_SESSION['admin_id'];
+            logModification($this->pdo, $userId, $adminId, 'utilisateurs', $userId, 'status', 'active', 'suspended');
+            redirect(buildRoute('module2.back.dashboard.profils'));
+        } catch (PDOException $e) {
+            http_response_code(500);
+            die('Erreur lors de la suspension');
+        }
+    }
+
+    /**
+     * Lever la suspension d'un utilisateur
+     */
+    public function liftSuspension(): void
+    {
+        if (!$this->isAdminAuthenticated()) {
+            http_response_code(403);
+            die('Non autorisé');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(400);
+            die('Requête invalide');
+        }
+
+        $userId = isset($_POST['user_id']) ? (int) $_POST['user_id'] : null;
+
+        if ($userId === null) {
+            http_response_code(400);
+            die('Paramètres invalides');
+        }
+
+        try {
+            $this->userModel->liftSuspension($userId);
+            $adminId = (int) $_SESSION['admin_id'];
+            logModification($this->pdo, $userId, $adminId, 'utilisateurs', $userId, 'status', 'suspended', 'active');
+            redirect(buildRoute('module2.back.dashboard.profils'));
+        } catch (PDOException $e) {
+            http_response_code(500);
+            die('Erreur lors de la levée de suspension');
+        }
+    }
+
+    /**
+     * Bannir un utilisateur
+     */
+    public function banUser(): void
+    {
+        if (!$this->isAdminAuthenticated()) {
+            http_response_code(403);
+            die('Non autorisé');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(400);
+            die('Requête invalide');
+        }
+
+        $userId = isset($_POST['user_id']) ? (int) $_POST['user_id'] : null;
+        $reason = isset($_POST['reason']) ? trim((string) $_POST['reason']) : '';
+
+        if ($userId === null) {
+            http_response_code(400);
+            die('Paramètres invalides');
+        }
+
+        try {
+            $this->userModel->banUser($userId, $reason);
+            $adminId = (int) $_SESSION['admin_id'];
+            logModification($this->pdo, $userId, $adminId, 'utilisateurs', $userId, 'status', 'active', 'banned');
+            redirect(buildRoute('module2.back.dashboard.profils'));
+        } catch (PDOException $e) {
+            http_response_code(500);
+            die('Erreur lors du bannissement');
+        }
+    }
+
+    /**
+     * Retirer le bannissement d'un utilisateur
+     */
+    public function unbanUser(): void
+    {
+        if (!$this->isAdminAuthenticated()) {
+            http_response_code(403);
+            die('Non autorisé');
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(400);
+            die('Requête invalide');
+        }
+
+        $userId = isset($_POST['user_id']) ? (int) $_POST['user_id'] : null;
+
+        if ($userId === null) {
+            http_response_code(400);
+            die('Paramètres invalides');
+        }
+
+        try {
+            $this->userModel->unbanUser($userId);
+            $adminId = (int) $_SESSION['admin_id'];
+            logModification($this->pdo, $userId, $adminId, 'utilisateurs', $userId, 'status', 'banned', 'active');
+            redirect(buildRoute('module2.back.dashboard.profils'));
+        } catch (PDOException $e) {
+            http_response_code(500);
+            die('Erreur lors de la levée du bannissement');
+        }
     }
 }
 

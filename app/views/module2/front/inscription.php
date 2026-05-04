@@ -12,6 +12,8 @@ $old = $old ?? [];
 
 $pageTitle = $pageTitle ?? 'Inscription';
 $activeNav = '';
+$hideSidebar = true;
+$hideTopbar = true;
 
 require dirname(__DIR__) . '/routes_defaults.php';
 
@@ -33,6 +35,7 @@ require __DIR__ . '/layouts/header.php';
           <div class="fw-form__group">
             <label for="fw-ins-prenom">Prénom</label>
             <input type="text" id="fw-ins-prenom" name="prenom" value="<?= htmlspecialchars((string) ($old['prenom'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" autocomplete="given-name">
+            <?php if (!empty($errors['prenom'])) : ?><small style="color:var(--fw-alert)"><?= htmlspecialchars((string) $errors['prenom'], ENT_QUOTES, 'UTF-8') ?></small><?php endif; ?>
           </div>
           <div class="fw-form__group">
             <label for="fw-ins-email">Courriel</label>

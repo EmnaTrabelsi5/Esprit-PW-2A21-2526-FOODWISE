@@ -380,6 +380,19 @@ select.form-control { cursor: pointer; }
 
 .fw-table tr:hover td { background: rgba(253,246,236,0.7); }
 
+/* ── Table compacte pour dahboard ── */
+.fw-table--compact th { padding: 5px 8px; font-size: 10px; }
+.fw-table--compact td { padding: 4px 8px; font-size: 12px; }
+.fw-table--compact { font-size: 0.8rem; line-height: 1.2; }
+
+/* ── Boutons compacts pour le dashboard ── */
+.fw-table--compact .fw-btn {
+  padding: 2px 4px !important;
+  font-size: 10px !important;
+  line-height: 1;
+  min-height: auto;
+}
+
 /* ── Carte contenu ── */
 .card {
   background: var(--blanc);
