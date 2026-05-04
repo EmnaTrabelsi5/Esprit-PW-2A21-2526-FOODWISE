@@ -533,13 +533,48 @@ document.addEventListener('DOMContentLoaded', () => {
         renderer.setPixelRatio(window.devicePixelRatio);
         container.appendChild(renderer.domElement);
 
-        // Better Lighting for Black Silhouette
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        // Eclairage "Cinématique Studio" (Plus attirant)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.25); // Plus sombre pour plus de contraste
         scene.add(ambientLight);
         
-        const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        mainLight.position.set(5, 10, 7.5);
+        // Lumière principale (Key light) douce et chaude
+        const mainLight = new THREE.DirectionalLight(0xfff5e6, 0.9);
+        mainLight.position.set(-5, 8, 8);
         scene.add(mainLight);
+
+        // Lumière de remplissage (Fill light) opposée
+        const fillLight = new THREE.DirectionalLight(0xddeeff, 0.3);
+        fillLight.position.set(5, -2, 5);
+        scene.add(fillLight);
+
+        // Lumière de contour (Rim light) bleutée pour détacher la silhouette
+        const rimLight = new THREE.DirectionalLight(0xaaccff, 1.2);
+        rimLight.position.set(2, 5, -8);
+        scene.add(rimLight);
+
+        // Socle / Ombre portée douce sous le personnage
+        const shadowGeo = new THREE.PlaneGeometry(3.5, 3.5);
+        // Création d'un dégradé radial dynamique pour l'ombre
+        const canvas = document.createElement('canvas');
+        canvas.width = 128; canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+        gradient.addColorStop(0, 'rgba(0,0,0,0.15)');
+        gradient.addColorStop(0.5, 'rgba(0,0,0,0.05)');
+        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = gradient; ctx.fillRect(0,0,128,128);
+        const shadowTexture = new THREE.CanvasTexture(canvas);
+        const shadowMat = new THREE.MeshBasicMaterial({ 
+            map: shadowTexture, transparent: true, depthWrite: false 
+        });
+        const shadowPlane = new THREE.Mesh(shadowGeo, shadowMat);
+        shadowPlane.rotation.x = -Math.PI / 2;
+        shadowPlane.position.y = -2.35; // Juste sous les pieds
+        scene.add(shadowPlane);
+
+        const backLight = new THREE.DirectionalLight(0xfff0e0, 0.15);
+        backLight.position.set(0, 5, -10);
+        scene.add(backLight);
 
         // Body Group
         const bodyGroup = new THREE.Group();
@@ -548,90 +583,275 @@ document.addEventListener('DOMContentLoaded', () => {
         function createModel(gender, scale) {
             bodyGroup.clear();
             
-            const material = new THREE.MeshPhongMaterial({ 
-                color: 0x000000,
-                shininess: 10,
-                specular: 0x111111
+            // Matériau de peau Premium (Subsurface scattering simulé)
+            const material = new THREE.MeshStandardMaterial({ 
+                color: 0xe0b99e,
+                roughness: 0.45,  // Un peu plus lisse pour capter la lumière
+                metalness: 0.05,
+                emissive: 0x2a0a00, // Rouge sombre pour simuler la lumière sous la peau
+                emissiveIntensity: 0.15
             });
             const fatFactor = (scale - 1) * 1.5;
             const widthScale = 1 + fatFactor;
             
-            // --- TRUNK (Advanced Anatomical Lathe) ---
-            const bodySegments = 60;
+            // --- TRONC (Forme anatomique aplatie et fluide) ---
+            const bodySegments = 80;
             const bodyPoints = [];
             
+            // Dimensions de base selon le genre
+            const shoulderWidth = gender === 'male' ? 0.65 : 0.50;
+            const waistWidth    = gender === 'female' ? 0.35 : 0.45;
+            const hipWidth      = gender === 'female' ? 0.58 : 0.48;
+
             for (let i = 0; i <= bodySegments; i++) {
-                const t = i / bodySegments;
+                const t = i / bodySegments; // 0 (Haut du cou) à 1 (Entrejambe)
                 let r = 0;
-                let y = (2.0 - t * 2.2); 
+                let y = (2.1 - t * 2.4); 
                 
-                if (t < 0.05) { // Neck
-                    r = 0.12;
-                } else if (t < 0.15) { // Shoulders/Trapezius
-                    const st = (t - 0.05) / 0.1;
-                    const shoulderR = gender === 'male' ? 0.65 : 0.52;
-                    r = 0.12 + (shoulderR - 0.12) * Math.pow(Math.sin(st * Math.PI / 2), 0.5);
-                } else if (t < 0.4) { // Ribcage (Thorax)
-                    const ct = (t - 0.15) / 0.25;
-                    const shoulderR = gender === 'male' ? 0.65 : 0.52;
-                    const waistR = (gender === 'female' ? 0.35 : 0.48) * (1 + fatFactor * 0.4);
-                    r = shoulderR - (shoulderR - waistR) * Math.sin(ct * Math.PI / 2);
-                    // Add pectoral/chest volume for male
-                    if (gender === 'male' && ct < 0.5) r += 0.05 * Math.sin(ct * Math.PI);
-                } else if (t < 0.6) { // Waist/Abdomen (The Morphing Zone)
-                    const wt = (t - 0.4) / 0.2;
-                    const waistR = (gender === 'female' ? 0.35 : 0.48) * (1 + fatFactor * 0.4);
-                    const hipR = (gender === 'female' ? 0.65 : 0.55) * widthScale;
-                    r = waistR + (hipR - waistR) * Math.sin(wt * Math.PI / 2);
-                    // Belly fat volume
+                if (t < 0.08) { 
+                    // Cou
+                    r = 0.10 + Math.pow(t / 0.08, 2) * 0.04; 
+                } else if (t < 0.22) { 
+                    // Trapèzes et Épaules
+                    const st = (t - 0.08) / 0.14;
+                    r = 0.14 + (shoulderWidth - 0.14) * Math.sin(st * Math.PI / 2);
+                } else if (t < 0.48) { 
+                    // Torse vers taille
+                    const ct = (t - 0.22) / 0.26;
+                    const smoothCt = ct * ct * (3 - 2 * ct);
+                    r = shoulderWidth - (shoulderWidth - waistWidth) * smoothCt;
+                } else if (t < 0.72) { 
+                    // Taille vers hanches
+                    const wt = (t - 0.48) / 0.24;
+                    const smoothWt = wt * wt * (3 - 2 * wt);
+                    r = waistWidth + (hipWidth * widthScale - waistWidth) * smoothWt;
+                    // Affinage de la taille : on limite l'expansion cylindrique (effet "tonneau")
                     if (scale > 1) {
-                        r += fatFactor * 0.5 * Math.sin(wt * Math.PI);
+                        r += fatFactor * 0.15 * Math.sin(wt * Math.PI);
                     }
-                } else { // Pelvis to Crotch
-                    const pt = (t - 0.6) / 0.4;
-                    const hipR = (gender === 'female' ? 0.65 : 0.55) * widthScale;
-                    r = hipR * (1 - pt * 0.3);
+                } else { 
+                    // Bassin vers l'entrejambe (plus plat en bas)
+                    const pt = (t - 0.72) / 0.28;
+                    // Utiliser une puissance pour aplatir le bas du bassin
+                    r = hipWidth * widthScale * Math.pow(Math.cos(pt * Math.PI / 2), 0.6);
                 }
-                
                 bodyPoints.push(new THREE.Vector2(r, y));
             }
             
-            const bodyG = new THREE.LatheGeometry(bodyPoints, 40);
+            const bodyG = new THREE.LatheGeometry(bodyPoints, 64);
+            
+            // SCULPTURE 3D AVANCÉE DU TORSE (Pectoraux, Dos, Abdos, Fessiers)
+            const bodyPos = bodyG.attributes.position;
+            for (let i = 0; i < bodyPos.count; i++) {
+                let x = bodyPos.getX(i);
+                let y = bodyPos.getY(i);
+                let z = bodyPos.getZ(i);
+                const t = (2.1 - y) / 2.4; // 0 (cou) à 1 (entrejambe)
+                
+                // Clavicules (Devant)
+                if (z > 0 && t > 0.15 && t < 0.22) {
+                    z += 0.015 * (1 - Math.abs(x) / shoulderWidth);
+                }
+                // Pectoraux / Poitrine (Devant)
+                if (z > 0 && t > 0.22 && t < 0.45) {
+                    const pt = (t - 0.22) / 0.23;
+                    // Courbe plus naturelle (plat au dessus, marqué en dessous)
+                    let bulge = Math.sin(Math.pow(pt, 0.7) * Math.PI) * (gender === 'male' ? 0.05 : 0.095);
+                    // Sépare les deux pectoraux avec un creux central (sternum)
+                    const sternumDip = Math.min(1, Math.abs(x) / 0.06); 
+                    const sideTaper = Math.max(0, 1 - Math.abs(x) / (shoulderWidth * 0.8));
+                    z += bulge * sideTaper * (0.2 + 0.8 * sternumDip);
+                }
+                // Omoplates (Arrière)
+                if (z < 0 && t > 0.18 && t < 0.4) {
+                    const bt = (t - 0.18) / 0.22;
+                    let bulge = Math.sin(bt * Math.PI) * 0.035;
+                    const sideFactor = Math.max(0, Math.abs(x) / shoulderWidth);
+                    z -= bulge * sideFactor;
+                }
+                // Abdos et Bas-Ventre (Devant) - Silhouette harmonieuse
+                if (z > 0 && t > 0.48 && t < 0.75) {
+                    const at = (t - 0.48) / 0.27;
+                    const centerFactor = Math.max(0, 1 - Math.abs(x) / (waistWidth * 1.5));
+                    
+                    if (gender === 'male' && scale <= 1.05) {
+                        // Abdos plus définis (6-pack et obliques)
+                        const ripple = Math.sin(at * Math.PI * 3.5) * 0.015; 
+                        // Ligne blanche (creux central vertical)
+                        const lineaAlba = Math.min(1, Math.abs(x) / 0.04);
+                        // V-taper (les abdos se resserrent vers le bas)
+                        const absWidth = 0.2 - (at * 0.08); 
+                        const absBox = Math.max(0, 1 - Math.abs(x) / absWidth);
+                        z += ripple * absBox * (0.1 + 0.9 * lineaAlba);
+                        
+                        // Obliques (légères lignes sur les côtés du ventre)
+                        if (Math.abs(x) > absWidth && Math.abs(x) < 0.3) {
+                            const obq = Math.sin(at * Math.PI * 2) * 0.008;
+                            z += obq * (1 - Math.abs(x - absWidth) / 0.1);
+                        }
+                    } 
+                    
+                    if (scale > 1) {
+                        // Bas-ventre naturel pour profils plus enrobés
+                        // Pousse vers l'avant (Z) de manière concentrée plutôt qu'en largeur
+                        const bellyShape = Math.sin(at * Math.PI) * (1 + at * 0.5); 
+                        z += fatFactor * 0.4 * bellyShape * centerFactor;
+                    }
+                }
+                // Fessiers (Arrière)
+                if (z < 0 && t > 0.72 && t < 0.98) {
+                    const gt = (t - 0.72) / 0.26;
+                    // Fessiers plus rebondis et naturels
+                    const bulge = Math.sin(gt * Math.PI) * (gender === 'female' ? 0.12 : 0.09);
+                    const splitFactor = Math.min(1, Math.abs(x) / 0.12); // Creux inter-fessier
+                    z -= bulge * splitFactor;
+                }
+                // Aine / Bassin avant (creux naturel)
+                if (z > 0 && t > 0.75 && t < 0.95) {
+                    const gt = (t - 0.75) / 0.2;
+                    z -= Math.sin(gt * Math.PI) * 0.02; // Aplatit très légèrement l'entrejambe à l'avant
+                }
+                bodyPos.setZ(i, z);
+            }
+            bodyG.computeVertexNormals(); // Recalculer la lumière après déformation
+            
             const body = new THREE.Mesh(bodyG, material);
+            // Aplatir le torse sur l'axe Z pour un corps humain
+            body.scale.set(1, 1, gender === 'female' ? 0.6 : 0.55);
             bodyGroup.add(body);
 
-            // --- HEAD ---
-            const headG = new THREE.SphereGeometry(0.3, 32, 32);
+            // --- TÊTE (Sculptée avec menton, joues et nez) ---
+            const headPoints = [];
+            for (let i = 0; i <= 40; i++) {
+                const t = i / 40; // 0 (bas) à 1 (haut)
+                let r = 0;
+                let y = t * 0.55; 
+                if (t < 0.3) {
+                    // Mâchoire
+                    r = 0.12 + Math.sin((t / 0.3) * Math.PI / 2) * 0.14;
+                } else if (t < 0.6) {
+                    // Joues / Tempes
+                    r = 0.26 + Math.sin(((t - 0.3) / 0.3) * Math.PI) * 0.02;
+                } else {
+                    // Crâne
+                    r = 0.26 * Math.cos(((t - 0.6) / 0.4) * Math.PI / 2);
+                }
+                headPoints.push(new THREE.Vector2(r, y));
+            }
+            const headG = new THREE.LatheGeometry(headPoints, 40);
+            
+            const headPos = headG.attributes.position;
+            for (let i = 0; i < headPos.count; i++) {
+                let x = headPos.getX(i);
+                let y = headPos.getY(i);
+                let z = headPos.getZ(i);
+                const t = y / 0.55;
+                
+                // Nez (Devant au centre)
+                if (z > 0 && Math.abs(x) < 0.06 && t > 0.3 && t < 0.45) {
+                    z += 0.045 * Math.sin(((t - 0.3) / 0.15) * Math.PI);
+                }
+                // Yeux (Orbites creusées)
+                if (z > 0 && Math.abs(x) > 0.03 && Math.abs(x) < 0.1 && t > 0.42 && t < 0.52) {
+                    z -= 0.015 * Math.sin(((t - 0.42) / 0.1) * Math.PI);
+                }
+                // Bouche (Léger pli)
+                if (z > 0 && Math.abs(x) < 0.06 && t > 0.22 && t < 0.28) {
+                    z -= 0.01;
+                }
+                // Aplatir légèrement l'arrière du crâne et les côtés
+                if (z < 0) z *= 0.85;
+                if (Math.abs(x) > 0.1) z *= 0.95;
+                
+                headPos.setZ(i, z);
+            }
+            headG.computeVertexNormals();
+
             const head = new THREE.Mesh(headG, material);
-            head.position.y = 2.25;
-            head.scale.set(1, 1.3, 0.95);
+            head.position.y = 2.05; // Ajusté pour le nouveau cou
+            head.scale.set(0.85, 1.1, 0.95);
             bodyGroup.add(head);
 
-            // --- ARMS (Muscular taper) ---
+            // --- BRAS (Musculature 3D) ---
             function createArm(isLeft) {
                 const armPoints = [];
-                const armSegments = 30;
+                const armSegments = 40;
+                const baseArmScale = gender === 'male' ? 1.0 : 0.8;
+                const armFat = fatFactor * 0.12;
+                
                 for (let i = 0; i <= armSegments; i++) {
                     const t = i / armSegments;
                     let r = 0;
-                    if (t < 0.4) r = 0.15 - t * 0.05; // Bicep area
-                    else if (t < 0.9) r = 0.1 - (t - 0.4) * 0.04; // Forearm
-                    else r = 0.06; // Wrist
                     
-                    r *= (1 + fatFactor * 0.15);
-                    armPoints.push(new THREE.Vector2(r, -t * 1.4));
+                    if (t < 0.05) {
+                        // Fermer le haut de l'épaule pour éviter l'artefact 3D (arrondi)
+                        r = 0.15 * baseArmScale * 1.1 * Math.sin((t / 0.05) * Math.PI / 2);
+                    } else if (t < 0.52) {
+                        const bt = (t - 0.2) / 0.32;
+                        r = (0.11 - bt * 0.02) * baseArmScale;
+                    } else if (t < 0.58) {
+                        // Articulation du coude (adoucissement)
+                        r = 0.088 * baseArmScale;
+                    } else if (t < 0.85) {
+                        const ft = (t - 0.58) / 0.27;
+                        // Avant-bras avec courbe douce
+                        r = (0.095 - ft * 0.04) * baseArmScale + Math.sin(ft * Math.PI) * 0.01;
+                    } else {
+                        r = 0.055 * baseArmScale;
+                    }
+                    
+                    r *= (1 + armFat);
+                    armPoints.push(new THREE.Vector2(r, -t * 1.5)); 
                 }
-                const armG = new THREE.LatheGeometry(armPoints, 20);
+                
+                const armG = new THREE.LatheGeometry(armPoints, 32);
+                const armPos = armG.attributes.position;
+                
+                for (let i = 0; i < armPos.count; i++) {
+                    let x = armPos.getX(i);
+                    let y = armPos.getY(i);
+                    let z = armPos.getZ(i);
+                    const t = -y / 1.5;
+                    
+                    // Biceps (Devant)
+                    if (z > 0 && t > 0.2 && t < 0.45) {
+                        z += Math.sin(((t - 0.2) / 0.25) * Math.PI) * 0.025 * baseArmScale;
+                    }
+                    // Triceps (Arrière)
+                    if (z < 0 && t > 0.2 && t < 0.45) {
+                        z -= Math.sin(((t - 0.2) / 0.25) * Math.PI) * 0.02 * baseArmScale;
+                    }
+                    // Coude (Pointu à l'arrière)
+                    if (z < 0 && Math.abs(x) < 0.04 && t > 0.52 && t < 0.58) {
+                        z -= Math.sin(((t - 0.52) / 0.06) * Math.PI) * 0.015 * baseArmScale;
+                    }
+                    // Creux du coude (Devant)
+                    if (z > 0 && t > 0.52 && t < 0.58) {
+                        z -= Math.sin(((t - 0.52) / 0.06) * Math.PI) * 0.008 * baseArmScale;
+                    }
+                    // Avant-bras (Côtés extérieurs)
+                    if (Math.abs(x) > 0 && t > 0.58 && t < 0.8) {
+                        x += Math.sign(x) * Math.sin(((t - 0.58) / 0.22) * Math.PI) * 0.02 * baseArmScale;
+                    }
+                    armPos.setX(i, x);
+                    armPos.setZ(i, z);
+                }
+                armG.computeVertexNormals();
+
                 const arm = new THREE.Mesh(armG, material);
+                const shWidth = (shoulderWidth - 0.06) * (1 + fatFactor * 0.1);
+                arm.position.set(isLeft ? -shWidth : shWidth, 1.75, 0);
                 
-                const shoulderWidth = (gender === 'male' ? 0.65 : 0.52) * (1 + fatFactor * 0.2);
-                arm.position.set(isLeft ? -shoulderWidth : shoulderWidth, 1.85, 0);
-                arm.rotation.z = isLeft ? 0.1 : -0.1;
+                arm.rotation.z = isLeft ? 0.14 : -0.14;
+                arm.rotation.x = -0.05; 
+                arm.scale.set(1, 1, 0.88);
                 
-                // Hand
-                const hand = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 16), material);
-                hand.position.y = -1.45;
-                hand.scale.set(0.7, 1.3, 0.5);
+                // Main
+                const handG = new THREE.SphereGeometry(0.07, 32, 16);
+                const hand = new THREE.Mesh(handG, material);
+                hand.position.set(0, -1.55, 0.02);
+                hand.scale.set(0.8, 1.4, 0.25); 
+                hand.rotation.x = -0.15;
                 arm.add(hand);
                 
                 return arm;
@@ -639,43 +859,116 @@ document.addEventListener('DOMContentLoaded', () => {
             bodyGroup.add(createArm(true));
             bodyGroup.add(createArm(false));
 
-            // --- LEGS (Anatomical taper) ---
+            // --- JAMBES (Anatomie 3D, Quadriceps, Mollets) ---
             function createLeg(isLeft) {
                 const legPoints = [];
-                const legSegments = 40;
+                const legSegments = 50;
+                const legLength = 2.1;
+                const baseLegScale = gender === 'male' ? 1.0 : 1.1; 
+                
                 for (let i = 0; i <= legSegments; i++) {
-                    const t = i / legSegments;
+                    const t = i / legSegments; 
                     let r = 0;
-                    if (t < 0.4) r = 0.3 - t * 0.12; // Thigh
-                    else if (t < 0.8) r = 0.22 - (t - 0.4) * 0.1; // Calf
-                    else r = 0.14 - (t - 0.8) * 0.4; // Ankle
                     
-                    r *= widthScale;
-                    legPoints.push(new THREE.Vector2(r, -t * 2.0));
+                    if (t < 0.05) {
+                        // Fermer le haut de la cuisse (arrondi articulaire vers le bassin)
+                        r = 0.22 * baseLegScale * Math.sin((t / 0.05) * Math.PI / 2);
+                    } else if (t < 0.48) {
+                        // Cuisse (courbe douce vers le genou)
+                        const st = (t - 0.05) / 0.43;
+                        r = (0.22 - st * 0.09) * baseLegScale;
+                    } else if (t < 0.55) {
+                        // Articulation du genou (plus fine pour faire ressortir la rotule)
+                        r = 0.12 * baseLegScale;
+                    } else if (t < 0.85) {
+                        // Mollet
+                        const mt = (t - 0.55) / 0.3;
+                        r = (0.115 - mt * 0.045) * baseLegScale;
+                    } else {
+                        r = 0.07 * baseLegScale;
+                    }
+                    
+                    r *= Math.sqrt(widthScale); 
+                    legPoints.push(new THREE.Vector2(r, -t * legLength));
                 }
-                const legG = new THREE.LatheGeometry(legPoints, 20);
+                
+                const legG = new THREE.LatheGeometry(legPoints, 32);
+                const legPos = legG.attributes.position;
+                
+                for (let i = 0; i < legPos.count; i++) {
+                    let x = legPos.getX(i);
+                    let y = legPos.getY(i);
+                    let z = legPos.getZ(i);
+                    const t = -y / legLength;
+                    
+                    // Cuisse avant (Quadriceps)
+                    if (z > 0 && t > 0.05 && t < 0.4) {
+                        z += Math.sin(((t - 0.05) / 0.35) * Math.PI) * 0.035 * baseLegScale;
+                    }
+                    // Cuisse arrière (Ischio-jambiers)
+                    if (z < 0 && t > 0.05 && t < 0.4) {
+                        z -= Math.sin(((t - 0.05) / 0.35) * Math.PI) * 0.03 * baseLegScale;
+                    }
+                    // Mollet arrière
+                    if (z < 0 && t > 0.55 && t < 0.85) {
+                        z -= Math.sin(Math.pow(((t - 0.55) / 0.3), 0.7) * Math.PI) * 0.045 * baseLegScale;
+                    }
+                    // Rotule (Genou avant pointu)
+                    if (z > 0 && Math.abs(x) < 0.06 && t > 0.48 && t < 0.55) {
+                        // Pic marqué pour simuler l'os du genou
+                        z += Math.sin(((t - 0.48) / 0.07) * Math.PI) * 0.02 * baseLegScale;
+                    }
+                    // Creux sous la rotule
+                    if (z > 0 && Math.abs(x) < 0.05 && t > 0.55 && t < 0.58) {
+                        z -= 0.005 * baseLegScale;
+                    }
+                    // Creux à l'arrière du genou
+                    if (z < 0 && t > 0.45 && t < 0.55) {
+                        z += Math.sin(((t - 0.45) / 0.1) * Math.PI) * 0.01 * baseLegScale;
+                    }
+                    
+                    legPos.setZ(i, z);
+                }
+                legG.computeVertexNormals();
+
                 const leg = new THREE.Mesh(legG, material);
+                const hipPos = (gender === 'female' ? 0.20 : 0.18) * widthScale;
+                leg.position.set(isLeft ? -hipPos : hipPos, 0.1, 0);
                 
-                const hipPos = (gender === 'female' ? 0.38 : 0.32) * widthScale;
-                leg.position.set(isLeft ? -hipPos : hipPos, 0.2, 0);
+                leg.rotation.z = isLeft ? 0.03 : -0.03;
+                leg.scale.set(1, 1, 0.9); 
                 
-                // Foot
-                const foot = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.12, 0.5), material);
-                foot.position.set(0, -2.05, 0.15);
+                // Pied
+                const footG = new THREE.SphereGeometry(0.12, 32, 16);
+                const foot = new THREE.Mesh(footG, material);
+                foot.scale.set(0.9, 0.6, 2.0);
+                foot.position.set(isLeft ? 0.02 : -0.02, -legLength - 0.02, 0.08);
+                foot.rotation.y = isLeft ? 0.15 : -0.15;
                 leg.add(foot);
                 
                 return leg;
             }
             bodyGroup.add(createLeg(true));
             bodyGroup.add(createLeg(false));
+            
+            // Re-centrer l'ensemble
+            bodyGroup.position.y = -0.2;
         }
 
         createModel(currentGender, scaleFactor);
 
         function animate() {
             requestAnimationFrame(animate);
-            // Rotate slightly for 3D effect but keep mostly front-facing like the image
-            bodyGroup.rotation.y = Math.sin(Date.now() * 0.001) * 0.2;
+            const time = Date.now() * 0.001;
+            
+            // Rotation lente et élégante
+            bodyGroup.rotation.y = Math.sin(time * 0.5) * 0.25;
+            
+            // Animation de respiration (Soulèvement subtil du torse)
+            const breath = Math.sin(time * 2.5);
+            bodyGroup.position.y = -0.2 + breath * 0.015;
+            bodyGroup.scale.set(1, 1 + breath * 0.005, 1); // La poitrine se gonfle très légèrement
+            
             renderer.render(scene, camera);
         }
         animate();
