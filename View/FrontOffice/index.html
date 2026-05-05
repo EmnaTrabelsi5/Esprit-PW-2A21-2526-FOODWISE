@@ -97,32 +97,101 @@
             <div class="page-title">Communauté · Avis & Réponses</div>
             <div class="page-subtitle">Partagez votre expérience, répondez aux avis</div>
 
-            <!-- ========== STATISTIQUES ========== -->
-            <div class="card">
+            <!-- ========== RECHERCHE AVANCÉE (style Reddit) ========== -->
+            <div class="card" id="advancedSearchCard">
                 <div class="card-header">
-                    <div class="card-title">📊 Mes Statistiques</div>
+                    <div class="card-title">🔍 Recherche avancée</div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button type="button" class="btn btn-outline btn-sm" id="advSearchResetBtn">↺ Réinitialiser</button>
+                        <button type="button" class="btn btn-primary btn-sm" id="advSearchApplyBtn">Appliquer</button>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 24px; flex-wrap: wrap;">
-                    <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);" id="statNoteMoyenne">0</div>
-                        <div style="font-size: 14px; color: var(--texte-moyen);">Note Moyenne / 5</div>
+
+                <div class="form-group">
+                    <label class="form-label">🔎 Texte</label>
+                    <input type="text" class="form-control" id="advSearchText" placeholder="Recette, titre, contenu…">
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:14px;">
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">📅 Période</label>
+                        <select class="form-control" id="advSearchSince">
+                            <option value="all" selected>Tout le temps</option>
+                            <option value="day">Dernières 24h</option>
+                            <option value="week">Dernière semaine</option>
+                            <option value="month">Dernier mois</option>
+                            <option value="year">Dernière année</option>
+                        </select>
                     </div>
-                    <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--vert-moyen);" id="statPopularite">Top 15%</div>
-                        <div style="font-size: 14px; color: var(--texte-moyen);">Classement popularité</div>
+
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">⭐ Note minimum</label>
+                        <select class="form-control" id="advSearchMinRating">
+                            <option value="0" selected>Toutes</option>
+                            <option value="4">4+ étoiles</option>
+                            <option value="5">5 étoiles</option>
+                        </select>
                     </div>
-                    <div style="flex: 1; text-align: center; padding: 16px; background: var(--creme-fonce); border-radius: var(--radius);">
-                        <div style="font-size: 36px; font-weight: 700; color: var(--brun-chaud);" id="statTotalAvis">0</div>
-                        <div style="font-size: 14px; color: var(--texte-moyen);">Avis rédigés</div>
+
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">📝 Réponses minimum</label>
+                        <select class="form-control" id="advSearchMinResponses">
+                            <option value="0" selected>0+</option>
+                            <option value="1">1+</option>
+                            <option value="3">3+</option>
+                            <option value="5">5+</option>
+                            <option value="10">10+</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin:0;">
+                        <label class="form-label">👍 Likes minimum</label>
+                        <select class="form-control" id="advSearchMinLikes">
+                            <option value="0" selected>0+</option>
+                            <option value="1">1+</option>
+                            <option value="5">5+</option>
+                            <option value="10">10+</option>
+                            <option value="25">25+</option>
+                        </select>
                     </div>
                 </div>
             </div>
 
+            <!-- ========== TENDANCES (style Twitter) ========== -->
+            <div class="card" id="trendsCard">
+                <div class="card-header">
+                    <div class="card-title">🔥 Tendances du jour</div>
+                    <div class="card-subtitle">Recettes les plus discutées (par nombre d’avis)</div>
+                </div>
+                <ol id="trendsList" class="trends-list">
+                    <li class="trends-loading">Chargement des tendances…</li>
+                </ol>
+            </div>
+
+            <!-- ========== TOP 3 DES AVIS LIKÉS ========== -->
+<div class="card" id="topReviewsCard">
+    <div class="card-header">
+        <div class="card-title">🏆 Top 3 des avis les plus likés</div>
+        <div class="card-subtitle">Les avis préférés de la communauté</div>
+    </div>
+    <div id="topReviewsContainer" class="top-reviews-grid">
+        <div style="text-align: center; padding: 20px;">Chargement du top 3...</div>
+    </div>
+</div>
+
             <!-- ========== FORMULAIRE AVIS ========== -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">✍️ Mes Avis</div>
-                    <button class="btn btn-primary btn-sm" id="showAddReviewBtn">+ Nouvel avis</button>
+                    <div class="card-title">📋 Les Avis de la communauté</div>
+
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <select id="reviewSortSelect" class="form-control" style="width:auto; padding:7px 12px;">
+                            <option value="date">🕒 Plus récents</option>
+                            <option value="likes">❤️ Plus likés</option>
+                            <option value="responses">💬 Plus commentés</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" id="showAddReviewBtn">+ Nouvel avis</button>
+                    </div>
                 </div>
 
                 <div id="addReviewForm" style="display: none; margin-bottom: 24px; padding: 20px; background: var(--creme-fonce); border-radius: var(--radius);">
@@ -277,6 +346,32 @@
             </form>
         </div>
     </div>
+    <!-- Modal Ajouter Réponse -->
+<div id="reponseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
+        <h3 style="margin-bottom: 20px;">💬 Répondre</h3>
+        <div id="reponseErrors" style="display: none;"></div>
+        <form id="reponseForm">
+            <!-- ⚠️ AJOUTEZ CETTE LIGNE ⚠️ -->
+            <input type="hidden" id="reponseParentId" value="">
+            
+            <input type="hidden" id="reponseReviewId">
+            <div class="form-group">
+                <label class="form-label">Avis concerné</label>
+                <textarea id="reponseOriginalAvis" class="form-control" rows="2" readonly style="background: var(--creme-fonce);"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Votre réponse</label>
+                <textarea class="form-control" id="reponseContent" rows="3" placeholder="2 à 300 caractères" required></textarea>
+                <div style="text-align: right; margin-top: 5px;"><small><span id="reponseCharCount">0</span> / 300</small></div>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" class="btn btn-outline" id="closeReponseBtn">Annuler</button>
+                <button type="submit" class="btn btn-primary">Publier</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <div id="editReponseModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: var(--blanc); max-width: 500px; width: 90%; border-radius: var(--radius); padding: 24px;">
@@ -296,6 +391,8 @@
     </div>
     
 
+    <script src="js/reviewViews.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/notifications.js"></script>
 </body>
 </html>

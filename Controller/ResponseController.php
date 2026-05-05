@@ -11,8 +11,26 @@ try {
     die(json_encode(['success' => false, 'errors' => ['Erreur BDD: ' . $e->getMessage()]]));
 }
 
+// ── Notifications ──────────────────────────────────────────
+require_once __DIR__ . '/../Model/NotificationModel.php';
+$notifModel = new NotificationModel($pdo);
+// ── Mentions ────────────────────────────────────────────────
+require_once __DIR__ . '/../Model/MentionModel.php';
+$mentionModel = new MentionModel($pdo);
+// ──────────────────────────────────────────────────────────
+
 $method = $_SERVER['REQUEST_METHOD'];
 $action = isset($_GET['action']) ? $_GET['action'] : '';
+
+// ── Autocomplete : liste des auteurs connus pour le @mention ──
+if ($method === 'GET' && $action === 'users') {
+    echo json_encode([
+        'success' => true,
+        'data'    => $mentionModel->getKnownAuthors()
+    ]);
+    exit;
+}
+// ─────────────────────────────────────────────────────────────
 
 try {
     switch($method) {
@@ -29,7 +47,6 @@ try {
                 $stmt->execute([$_GET['response_id']]);
                 $counts = $stmt->fetch(PDO::FETCH_ASSOC);
                 
-                // Vérifier la réaction de l'utilisateur actuel
                 $user_id = isset($_GET['user_id']) ? $_GET['user_id'] : 1;
                 $stmt2 = $pdo->prepare("SELECT type FROM response_reactions WHERE response_id = ? AND user_id = ?");
                 $stmt2->execute([$_GET['response_id'], $user_id]);
@@ -38,8 +55,8 @@ try {
                 echo json_encode([
                     'success' => true, 
                     'data' => [
-                        'likes' => $counts['likes'] ?? 0,
-                        'dislikes' => $counts['dislikes'] ?? 0,
+                        'likes' => intval($counts['likes'] ?? 0),
+                        'dislikes' => intval($counts['dislikes'] ?? 0),
                         'user_reaction' => $userReaction ? $userReaction['type'] : null
                     ]
                 ]);
@@ -56,9 +73,14 @@ try {
             }
             
             // Récupérer toutes les réponses
-            $stmt = $pdo->query("SELECT * FROM responses ORDER BY created_at DESC");
-            $responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            echo json_encode(['success' => true, 'data' => $responses]);
+            if(isset($_GET['all'])) {
+                $stmt = $pdo->query("SELECT * FROM responses ORDER BY created_at DESC");
+                $responses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode(['success' => true, 'data' => $responses]);
+                break;
+            }
+            
+            echo json_encode(['success' => false, 'errors' => ['Paramètre manquant']]);
             break;
             
         case 'POST':
@@ -78,7 +100,7 @@ try {
                 
                 if($existing) {
                     if($existing['type'] === $input['type']) {
-                        // Supprimer la réaction (toggle off)
+                        // Supprimer la réaction
                         $stmt = $pdo->prepare("DELETE FROM response_reactions WHERE id = ?");
                         $stmt->execute([$existing['id']]);
                         echo json_encode(['success' => true, 'action' => 'removed']);
@@ -86,12 +108,44 @@ try {
                         // Changer le type de réaction
                         $stmt = $pdo->prepare("UPDATE response_reactions SET type = ? WHERE id = ?");
                         $stmt->execute([$input['type'], $existing['id']]);
+
+                        // ── Notif : réaction changée → notifier le propriétaire ──
+                        $stmtOwner = $pdo->prepare("SELECT user_id FROM responses WHERE id = ?");
+                        $stmtOwner->execute([$input['response_id']]);
+                        $ownerId = $stmtOwner->fetchColumn();
+                        if($ownerId) {
+                            $notifModel->createReaction(
+                                (int)$ownerId,
+                                (int)$input['response_id'],
+                                (int)$input['user_id'],
+                                'Jean Dupont',
+                                $input['type']
+                            );
+                        }
+                        // ─────────────────────────────────────────────────────────
+
                         echo json_encode(['success' => true, 'action' => 'changed']);
                     }
                 } else {
                     // Ajouter une nouvelle réaction
                     $stmt = $pdo->prepare("INSERT INTO response_reactions (response_id, user_id, type) VALUES (?, ?, ?)");
                     $stmt->execute([$input['response_id'], $input['user_id'], $input['type']]);
+
+                    // ── Notif : nouvelle réaction → notifier le propriétaire ──
+                    $stmtOwner = $pdo->prepare("SELECT user_id FROM responses WHERE id = ?");
+                    $stmtOwner->execute([$input['response_id']]);
+                    $ownerId = $stmtOwner->fetchColumn();
+                    if($ownerId) {
+                        $notifModel->createReaction(
+                            (int)$ownerId,
+                            (int)$input['response_id'],
+                            (int)$input['user_id'],
+                            'Jean Dupont',
+                            $input['type']
+                        );
+                    }
+                    // ──────────────────────────────────────────────────────────
+
                     echo json_encode(['success' => true, 'action' => 'added']);
                 }
                 break;
@@ -99,9 +153,44 @@ try {
             
             // Ajouter une réponse
             $input = json_decode(file_get_contents('php://input'), true);
-            $stmt = $pdo->prepare("INSERT INTO responses (review_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())");
-            $stmt->execute([$input['review_id'], $input['user_id'], $input['content']]);
-            echo json_encode(['success' => true, 'message' => 'Réponse ajoutée']);
+            $review_id = $input['review_id'];
+            $user_id   = $input['user_id'];
+            $content   = $input['content'];
+            $parent_id = isset($input['parent_id']) ? $input['parent_id'] : null;
+            
+            $stmt = $pdo->prepare("INSERT INTO responses (review_id, user_id, content, parent_id, created_at) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->execute([$review_id, $user_id, $content, $parent_id]);
+            $new_response_id = (int) $pdo->lastInsertId();
+
+            // ── Mentions : parser les @username et notifier ──────────────────
+            $mentioned = MentionModel::extractMentions($content);
+            if (!empty($mentioned)) {
+                $mentionModel->saveMentions($new_response_id, $mentioned);
+                // Nom affiché dans la notif (fallback si pas de colonne username en BDD)
+                $actorName = isset($input['actor_name']) && trim((string)$input['actor_name']) !== ''
+                    ? trim((string)$input['actor_name'])
+                    : 'Jean Dupont';
+                foreach ($mentioned as $uname) {
+                    $mentionModel->notifyMention($uname, $new_response_id, (int)$user_id, $actorName);
+                }
+            }
+            // ─────────────────────────────────────────────────────────────────
+
+            // ── Notif : nouvelle réponse → notifier le propriétaire de l'avis ──
+            $stmtOwner = $pdo->prepare("SELECT user_id FROM reviews WHERE id = ?");
+            $stmtOwner->execute([$review_id]);
+            $ownerId = $stmtOwner->fetchColumn();
+            if($ownerId) {
+                $notifModel->createNewResponse(
+                    (int)$ownerId,
+                    (int)$review_id,
+                    (int)$user_id,
+                    'Jean Dupont'
+                );
+            }
+            // ────────────────────────────────────────────────────────────────────
+
+            echo json_encode(['success' => true, 'message' => 'Réponse ajoutée', 'id' => $new_response_id]);
             break;
             
         case 'PUT':
@@ -113,14 +202,17 @@ try {
             
         case 'DELETE':
             $id = isset($_GET['id']) ? $_GET['id'] : null;
-            // Supprimer d'abord les réactions associées
-            $stmt = $pdo->prepare("DELETE FROM response_reactions WHERE response_id = ?");
-            $stmt->execute([$id]);
-            // Puis supprimer la réponse
-            $stmt = $pdo->prepare("DELETE FROM responses WHERE id = ?");
-            $stmt->execute([$id]);
-            echo json_encode(['success' => true, 'message' => 'Réponse supprimée']);
+            if($id) {
+                $stmt = $pdo->prepare("DELETE FROM responses WHERE id = ?");
+                $stmt->execute([$id]);
+                echo json_encode(['success' => true, 'message' => 'Réponse supprimée']);
+            } else {
+                echo json_encode(['success' => false, 'errors' => ['ID manquant']]);
+            }
             break;
+            
+        default:
+            echo json_encode(['success' => false, 'errors' => ['Méthode non supportée']]);
     }
 } catch(Exception $e) {
     echo json_encode(['success' => false, 'errors' => [$e->getMessage()]]);

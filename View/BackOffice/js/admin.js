@@ -1,6 +1,7 @@
 // Configuration
 const API_URL = 'http://localhost/modulecommunity/Controller/ReviewController.php';
 const RESPONSE_API_URL = 'http://localhost/modulecommunity/Controller/ResponseController.php';
+const STATS_API_URL = 'http://localhost/modulecommunity/Controller/StatsController.php';
 
 let allReviews = [];
 let allResponses = [];
@@ -11,8 +12,28 @@ let itemsPerPage = 5;
 document.addEventListener('DOMContentLoaded', function() {
     chargerAvis();
     chargerReponses();
+    chargerStats();
     setupEventListeners();
 });
+
+function chargerStats() {
+    fetch(STATS_API_URL)
+        .then(r => r.json())
+        .then(data => {
+            if (!data || !data.success || !data.data) return;
+            const s = data.data;
+            const totalReviewsEl = document.getElementById('totalReviews');
+            const avgRatingEl = document.getElementById('avgRating');
+            const totalResponsesEl = document.getElementById('totalResponses');
+            const activeUsersEl = document.getElementById('activeUsers');
+
+            if (totalReviewsEl) totalReviewsEl.textContent = s.total_reviews ?? 0;
+            if (avgRatingEl) avgRatingEl.textContent = (s.avg_rating ?? 0).toFixed ? (s.avg_rating ?? 0).toFixed(1) : (s.avg_rating ?? 0);
+            if (totalResponsesEl) totalResponsesEl.textContent = s.total_responses ?? 0;
+            if (activeUsersEl) activeUsersEl.textContent = s.active_users ?? 0;
+        })
+        .catch(() => {});
+}
 
 function chargerAvis() {
     fetch(API_URL)
@@ -21,7 +42,6 @@ function chargerAvis() {
             if(data.success) {
                 allReviews = data.data;
                 afficherAvis();
-                calculerStatistiques();
             }
         });
 }
@@ -33,7 +53,6 @@ function chargerReponses() {
             if(data.success) {
                 allResponses = data.data;
                 afficherReponses();
-                calculerStatistiques();
             }
         });
 }
@@ -154,18 +173,6 @@ function afficherReponses() {
     document.getElementById('nextPageResponses').disabled = currentPageResponses === totalPages;
 }
 
-function calculerStatistiques() {
-    let sommeNotes = 0;
-    for(let r of allReviews) sommeNotes += r.rating;
-    const moyenne = allReviews.length > 0 ? (sommeNotes / allReviews.length).toFixed(1) : 0;
-    const usersUniques = new Set(allReviews.map(r => r.user_id));
-    
-    document.getElementById('totalReviews').innerHTML = allReviews.length;
-    document.getElementById('avgRating').innerHTML = moyenne;
-    document.getElementById('totalResponses').innerHTML = allResponses.length;
-    document.getElementById('activeUsers').innerHTML = usersUniques.size;
-}
-
 function editReview(id) {
     const review = allReviews.find(r => r.id == id);
     if(!review) return;
@@ -227,7 +234,7 @@ function showTab(tab) {
 }
 
 function setupEventListeners() {
-    document.getElementById('refreshBtn').onclick = () => { chargerAvis(); chargerReponses(); };
+    document.getElementById('refreshBtn').onclick = () => { chargerAvis(); chargerReponses(); chargerStats(); };
     document.getElementById('prevPage').onclick = () => { if(currentPage > 1) { currentPage--; afficherAvis(); } };
     document.getElementById('nextPage').onclick = () => {
         if(currentPage < Math.ceil(allReviews.length / itemsPerPage)) { currentPage++; afficherAvis(); }
