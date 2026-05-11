@@ -152,6 +152,7 @@ class JournalController
     {
         return $this->model->getLast7DaysSummary($userId);
     }
+<<<<<<< HEAD
 
     public function afficherFormulaireAjout(): void
     {
@@ -201,4 +202,6 @@ class JournalController
             exit;
         }
     }
+=======
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
 }

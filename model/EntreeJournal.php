@@ -76,7 +76,11 @@ class EntreeJournal
         $sql = 'SELECT * FROM entrees_journal WHERE id = :id';
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':id' => $id]);
+<<<<<<< HEAD
         $entry = $statement->fetch(PDO::FETCH_ASSOC);
+=======
+        $entry = $statement->fetch();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
 
         return $entry === false ? null : $entry;
     }
@@ -89,13 +93,21 @@ class EntreeJournal
         $sql = "SELECT * FROM entrees_journal WHERE user_id = :user_id ORDER BY date {$order}, time {$timeOrder}";
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':user_id' => $userId]);
+<<<<<<< HEAD
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+=======
+        return $statement->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     public function findAll(): array
     {
         $sql = 'SELECT * FROM entrees_journal ORDER BY date DESC, time DESC';
+<<<<<<< HEAD
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+=======
+        return $this->pdo->query($sql)->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     public function findAllByUserAndDate(int $userId, string $date): array
@@ -103,7 +115,11 @@ class EntreeJournal
         $sql = 'SELECT * FROM entrees_journal WHERE user_id = :user_id AND date = :date ORDER BY time ASC';
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':user_id' => $userId, ':date' => $date]);
+<<<<<<< HEAD
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+=======
+        return $statement->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     public function countEntries(): int
@@ -145,12 +161,21 @@ class EntreeJournal
 
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':user_id' => $userId, ':date' => $date]);
+<<<<<<< HEAD
         $result = $statement->fetch(PDO::FETCH_ASSOC);
 
         return [
             'proteins' => (float) ($result['proteins'] ?? 0),
             'carbs'    => (float) ($result['carbs']    ?? 0),
             'fats'     => (float) ($result['fats']     ?? 0),
+=======
+        $result = $statement->fetch();
+
+        return [
+            'proteins' => (float) $result['proteins'],
+            'carbs' => (float) $result['carbs'],
+            'fats' => (float) $result['fats'],
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
         ];
     }
 
@@ -159,7 +184,11 @@ class EntreeJournal
         $sql = 'SELECT DISTINCT date FROM entrees_journal WHERE user_id = :user_id ORDER BY date DESC';
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':user_id' => $userId]);
+<<<<<<< HEAD
         return array_column($statement->fetchAll(PDO::FETCH_ASSOC), 'date');
+=======
+        return array_column($statement->fetchAll(), 'date');
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     /**

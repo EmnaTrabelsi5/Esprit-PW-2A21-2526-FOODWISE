@@ -77,7 +77,11 @@ class SuiviSante
     public function getAll(): array
     {
         $sql = 'SELECT * FROM suivi_sante ORDER BY date DESC, created_at DESC';
+<<<<<<< HEAD
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+=======
+        return $this->pdo->query($sql)->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     /**
@@ -91,7 +95,11 @@ class SuiviSante
         $sql = "SELECT * FROM suivi_sante WHERE user_id = :user_id ORDER BY date {$order}, created_at {$createdAtOrder}";
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':user_id' => $userId]);
+<<<<<<< HEAD
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+=======
+        return $statement->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     /**
@@ -102,7 +110,11 @@ class SuiviSante
         $sql = 'SELECT * FROM suivi_sante WHERE id = :id';
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':id' => $id]);
+<<<<<<< HEAD
         $result = $statement->fetch(PDO::FETCH_ASSOC);
+=======
+        $result = $statement->fetch();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
         return $result === false ? null : $result;
     }
 
@@ -114,7 +126,11 @@ class SuiviSante
         $sql = 'SELECT * FROM suivi_sante WHERE user_id = :user_id AND date = :date ORDER BY created_at ASC';
         $statement = $this->pdo->prepare($sql);
         $statement->execute([':user_id' => $userId, ':date' => $date]);
+<<<<<<< HEAD
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+=======
+        return $statement->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     /**
@@ -167,10 +183,20 @@ class SuiviSante
             COUNT(DISTINCT DATE(date)) as days_tracked
             FROM suivi_sante';
 
+<<<<<<< HEAD
         $result = $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
         return $result ?: [
             'total_followups' => 0, 'total_users' => 0, 'total_duration' => 0,
             'total_calories_burned' => 0, 'total_water' => 0, 'days_tracked' => 0,
+=======
+        return $this->pdo->query($sql)->fetch() ?: [
+            'total_followups' => 0,
+            'total_users' => 0,
+            'total_duration' => 0,
+            'total_calories_burned' => 0,
+            'total_water' => 0,
+            'days_tracked' => 0,
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
         ];
     }
 
@@ -179,12 +205,26 @@ class SuiviSante
      */
     public function getStatsByActivityType(): array
     {
+<<<<<<< HEAD
         $sql = 'SELECT type_activite, COUNT(*) as count,
             COALESCE(SUM(duree), 0) as total_duration,
             COALESCE(SUM(calories_brulees), 0) as total_calories,
             ROUND(AVG(calories_brulees), 2) as avg_calories
             FROM suivi_sante GROUP BY type_activite ORDER BY total_calories DESC';
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+=======
+        $sql = 'SELECT
+            type_activite,
+            COUNT(*) as count,
+            COALESCE(SUM(duree), 0) as total_duration,
+            COALESCE(SUM(calories_brulees), 0) as total_calories,
+            ROUND(AVG(calories_brulees), 2) as avg_calories
+            FROM suivi_sante
+            GROUP BY type_activite
+            ORDER BY total_calories DESC';
+
+        return $this->pdo->query($sql)->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     /**
@@ -192,12 +232,25 @@ class SuiviSante
      */
     public function getStatsByIntensity(): array
     {
+<<<<<<< HEAD
         $sql = 'SELECT intensite, COUNT(*) as count,
             COALESCE(AVG(duree), 0) as avg_duration,
             COALESCE(AVG(calories_brulees), 0) as avg_calories
             FROM suivi_sante GROUP BY intensite
             ORDER BY FIELD(intensite, "élevé", "moyen", "faible")';
         return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+=======
+        $sql = 'SELECT
+            intensite,
+            COUNT(*) as count,
+            COALESCE(AVG(duree), 0) as avg_duration,
+            COALESCE(AVG(calories_brulees), 0) as avg_calories
+            FROM suivi_sante
+            GROUP BY intensite
+            ORDER BY FIELD(intensite, "élevé", "moyen", "faible")';
+
+        return $this->pdo->query($sql)->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 
     /**
@@ -250,6 +303,7 @@ class SuiviSante
      */
     public function getMostFrequentActivities(int $limit = 5): array
     {
+<<<<<<< HEAD
         $sql = 'SELECT type_activite, COUNT(*) as frequency,
             ROUND(AVG(calories_brulees), 2) as avg_calories_burned,
             ROUND(AVG(duree), 0) as avg_duration
@@ -259,5 +313,21 @@ class SuiviSante
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
+=======
+        $sql = 'SELECT
+            type_activite,
+            COUNT(*) as frequency,
+            ROUND(AVG(calories_brulees), 2) as avg_calories_burned,
+            ROUND(AVG(duree), 0) as avg_duration
+            FROM suivi_sante
+            GROUP BY type_activite
+            ORDER BY frequency DESC
+            LIMIT :limit';
+
+        $statement = $this->pdo->prepare($sql);
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->execute();
+        return $statement->fetchAll();
+>>>>>>> 7601b90fdab6bf6325a2b078d25608a292b8ddc1
     }
 }
