@@ -77,3 +77,4 @@ require __DIR__ . '/layouts/header.php';
 </main>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

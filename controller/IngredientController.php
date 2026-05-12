@@ -63,7 +63,7 @@ class IngredientController
                 try {
                     $newId = Ingredient::add($data);
                     $this->setFlash('success', 'Ingrédient "' . htmlspecialchars($data['nom']) . '" ajouté avec succès !');
-                    header('Location: /FOODWISE/index.php?route=admin_ingredients');
+                    header('Location: index.php?route=admin_ingredients');
                     exit;
                 } catch (Exception $e) {
                     $erreurs['global'] = 'Une erreur est survenue. Veuillez réessayer.';
@@ -92,7 +92,7 @@ class IngredientController
 
         if (!$ingredient) {
             $this->setFlash('error', 'Ingrédient introuvable.');
-            header('Location: /FOODWISE/index.php?route=admin_ingredients');
+            header('Location: index.php?route=admin_ingredients');
             exit;
         }
 
@@ -112,7 +112,7 @@ class IngredientController
                 try {
                     Ingredient::update($id, $data);
                     $this->setFlash('success', 'Ingrédient modifié avec succès !');
-                    header('Location: /FOODWISE/index.php?route=admin_ingredients');
+                    header('Location: index.php?route=admin_ingredients');
                     exit;
                 } catch (Exception $e) {
                     $erreurs['global'] = 'Une erreur est survenue. Veuillez réessayer.';
@@ -143,7 +143,7 @@ class IngredientController
 
         if (!$ingredient) {
             $this->setFlash('error', 'Ingrédient introuvable.');
-            header('Location: /FOODWISE/index.php?route=admin_ingredients');
+            header('Location: index.php?route=admin_ingredients');
             exit;
         }
 
@@ -155,7 +155,7 @@ class IngredientController
             $this->setFlash('error', $e->getMessage());
         }
 
-        header('Location: /FOODWISE/index.php?route=admin_ingredients');
+        header('Location: index.php?route=admin_ingredients');
         exit;
     }
 
@@ -184,3 +184,4 @@ class IngredientController
         $_SESSION['flash'] = ['type' => $type, 'message' => $message];
     }
 }
+

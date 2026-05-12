@@ -43,7 +43,7 @@ include __DIR__ . '/layout/header.php';
 </div>
 
 <!-- ── Filtres ── -->
-<form method="GET" action="/FOODWISE/admin/recettes">
+<form method="GET" action="admin/recettes">
   <div class="filter-bar" style="margin-bottom:18px;">
     <input type="text" name="q" placeholder="Rechercher une recette..."
            value="<?= htmlspecialchars($filtres['q'] ?? '') ?>">
@@ -65,7 +65,7 @@ include __DIR__ . '/layout/header.php';
       <option value="cal_desc"  <?= ($filtres['trier_par'] ?? '') === 'cal_desc'  ? 'selected' : '' ?>>Calories ↓</option>
     </select>
     <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
-    <a href="/FOODWISE/admin/recettes" class="btn btn-outline btn-sm">Réinitialiser</a>
+    <a href="admin/recettes" class="btn btn-outline btn-sm">Réinitialiser</a>
   </div>
 </form>
 
@@ -145,10 +145,10 @@ include __DIR__ . '/layout/header.php';
             </td>
             <td>
               <div style="display:flex;gap:5px;align-items:center;">
-                <a href="/FOODWISE/admin/recettes/<?= $r->id_recette ?>"
+                <a href="admin/recettes/<?= $r->id_recette ?>"
                    class="btn btn-outline btn-sm" title="Voir">👁</a>
                 <form method="POST"
-                      action="/FOODWISE/admin/recettes/<?= $r->id_recette ?>/supprimer"
+                      action="admin/recettes/<?= $r->id_recette ?>/supprimer"
                       onsubmit="return confirm('Supprimer «<?= htmlspecialchars(addslashes($r->nom)) ?>» ?');"
                       style="display:inline;">
                   <button type="submit" class="btn btn-danger btn-sm" title="Supprimer">🗑</button>
@@ -161,7 +161,7 @@ include __DIR__ . '/layout/header.php';
           <tr>
             <td colspan="10" style="text-align:center;padding:40px;color:var(--texte-leger);">
               Aucune recette trouvée.
-              <a href="/FOODWISE/admin/recettes/ajouter" style="color:var(--brun-chaud);">Ajouter la première.</a>
+              <a href="admin/recettes/ajouter" style="color:var(--brun-chaud);">Ajouter la première.</a>
             </td>
           </tr>
         <?php endif; ?>
@@ -194,3 +194,4 @@ include __DIR__ . '/layout/header.php';
 
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

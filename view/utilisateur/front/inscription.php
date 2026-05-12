@@ -145,3 +145,4 @@ document.getElementById('fw-ins-photo').addEventListener('change', function(e) {
 </script>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

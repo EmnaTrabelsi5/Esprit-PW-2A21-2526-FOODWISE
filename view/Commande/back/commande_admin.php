@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -9,7 +9,7 @@ $activeModule = 'offre';
 require_once __DIR__ . '/../../../Model/CommandeModel.php';
 require __DIR__ . '/../../layouts/back/header.php';
 
-$commandes = CommandeModel::getAll();
+// $commandes is already loaded by the controller
 
 $stats = [
     'total' => 0,
@@ -38,14 +38,19 @@ $pendingOrders = $stats['en_attente'];
 $validatedPayments = $stats['paye_dernieres_24h'];
 ?>
 
+<!-- Navigation Bar -->
+<nav class="admin-nav">
+  <a href="?route=admin/offres/indexAdmin" class="nav-link">?? Offres</a>
+  <a href="?route=admin/commandes/indexAdmin" class="nav-link active">?? Les Commandes</a>
+</nav>
+
 <div class="page-intro">
   <div class="page-intro__header">
     <div>
       <p class="eyebrow"></p>
-      <h1>Commandes & Paiements</h1>
+      <h1>Les Commandes</h1>
       <p class="text-muted"></p>
     </div>
-    <a href="../../Offre/back/detail_offre.php" class="button button--secondary">Retour aux offres</a>
   </div>
 
   <div class="dashboard-grid">
@@ -59,11 +64,11 @@ $validatedPayments = $stats['paye_dernieres_24h'];
           <strong><?= $stats['total'] ?></strong>
         </div>
         <div class="stat-row">
-          <span>Commandes confirmées</span>
+          <span>Commandes confirm�es</span>
           <strong><?= $stats['confirme'] ?></strong>
         </div>
         <div class="stat-row">
-          <span>Commandes annulées</span>
+          <span>Commandes annul�es</span>
           <strong><?= $stats['annule'] ?></strong>
         </div>
       </div>
@@ -79,11 +84,10 @@ $validatedPayments = $stats['paye_dernieres_24h'];
             <tr>
               <th>ID</th>
               <th>Offre</th>
-              <th>Quantité</th>
+              <th>Quantit�</th>
               <th>Statut</th>
               <th>Paiement</th>
               <th>Date</th>
-              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -99,23 +103,16 @@ $validatedPayments = $stats['paye_dernieres_24h'];
                   <td><?= htmlspecialchars($commande['quantite']) ?></td>
                   <td>
                     <span class="badge badge--<?= $commande['statut'] === 'confirme' ? 'success' : ($commande['statut'] === 'annule' ? 'danger' : 'warning') ?>">
-                      <?= $commande['statut'] === 'confirme' ? 'Confirmé' : ($commande['statut'] === 'annule' ? 'Annulé' : 'En attente') ?>
+                      <?= $commande['statut'] === 'confirme' ? 'Confirm�' : ($commande['statut'] === 'annule' ? 'Annul�' : 'En attente') ?>
                     </span>
                   </td>
                   <td>
                     <span class="badge badge--<?= $commande['paiement_status'] === 'paye' ? 'success' : 'secondary' ?>">
-                      <?= $commande['paiement_status'] === 'paye' ? 'Payé' : 'Non payé' ?>
+                      <?= $commande['paiement_status'] === 'paye' ? 'Pay�' : 'Non pay�' ?>
                     </span>
                   </td>
                   <td><?= date('Y-m-d H:i', strtotime($commande['date_commande'])) ?></td>
-                  <td class="actions-cell">
-                    <?php if ($commande['statut'] === 'en_attente'): ?>
-                      <a href="commande.php?action=adminUpdate&id=<?= $commande['id_commande'] ?>&status=confirme" class="button button--small button--success">Confirmer</a>
-                      <a href="commande.php?action=adminUpdate&id=<?= $commande['id_commande'] ?>&status=annule" class="button button--small button--ghost button--danger" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?')">Annuler</a>
-                    <?php else: ?>
-                      <span class="text-muted">Aucune action</span>
-                    <?php endif; ?>
-                  </td>
+
                 </tr>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -124,44 +121,7 @@ $validatedPayments = $stats['paye_dernieres_24h'];
       </div>
     </section>
 
-    <aside class="dashboard-card dashboard-card--sidebar">
-      <div class="card-header">
-        <h2>Notifications</h2>
-      </div>
-      <div class="card-body">
-        <div class="notification notification--info">
-          <strong>Commandes en attente</strong>
-          <p><?= $pendingOrders ?> commande(s) à traiter</p>
-        </div>
 
-        <div class="notification notification--success">
-          <strong>Paiements validés</strong>
-          <p><?= $validatedPayments ?> sur les dernières 24 h</p>
-        </div>
-
-        <div class="notification notification--warning">
-          <strong>Alerte système</strong>
-          <p>Synchronisation stock OK</p>
-        </div>
-
-        <div class="notification notification--warning">
-          <strong>Alerte système</strong>
-          <p>API paiement simulée disponible</p>
-        </div>
-      </div>
-    </aside>
-
-    <section class="dashboard-card dashboard-card--secondary">
-      <div class="card-header">
-        <h2>Alertes de stock</h2>
-      </div>
-      <div class="card-body">
-        <ul class="alert-list">
-          <li>Produit A : stock critique (5)</li>
-          <li>Produit B : indisponible</li>
-        </ul>
-      </div>
-    </section>
   </div>
 </div>
 
@@ -319,9 +279,38 @@ $validatedPayments = $stats['paye_dernieres_24h'];
     margin-bottom: 10px;
     color: #50412a;
 }
+
+.admin-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-link {
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #7c5528;
+    background: rgba(124, 85, 40, 0.05);
+}
+
+.nav-link.active {
+    color: #7c5528;
+    border-bottom-color: #7c5528;
+    background: rgba(124, 85, 40, 0.05);
+}
+
 @media (max-width: 1120px) {
     .dashboard-grid { grid-template-columns: 1fr; }
 }
 </style>
 
 <?php require __DIR__ . '/../../layouts/back/footer.php'; ?>
+

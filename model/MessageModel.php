@@ -60,7 +60,7 @@ class MessageModel
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll() ?: [];
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
     /**
@@ -72,7 +72,7 @@ class MessageModel
             'SELECT COUNT(*) as count FROM messages WHERE receiver_id = :user_id AND is_read = 0'
         );
         $stmt->execute([':user_id' => $userId]);
-        $result = $stmt->fetch();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return (int) ($result['count'] ?? 0);
     }
 
@@ -128,7 +128,7 @@ class MessageModel
              ORDER BY last_message_date DESC'
         );
         $stmt->execute([':user_id' => $userId]);
-        return $stmt->fetchAll() ?: [];
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 
     /**
@@ -143,6 +143,7 @@ class MessageModel
              ORDER BY prenom, nom'
         );
         $stmt->execute([':exclude_id' => $excludeUserId]);
-        return $stmt->fetchAll() ?: [];
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
 }
+

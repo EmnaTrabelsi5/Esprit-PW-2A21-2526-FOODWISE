@@ -230,3 +230,4 @@ document.querySelectorAll('input[name^="show_"]').forEach(checkbox => {
 </script>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

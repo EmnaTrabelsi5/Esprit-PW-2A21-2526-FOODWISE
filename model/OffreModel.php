@@ -52,54 +52,114 @@ class OffreModel {
     }
 
     // ── Lister toutes les offres (avec filtre) ───────────────
-    public function findAll(array $filtres = []): array {
-        // Expire d'abord
-        $this->updateExpiredOffers();
-        $this->syncStockStatut();
+public function findAll(array $filtres = []): array {
 
-        $sql    = "SELECT o.*, c.nom AS commercant_nom, c.ville AS commercant_ville,
-                          c.adresse AS commercant_adresse
-                     FROM Offre o
-                    LEFT JOIN Commercant c ON o.commercant_id = c.id
-                    WHERE 1=1";
-        $params = [];
+    // Mettre à jour les offres expirées
+    $this->updateExpiredOffers();
 
-        if (!empty($filtres['ville'])) {
-            $sql .= " AND LOWER(c.ville) LIKE LOWER(:ville)";
-            $params[':ville'] = '%' . $filtres['ville'] . '%';
-        }
-        if (!empty($filtres['statut'])) {
-            $sql .= " AND o.statut = :statut";
-            $params[':statut'] = $filtres['statut'];
-        }
-        if (!empty($filtres['categorie'])) {
-            $sql .= " AND o.categorie = :categorie";
-            $params[':categorie'] = $filtres['categorie'];
-        }
-        if (!empty($filtres['commercant_id'])) {
-            $sql .= " AND o.commercant_id = :commercant_id";
-            $params[':commercant_id'] = (int)$filtres['commercant_id'];
-        }
-        if (!empty($filtres['search'])) {
-            $sql .= " AND (LOWER(o.titre) LIKE LOWER(:search) OR LOWER(o.description) LIKE LOWER(:search2))";
-            $params[':search']  = '%' . $filtres['search'] . '%';
-            $params[':search2'] = '%' . $filtres['search'] . '%';
-        }
+    // Synchroniser stock/statut
+    $this->syncStockStatut();
 
-        // Tri
-        $orderMap = [
-            'expiration' => 'o.date_expiration ASC',
-            'prix_asc'   => 'o.prix_unitaire ASC',
-            'prix_desc'  => 'o.prix_unitaire DESC',
-            'recent'     => 'o.created_at DESC',
-        ];
-        $tri  = $filtres['tri'] ?? 'recent';
-        $sql .= " ORDER BY " . ($orderMap[$tri] ?? $orderMap['recent']);
+    $sql = "
+        SELECT 
+            o.*,
+            c.nom AS commercant_nom,
+            c.ville AS commercant_ville,
+            c.adresse AS commercant_adresse
+        FROM Offre o
+        LEFT JOIN Commercant c 
+            ON o.commercant_id = c.id
+        WHERE 1=1
+    ";
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $params = [];
+
+    // Filtre ville
+    if (!empty($filtres['ville'])) {
+
+        $sql .= " AND LOWER(c.ville) LIKE LOWER(:ville)";
+
+        $params[':ville'] = '%' . $filtres['ville'] . '%';
     }
+
+    // Filtre statut
+    if (!empty($filtres['statut'])) {
+
+        $sql .= " AND o.statut = :statut";
+
+        $params[':statut'] = $filtres['statut'];
+    }
+
+    // Filtre catégorie
+    if (!empty($filtres['categorie'])) {
+
+        $sql .= " AND o.categorie = :categorie";
+
+        $params[':categorie'] = $filtres['categorie'];
+    }
+
+    // Filtre commerçant
+    if (!empty($filtres['commercant_id'])) {
+
+        $sql .= " AND o.commercant_id = :commercant_id";
+
+        $params[':commercant_id'] = (int)$filtres['commercant_id'];
+    }
+
+    // Recherche
+    if (!empty($filtres['search'])) {
+
+        $sql .= "
+            AND (
+                LOWER(o.titre) LIKE LOWER(:search)
+                OR LOWER(o.description) LIKE LOWER(:search2)
+            )
+        ";
+
+        $params[':search'] = '%' . $filtres['search'] . '%';
+
+        $params[':search2'] = '%' . $filtres['search'] . '%';
+    }
+
+    // Tri
+    $orderMap = [
+        'expiration' => 'o.date_expiration ASC',
+        'prix_asc'   => 'o.prix_unitaire ASC',
+        'prix_desc'  => 'o.prix_unitaire DESC',
+        'recent'     => 'o.created_at DESC',
+    ];
+
+    $tri = $filtres['tri'] ?? 'recent';
+
+    $sql .= " ORDER BY " . ($orderMap[$tri] ?? $orderMap['recent']);
+
+    // Exécution
+    $stmt = $this->pdo->prepare($sql);
+
+    $stmt->execute($params);
+
+    $offres = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Dynamic pricing
+    foreach ($offres as &$offre) {
+
+        $pricing = self::calculDynamicPricing(
+            $offre['prix_unitaire'],
+            $offre['date_expiration']
+        );
+
+        // Prix original
+        $offre['prix_original'] = $offre['prix_unitaire'];
+
+        // Remise dynamique
+        $offre['remise'] = $pricing['remise'];
+
+        // Prix final
+        $offre['prix_final'] = $pricing['prix_final'];
+    }
+
+    return $offres;
+}
 
     // ── Trouver par ID ───────────────────────────────────────
     public function findById(int $id): array|false {
@@ -389,5 +449,41 @@ private function getStockState(float $ratio): string {
     if ($ratio <= 0.3) return 'faible';
     return 'ok';
 }
+public static function calculDynamicPricing($prix, $date_expiration) {
+
+    $remise = 0;
+
+    if (!empty($date_expiration)) {
+
+        $now = time();
+
+        $expiration = strtotime($date_expiration);
+
+        $difference = ($expiration - $now) / 86400;
+
+        // expire dans moins de 1 jour
+        if ($difference <= 1) {
+            $remise = 50;
+        }
+
+        // expire dans moins de 3 jours
+        elseif ($difference <= 3) {
+            $remise = 30;
+        }
+
+        // expire dans moins de 7 jours
+        elseif ($difference <= 7) {
+            $remise = 15;
+        }
+    }
+
+    $prix_final = $prix - ($prix * $remise / 100);
+
+    return [
+        'remise' => $remise,
+        'prix_final' => $prix_final
+    ];
 }
+}
+
 

@@ -225,8 +225,11 @@ require __DIR__ . '/layouts/header.php';
       <section class="fw-card" aria-labelledby="fw-actions-title" style="padding: 0; margin-top: 0.75rem;">
         <h2 id="fw-actions-title" class="fw-card__head" style="padding: 0.5rem 0.75rem; font-size: 0.85rem;"><span aria-hidden="true"></span> </h2>
         <div class="fw-card__body" style="padding: 0.5rem 0.75rem;">
-          <a href="http://localhost/FOODWISE/?url=favoris" class="fw-btn fw-btn--red" style="width: 100%; text-align: center; display: inline-block; background-color: #e74c3c; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.8rem;">
+          <a href="?route=favoris" class="fw-btn fw-btn--red" style="width: 100%; text-align: center; display: inline-block; background-color: #e74c3c; color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.8rem;">
             <span aria-hidden="true">❤️</span> Mes Favoris
+          </a>
+          <a href="?route=community" class="fw-btn" style="width: 100%; text-align: center; display: inline-block; margin-top: 0.5rem; text-decoration: none; padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.8rem;">
+            <span aria-hidden="true">👥</span> Communauté
           </a>
         </div>
       </section>
@@ -286,3 +289,4 @@ document.querySelectorAll('.fw-visibility-toggle').forEach(button => {
 </script>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

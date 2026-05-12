@@ -43,6 +43,24 @@ function buildRoute(string $route, array $params = []): string
     return $url;
 }
 
+function appBasePath(): string
+{
+    $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '/index.php');
+    $dir = rtrim(dirname($script), '/');
+    // Si on est à la racine, dirname retourne \ ou /
+    if ($dir === '/' || $dir === '\\' || $dir === '.') {
+        return '';
+    }
+    return $dir;
+}
+
+function assetUrl(string $path): string
+{
+    $cleanPath = ltrim(str_replace('\\', '/', $path), '/');
+    $base = appBasePath();
+    return $base . '/assets/' . $cleanPath;
+}
+
 function generateAvatarSVG(string $name): string
 {
     // Extraire les initiales
@@ -81,7 +99,6 @@ function logModification(PDO $pdo, int $userId, ?int $adminId, string $entityTyp
     
     // Ne pas enregistrer si identiques
     if ($oldStr === $newStr) {
-        error_log("LOG SKIP: $fieldName - $oldStr === $newStr");
         return;
     }
 
@@ -100,8 +117,6 @@ function logModification(PDO $pdo, int $userId, ?int $adminId, string $entityTyp
             $oldStr,
             $newStr,
         ]);
-        
-        error_log("LOG INSERT: userId=$userId, admin=$adminId, field=$fieldName, old='$oldStr', new='$newStr', success=" . ($result ? 'YES' : 'NO'));
     } catch (PDOException $e) {
         error_log("LOG ERROR: " . $e->getMessage());
     }
@@ -170,4 +185,5 @@ function interpretIMC(float $imc): array
         ];
     }
 }
+
 

@@ -34,7 +34,7 @@ $isCritical = $ratio <= 0.1;
 }
 ?>
 <div class="search-bar">
-  <form method="GET" action="/FOODWISE1/router/offreAdminRouter.php">
+  <form method="GET" action="index.php?route=admin/offres/indexAdmin">
     <input type="hidden" name="action" value="indexAdmin">
 
     <input 
@@ -48,6 +48,12 @@ $isCritical = $ratio <= 0.1;
   </form>
 </div>
 
+<!-- Navigation Bar -->
+<nav class="admin-nav">
+  <a href="?route=admin/offres/indexAdmin" class="nav-link active">📋 Offres</a>
+  <a href="?route=admin/commandes/indexAdmin" class="nav-link">🛒 Les Commandes</a>
+</nav>
+
 <div class="page-intro">
   <div class="page-intro__header">
     <div>
@@ -55,7 +61,6 @@ $isCritical = $ratio <= 0.1;
       <h1>Liste des Offres</h1>
       <p class="text-muted"></p>
     </div>
-    <a href="/FOODWISE1/View/Commande/back/commande_admin.php" class="button button--secondary">Retour aux Commandes</a>
   </div>
 
   <div class="dashboard-grid">
@@ -129,12 +134,11 @@ $isCritical = $ratio <= 0.1;
                     </span>
                   </td>
                   <td class="actions-cell">
-                    <a href="/FOODWISE1/router/offreAdminRouter.php?action=show&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Voir</a>
-                    <a href="/FOODWISE1/router/offreAdminRouter.php?action=edit&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Éditer</a>
-<form method="GET" action="/FOODWISE1/router/offreAdminRouter.php">
-  <input type="hidden" name="action" value="delete">
+                    <a href="?route=admin/offres/show&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Voir</a>
+                    <a href="?route=admin/offres/edit&id=<?= $offre['id'] ?>" class="button button--small button--ghost">Éditer</a>
+<form method="POST" action="index.php?route=admin/offres/delete" style="display:inline">
   <input type="hidden" name="id" value="<?= $offre['id'] ?>">
-  <button class="button button--small button--danger">Supprimer</button>
+  <button type="submit" class="button button--small button--danger">Supprimer</button>
 </form>
                   </td>
                 </tr>
@@ -180,11 +184,18 @@ $isCritical = $ratio <= 0.1;
         <h2>Actions rapides</h2>
       </div>
       <div class="card-body">
-        <a href="/FOODWISE1/router/offreAdminRouter.php?action=create" class="button button--success" style="width:100%; margin-bottom:12px;">Ajouter une offre</a>
-        <a href="/FOODWISE1/router/offreAdminRouter.php?action=index" class="button button--secondary" style="width:100%;">Voir toutes les offres</a>
+        <a href="index.php?route=admin/offres/create" class="button button--success" style="width:100%; margin-bottom:12px;">Ajouter une offre</a>
+        <a href="index.php?route=admin/offres/indexAdmin" class="button button--secondary" style="width:100%;">Voir toutes les offres</a>
       </div>
     </section>
-  </div>
+    <section class="dashboard-card dashboard-card--secondary">
+      <div class="card-header">
+        <h2>Les Commandes</h2>
+      </div>
+      <div class="card-body">
+        <a href="?route=admin/commandes/indexAdmin" class="button button--primary" style="width:100%;">Voir les Commandes</a>
+      </div>
+    </section>  </div>
 </div>
 
 <style>
@@ -235,6 +246,33 @@ $isCritical = $ratio <= 0.1;
 }
 .row-critical {
     background: rgba(255, 100, 100, 0.08);
+}
+
+.admin-nav {
+    display: flex;
+    gap: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-link {
+    padding: 12px 20px;
+    text-decoration: none;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #7c5528;
+    background: rgba(124, 85, 40, 0.05);
+}
+
+.nav-link.active {
+    color: #7c5528;
+    border-bottom-color: #7c5528;
+    background: rgba(124, 85, 40, 0.05);
 }
 .page-intro {
     display: flex;

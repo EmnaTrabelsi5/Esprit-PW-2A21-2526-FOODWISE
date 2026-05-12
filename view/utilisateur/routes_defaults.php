@@ -34,3 +34,4 @@ $routesModule2 += [
     'back_ban_user' => '?route=module2.back.ban.user',
     'back_unban_user' => '?route=module2.back.unban.user',
 ];
+

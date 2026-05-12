@@ -238,7 +238,7 @@ class OffreController {
 }
 private function deleteAdmin(): void {
 
-    $id = (int)($_GET['id'] ?? 0);
+    $id = (int)(($_POST['id'] ?? $_GET['id']) ?? 0);
 
     if ($this->model->delete($id)) {
         $_SESSION['flash_success'] = "Offre supprimée avec succès.";
@@ -275,10 +275,10 @@ private function editAdmin(): void {
         exit;
     }
 
-    require __DIR__ . '/../view/Offre/back/form_admin.php';
+    require __DIR__ . '/../view/Offre/back/form_offre.php';
 }
-private function updateAdmin(): void {
 
+private function updateAdmin(): void {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         header('Location: ?route=admin/offres/indexAdmin');
         exit;
@@ -286,46 +286,57 @@ private function updateAdmin(): void {
 
     $id = (int)($_POST['id'] ?? 0);
     $data = $_POST;
+    $errors = $this->model->validate($data);
+    $commercants = CommandeModel::findAll('', 'actif');
+
+    if (!empty($errors)) {
+        $data['id'] = $id;
+        require __DIR__ . '/../view/Offre/back/form_offre.php';
+        return;
+    }
 
     if ($this->model->update($id, $data)) {
         $_SESSION['flash_success'] = "Offre mise à jour.";
     } else {
-        $_SESSION['flash_error'] = "Erreur.";
+        $_SESSION['flash_error'] = "Erreur lors de la mise à jour.";
     }
 
     header('Location: ?route=admin/offres/indexAdmin');
     exit;
 }
-    private function createAdmin(): void {
-        $data        = [];
-        $errors      = [];
-        $commercants = CommandeModel::findAll('', 'actif');
+
+private function createAdmin(): void {
+    $data        = [];
+    $errors      = [];
+    $commercants = CommandeModel::findAll('', 'actif');
     require __DIR__ . '/../view/Offre/back/form_offre.php';
-    }
+}
 
-    private function storeAdmin(): void {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ?route=admin/offres/index');
-            exit;
-        }
-
-        $data        = $_POST;
-        $errors      = $this->model->validate($data);
-        $commercants = CommandeModel::findAll('', 'actif');
-
-        if (!empty($errors)) {
-    require __DIR__ . '/../view/Offre/back/form_offre.php';
-            return;
-        }
-
-        $id = $this->model->create($data);
-        if ($id) {
-            $_SESSION['flash_success'] = "Offre <strong>{$data['titre']}</strong> publiée avec succès !";
-            header('Location: ?route=admin/offres/index');
-        } else {
-            $_SESSION['flash_error'] = "Erreur lors de la publication.";
-    require __DIR__ . '/../view/Offre/back/form_offre.php';
-        }
+private function storeAdmin(): void {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: ?route=admin/offres/indexAdmin');
         exit;
     }
+
+    $data        = $_POST;
+    $errors      = $this->model->validate($data);
+    $commercants = CommandeModel::findAll('', 'actif');
+
+    if (!empty($errors)) {
+        require __DIR__ . '/../view/Offre/back/form_offre.php';
+        return;
+    }
+
+    $id = $this->model->create($data);
+    if ($id) {
+        $_SESSION['flash_success'] = "Offre <strong>{$data['titre']}</strong> publiée avec succès !";
+        header('Location: ?route=admin/offres/indexAdmin');
+    } else {
+        $_SESSION['flash_error'] = "Erreur lors de la publication.";
+        require __DIR__ . '/../view/Offre/back/form_offre.php';
+    }
+    exit;
 }
+}
+
+

@@ -78,7 +78,7 @@ include __DIR__ . '/layout/header.php';
 <?php if (!empty($recettes)): ?>
 <div class="recipe-grid">
   <?php foreach ($recettes as $r): ?>
-  <a href="/FOODWISE/recettes/<?= $r->id_recette ?>" class="recipe-card">
+  <a href="?route=recettes/<?= $r->id_recette ?>" class="recipe-card">
 
     <div style="position:relative;">
     <?php if (!empty($r->image_url)): ?>
@@ -173,14 +173,14 @@ async function toggleFavori(event, btn, recetteId) {
     event.stopPropagation();
 
     try {
-        const resp = await fetch('/FOODWISE/index.php?url=recettes/' + recetteId + '/favori', {
+        const resp = await fetch('?route=recettes/' + recetteId + '/favori', {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
         const data = await resp.json();
 
         if (data.error === 'non_connecte') {
-            window.location.href = '/FOODWISE/index.php?url=login';
+            window.location.href = '?route=module2/front/connexion';
             return;
         }
 
@@ -204,3 +204,4 @@ async function toggleFavori(event, btn, recetteId) {
 </script>
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

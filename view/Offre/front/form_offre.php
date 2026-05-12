@@ -181,7 +181,7 @@ action="<?= $isEdit
         <button type="submit" class="btn btn-primary">
           <?= $isEdit ? '💾 Enregistrer les modifications' : '🌿 Publier l\'offre' ?>
         </button>
-        <a href="?route=offres/index" class="btn btn-outline">Annuler</a>
+        <a href="/FOODWISE1/router/offreRouter.php?action=index" class="btn btn-outline">Annuler</a>
       </div>
     </form>
   </div>

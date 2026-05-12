@@ -158,8 +158,6 @@ class BackController
                     // Récupérer l'ANCIEN profil AVANT de le modifier
                     $oldProfile = $this->profilModel->findByUserId($userId);
                     
-                    error_log("DEBUG profilForm: userId=$userId, oldProfile=" . json_encode($oldProfile) . ", newPoids=" . $old['poids_kg']);
-                    
                     // Standardiser les allergies, régimes et intolérances
                     $allergies = AllergenMappings::standardizeAllergenList($old['allergies'] ?? '');
                     $regimes = AllergenMappings::standardizeRegimeList($old['regimes'] ?? '');
@@ -177,9 +175,7 @@ class BackController
                     
                     // Enregistrer les modifications du profil nutritionnel
                     if ($oldProfile !== null) {
-                        error_log("DEBUG: Comparing profil oldPoids=" . $oldProfile['poids_kg'] . " vs newPoids=" . $old['poids_kg']);
                         if ($oldProfile['poids_kg'] != $old['poids_kg']) {
-                            error_log("DEBUG: Poids changed! Recording modification...");
                             logModification($this->pdo, $userId, $adminId, 'profil_nutritionnel', $userId, 'poids_kg', $oldProfile['poids_kg'], $old['poids_kg']);
                         }
                         if ($oldProfile['taille_cm'] != $old['taille_cm']) {
@@ -394,8 +390,7 @@ class BackController
         $activeNav = 'suivi_nutritionnel';
 
         require __DIR__ . '/../view/utilisateur/routes_defaults.php';
-        require __DIR__ . '/../view/utilisateur/back/layouts/header.php';
-        ?>
+        require __DIR__ . '/../view/utilisateur/back/layouts/header.php';        ?>
         <main id="fw-main-content" class="fw-content">
           <div class="fw-grid fw-grid--admin">
             <section class="fw-card" aria-labelledby="fw-history-title">
@@ -485,7 +480,7 @@ class BackController
         }
 
         // Créer le dossier s'il n'existe pas
-        $uploadDir = __DIR__ . '/../views/module2/assets/uploads/profils/';
+        $uploadDir = __DIR__ . '/../assets/uploads/profils/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -498,13 +493,13 @@ class BackController
         if (move_uploaded_file($file['tmp_name'], $newFilepath)) {
             // Supprimer l'ancienne photo si elle existe
             if ($oldPhotoPath !== null) {
-                $oldPath = __DIR__ . '/../../' . $oldPhotoPath;
+                $oldPath = __DIR__ . '/../assets/uploads/profils/' . basename($oldPhotoPath);
                 if (file_exists($oldPath)) {
                     unlink($oldPath);
                 }
             }
             // Retourner le chemin relatif pour la base de données
-            return 'app/views/module2/assets/uploads/profils/' . $newFilename;
+            return 'profils/' . $newFilename;
         }
 
         return null;
@@ -644,4 +639,5 @@ class BackController
         }
     }
 }
+
 

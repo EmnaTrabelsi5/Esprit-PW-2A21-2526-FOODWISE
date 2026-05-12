@@ -59,6 +59,16 @@ class CommandeController {
         };
     }
 
+    public function handleAdminRequest(): void {
+        $action = $_GET['action'] ?? 'indexAdmin';
+
+        match ($action) {
+            'indexAdmin' => $this->adminIndex(),
+            'show'       => $this->adminShow(),  // Assuming it exists or add if needed
+            default      => $this->adminIndex(),
+        };
+    }
+
     // -- Liste des commandes (front) --------------------------
     private function index(): void {
         // TEMP: Remplacer par session utilisateur
@@ -110,7 +120,7 @@ class CommandeController {
         $courses = Recette::getOffresParRecette($id_recette);
         if (empty($courses['avec_offre'])) {
             $_SESSION['flash_error'] = "Aucune offre disponible pour cette recette.";
-            header("Location: /FOODWISE/index.php?url=recettes/{$id_recette}/courses");
+            header("Location: index.php?url=recettes/{$id_recette}/courses");
             exit;
         }
 
@@ -125,7 +135,7 @@ class CommandeController {
 
     private function storeBulk(): void {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ?route=commandes/index');
+            header('Location: index.php?route=commandes/index');
             exit;
         }
 
@@ -166,7 +176,7 @@ class CommandeController {
 
         if (!empty($errors)) {
             $_SESSION['flash_error'] = implode('<br>', $errors);
-            header("Location: /FOODWISE/index.php?route=commandes/createBulk&id_recette={$id_recette}");
+            header("Location: index.php?route=commandes/createBulk&id_recette={$id_recette}");
             exit;
         }
 
@@ -184,7 +194,7 @@ class CommandeController {
             header('Location: ?route=commandes/index');
         } else {
             $_SESSION['flash_error'] = "Erreur lors de la création de la commande groupée.";
-            header("Location: /FOODWISE/index.php?route=commandes/createBulk&id_recette={$id_recette}");
+            header("Location: index.php?route=commandes/createBulk&id_recette={$id_recette}");
         }
         exit;
     }
@@ -192,7 +202,7 @@ class CommandeController {
     // -- Enregistrer une commande -----------------------------
     private function store(): void {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ?route=commandeRouter.php?action=index');
+    header('Location: index.php?route=commandes/index');
         exit;
     }
 
@@ -207,13 +217,13 @@ class CommandeController {
     // ?? Validation
     $errors = [];
     if ($quantite <= 0) {
-        $errors[] = "La quantit� doit �tre sup�rieure � 0.";
+        $errors[] = "La quantité doit être supérieure à 0.";
     }
     if (empty($adresse)) {
         $errors[] = "L'adresse de livraison est requise.";
     }
     if (empty($telephone) || !preg_match('/^[0-9]{8}$/', $telephone)) {
-        $errors[] = "Le num�ro de t�l�phone doit contenir 8 chiffres.";
+        $errors[] = "Le numéro de téléphone doit contenir 8 chiffres.";
     }
     if (empty($mode_paiement)) {
         $errors[] = "Le mode de paiement est requis.";
@@ -221,7 +231,7 @@ class CommandeController {
 
     if (!empty($errors)) {
         $_SESSION['flash_error'] = implode('<br>', $errors);
-        header("Location: ?route=commandes/create&id_offre={$id_offre}");
+        header("Location: index.php?route=commandes/create&id_offre={$id_offre}");
         exit;
     }
 
@@ -245,7 +255,7 @@ class CommandeController {
 
     if ($offre['stock'] < $quantite) {
         $_SESSION['flash_error'] = "Stock insuffisant.";
-        header("Location: commande.php?action=create&id_offre={$id_offre}");
+        header("Location: index.php?route=commandes/create&id_offre={$id_offre}");
         exit;
     }
 
@@ -272,7 +282,7 @@ class CommandeController {
         OffreModel::decrementStock($id_offre, $quantite);
 
         $_SESSION['flash_success'] = "Commande cr��e avec succ�s !";
-        header('Location: ?route=commandeRouter.php?action=index');
+        header('Location: index.php?route=commandes/index');
 
     } else {
         $_SESSION['flash_error'] = "Erreur lors de la cr�ation de la commande.";
@@ -289,7 +299,7 @@ class CommandeController {
 
         if (!$id_commande) {
             $_SESSION['flash_error'] = "Commande non sp�cifi�e.";
-            header('Location: ?route=commandeRouter.php?action=index');
+            header('Location: index.php?route=commandes/index');
             exit;
         }
 
@@ -298,13 +308,13 @@ class CommandeController {
 
         if (!$commande) {
             $_SESSION['flash_error'] = "Commande introuvable.";
-            header('Location: ?route=commandeRouter.php?action=index');
+            header('Location: index.php?route=commandes/index');
             exit;
         }
 
         if ($commande['statut'] !== 'en_attente') {
             $_SESSION['flash_error'] = "Cette commande ne peut plus �tre modifi�e.";
-            header('Location: ?route=commandeRouter.php?action=index');
+            header('Location: index.php?route=commandes/index');
             exit;
         }
 
@@ -314,7 +324,7 @@ class CommandeController {
 
         if (!$offre) {
             $_SESSION['flash_error'] = "Offre associ�e introuvable.";
-            header('Location: ?route=commandeRouter.php?action=index');
+            header('Location: index.php?route=commandes/index');
             exit;
         }
 
@@ -324,7 +334,7 @@ class CommandeController {
     // -- Mettre � jour une commande ----------------------------
     private function update(): void {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        header('Location: ?route=commandeRouter.php?action=index');
+        header('Location: index.php?route=commandes/index');
             exit;
         }
 
@@ -359,7 +369,7 @@ class CommandeController {
 
         if (!empty($errors)) {
             $_SESSION['flash_error'] = implode('<br>', $errors);
-            header("Location: ?route=commandes/edit&id={$id_commande}");
+            header("Location: index.php?route=commandes/edit&id={$id_commande}");
             exit;
         }
 
@@ -367,11 +377,11 @@ class CommandeController {
         $result = CommandeModel::update($id_commande, $id_client, $quantite, $adresse, $telephone, $mode_paiement, $note);
 
         if ($result) {
-            $_SESSION['flash_success'] = "Commande modifi�e avec succ�s !";
-            header('Location: ?route=commandeRouter.php?action=index');
+            $_SESSION['flash_success'] = "Commande modifiée avec succès !";
+            header('Location: index.php?route=commandes/index');
         } else {
             $_SESSION['flash_error'] = "Erreur lors de la modification de la commande.";
-            header("Location: ?route=commandes/edit&id={$id_commande}");
+            header("Location: index.php?route=commandes/edit&id={$id_commande}");
         }
         exit;
     }
@@ -382,20 +392,20 @@ class CommandeController {
         $id_client = $_SESSION['user_id'] ?? 1; // TEMP
 
         if (!$id) {
-            $_SESSION['flash_error'] = "Commande non sp�cifi�e.";
-            header('Location: ?route=commandeRouter.php?action=index');
+            $_SESSION['flash_error'] = "Commande non spécifiée.";
+            header('Location: index.php?route=commandes/index');
             exit;
         }
 
         $result = CommandeModel::cancel($id);
 
         if ($result) {
-            $_SESSION['flash_success'] = "Commande annul�e avec succ�s.";
+            $_SESSION['flash_success'] = "Commande annulée avec succès.";
         } else {
             $_SESSION['flash_error'] = "Impossible d'annuler cette commande.";
         }
 
-        header('Location: ?route=commandeRouter.php?action=index');
+        header('Location: index.php?route=commandes/index');
         exit;
     }
 
@@ -441,8 +451,8 @@ private function pay(): void {
     $id = (int)($_GET['id'] ?? 0);
 
     if (!$id) {
-        $_SESSION['flash_error'] = "Commande non sp�cifi�e.";
-        header('Location: ?route=commandeRouter.php?action=index');
+        $_SESSION['flash_error'] = "Commande non spécifiée.";
+        header('Location: index.php?route=commandes/index');
         exit;
     }
 
@@ -450,25 +460,25 @@ private function pay(): void {
 
     if (!$commande) {
         $_SESSION['flash_error'] = "Commande introuvable.";
-        header('Location: ?route=commandeRouter.php?action=index');
+        header('Location: index.php?route=commandes/index');
         exit;
     }
 
     if ($commande['paiement_status'] === 'paye') {
-        $_SESSION['flash_error'] = "D�j� pay�.";
-        header('Location: ?route=commandeRouter.php?action=index');
+        $_SESSION['flash_error'] = "Déjà payé.";
+        header('Location: index.php?route=commandes/index');
         exit;
     }
 
     $result = CommandeModel::simulatePayment($id, $commande['mode_paiement']);
 
     if ($result) {
-        $_SESSION['flash_success'] = "Paiement simul� avec succ�s !";
+        $_SESSION['flash_success'] = "Paiement simulé avec succès !";
     } else {
         $_SESSION['flash_error'] = "Erreur lors du paiement.";
     }
 
-    header('Location: ?route=commandeRouter.php?action=index');
+    header('Location: index.php?route=commandes/index');
     exit;
 }
 
@@ -485,7 +495,7 @@ private function pay(): void {
         $status = $_GET['status'] ?? '';
 
         if (!$id || !in_array($status, ['en_attente', 'confirme', 'annule'])) {
-            $_SESSION['flash_error'] = "Param�tres invalides.";
+            $_SESSION['flash_error'] = "Paramètres invalides.";
             header('Location: commandeRouter.php?action=adminIndex');
             exit;
         }
@@ -493,12 +503,13 @@ private function pay(): void {
         $result = CommandeModel::updateStatus($id, $status);
 
         if ($result) {
-            $_SESSION['flash_success'] = "Statut mis � jour avec succ�s.";
+            $_SESSION['flash_success'] = "Statut mis à jour avec succès.";
         } else {
-            $_SESSION['flash_error'] = "Erreur lors de la mise � jour.";
+            $_SESSION['flash_error'] = "Erreur lors de la mise à jour.";
         }
 
         header('Location: commandeRouter.php?action=adminIndex');
         exit;
     }
 }
+

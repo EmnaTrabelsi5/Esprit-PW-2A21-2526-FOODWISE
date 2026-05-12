@@ -48,9 +48,9 @@
           <td class="table-actions">
             <a href="?route=admin/offres/show&id=<?= $offre['id'] ?>" class="btn btn--secondary btn-sm" title="Voir les détails">👁</a>
             <a href="?route=admin/offres/edit&id=<?= $offre['id'] ?>" class="btn btn--primary btn-sm" title="Modifier">✏️</a>
-            <a href="?route=admin/commandes/create&id_offre=<?= $offre['id'] ?>" class="btn btn--success btn-sm" title="Commander">🛒</a>
+            <a href="/FOODWISE1/commande.php?action=create&id_offre=<?= $offre['id'] ?>" class="btn btn--success btn-sm" title="Commander">🛒</a>
 
-            <form method="POST" action="?route=admin/offres/delete" style="display:inline;">
+            <form method="POST" action="/FOODWISE1/router/offreRouter.php?action=delete" style="display:inline;">
               <input type="hidden" name="id" value="<?= $offre['id'] ?>">
               <button type="submit" class="btn btn--danger btn-sm" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette offre ?')">🗑</button>
             </form>

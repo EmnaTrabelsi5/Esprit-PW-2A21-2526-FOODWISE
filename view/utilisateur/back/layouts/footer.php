@@ -17,6 +17,7 @@ declare(strict_types=1);
     </footer>
   </div>
 </div>
-<script src="/FOODWISE/assets/js/validation.js"></script>
+<script src="assets/validation-foodlog.js"></script>
 </body>
 </html>
+

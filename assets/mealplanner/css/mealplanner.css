@@ -1,0 +1,614 @@
+/**
+ * FoodWise — Module 4 MealPlanner
+ * Charte : vert sauge, crème, terracotta / marron
+ */
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+
+:root {
+  /* Palette FoodWise Originale */
+  --fw-brun-fonce: #4e2c0e;
+  --fw-brun-moyen: #7b3f1a;
+  --fw-brun-chaud: #a0522d;
+  --fw-brun-pale: #e8c9a0;
+  --fw-vert-fonce: #3a5c1e;
+  --fw-vert-moyen: #5c7a3e;
+  --fw-vert-pale: #c8deb0;
+  --fw-creme: #fdf6ec;
+  --fw-creme-fonce: #f5e9d0;
+  --fw-texte-sombre: #2a1a0a;
+  --fw-texte-moyen: #5c3d20;
+  --fw-texte-leger: #9b7355;
+
+  /* Variables globales */
+  --primary: var(--fw-brun-chaud);
+  --primary-hover: var(--fw-brun-moyen);
+  --secondary: var(--fw-vert-moyen);
+  --secondary-hover: var(--fw-vert-fonce);
+  --bg-main: var(--fw-creme);
+  --bg-panel: var(--fw-creme-fonce);
+  --header-bg: var(--fw-brun-fonce);
+  --text-main: var(--fw-texte-sombre);
+  --text-muted: var(--fw-texte-moyen);
+  --white: #ffffff;
+  
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --shadow-soft: 0 10px 30px rgba(78, 44, 14, 0.05);
+  --shadow-hover: 0 15px 40px rgba(78, 44, 14, 0.1);
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text-main);
+  background: var(--bg-main);
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+/* ——— Custom Scrollbar ——— */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--fw-brun-pale);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fw-brun-moyen);
+}
+
+/* ——— Layout ——— */
+.mealplanner-container {
+  display: block;
+}
+
+.mealplanner-content {
+  padding: 1.5rem;
+  background: transparent;
+}
+
+.layout__notifications {
+  display: none; /* On peut choisir de l'afficher différemment si besoin */
+}
+
+.site-footer {
+  display: none; /* On utilise le footer global de FoodWise */
+}
+
+/* ——— Navigation ——— */
+.sidebar__nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.25rem;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.sidebar__link--active::after {
+  display: none; /* On enlève le point, on utilise le fond maintenant */
+}
+
+
+.sidebar__icon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+
+/* ——— Brand ——— */
+.brand {
+  margin: 0 1rem;
+  padding: 1.5rem; 
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-align: center;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  min-height: 100px; 
+}
+
+.brand:hover {
+  background: transparent !important;
+  transform: none !important;
+}
+
+.brand__logo {
+  max-width: 100%;
+  max-height: 120px; 
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  mix-blend-mode: normal !important;
+  filter: none !important;
+}
+
+/* ——— Page Header ——— */
+.page-header {
+  margin-bottom: 2.5rem;
+}
+
+.page-header__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 2rem;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--fw-brun-fonce);
+  letter-spacing: -0.02em;
+}
+
+.page-title small {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--fw-texte-leger);
+  font-weight: 500;
+  margin-top: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ——— Dashboard Grid ——— */
+.dashboard-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+}
+
+/* ——— Cards ——— */
+.card {
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  border: none;
+  overflow: hidden;
+  transition: var(--transition);
+}
+
+.card__header {
+  padding: 1rem 1.75rem;
+  background: #7b3f1a; /* Marron header */
+  color: var(--white);
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card__header svg {
+  width: 20px;
+  height: 20px;
+  opacity: 0.9;
+}
+
+.card__body {
+  padding: 1.75rem;
+}
+
+.card--meal-plan { border-top: none; }
+.card--nutrition { border-top: none; }
+
+/* ——— Stats ——— */
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  border: 1px solid rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: var(--transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+.stat-card__label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.stat-card__value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--fw-brun-fonce);
+  line-height: 1;
+}
+
+.stat-card__icon {
+  width: 32px;
+  height: 32px;
+  margin-bottom: 0.5rem;
+  padding: 8px;
+  border-radius: 8px;
+  background: #f8f1e7;
+  color: #a0522d;
+}
+
+.stat-card--primary .stat-card__icon { background: #fdf6ec; color: #a0522d; }
+.stat-card--secondary .stat-card__icon { background: #f1f8e9; color: #5c7a3e; }
+.stat-card--accent .stat-card__icon { background: #e3f2fd; color: #1565c0; }
+
+/* ——— Lists ——— */
+.feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.feature-icon {
+  width: 18px;
+  height: 18px;
+  color: var(--secondary);
+  stroke-width: 3;
+}
+
+/* ——— Buttons ——— */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 50px; /* Boutons très arrondis comme sur l'image */
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  transition: var(--transition);
+}
+
+.btn--voir {
+  background: #a0522d; /* Marron */
+  color: var(--white);
+}
+
+.btn--modifier {
+  background: #9bb688; /* Vert plus doux de l'image 1 */
+  color: var(--white);
+}
+
+.btn--supprimer {
+  background: #7b3f1a; /* Marron foncé */
+  color: var(--white);
+}
+
+.btn--primary {
+  background: #a0522d;
+  color: var(--white);
+}
+
+.btn--primary:hover {
+  opacity: 0.9;
+}
+
+.btn--outline {
+  background: transparent;
+  border: 1.5px solid #a0522d;
+  color: #a0522d;
+}
+
+.btn--outline:hover {
+  background: #fdf6ec;
+}
+
+.btn--sm {
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+}
+
+/* ——— Tables ——— */
+.data-table-container {
+  background: var(--white);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  margin-top: 1.5rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  background: #4e2c0e; /* Header marron foncé */
+  padding: 0.6rem 0.75rem; /* Plus compact */
+  text-align: left;
+  font-size: 0.7rem; /* Plus petit et élégant */
+  text-transform: uppercase; /* Plus pro pour les en-têtes */
+  letter-spacing: 0.03em;
+  color: var(--white);
+  font-weight: 700;
+}
+
+.data-table td {
+  padding: 0.6rem 0.75rem; /* Plus compact */
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+  font-size: 0.8rem; /* Taille de lecture optimale */
+  vertical-align: middle;
+}
+
+/* Fixer les largeurs de colonnes spécifiques */
+.data-table th:first-child, 
+.data-table td:first-child {
+  width: 60px; /* Colonne ID étroite */
+  text-align: center;
+}
+
+.data-table th:last-child, 
+.data-table td:last-child {
+  width: 220px; /* Colonne Actions fixe */
+  text-align: right;
+}
+
+.data-table tr:hover td {
+  background: #fdfaf7;
+}
+
+/* ——— Badges ——— */
+.badge {
+  display: inline-flex;
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.badge--ok { background: #e8f5e9; color: #2e7d32; }
+.badge--pending { background: #fff3e0; color: #ef6c00; }
+
+/* ——— Notifications ——— */
+.notifications-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--fw-brun-fonce);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  border-left: 4px solid transparent;
+}
+
+.notification-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.notification-item--green { background: #f1f8e9; color: #33691e; border-left-color: var(--fw-vert-moyen); }
+.notification-item--brown { background: #efebe9; color: #4e342e; border-left-color: var(--fw-brun-chaud); }
+
+/* ——— Search Bar ——— */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.5rem;
+  background: var(--white);
+  border-radius: 100px;
+  box-shadow: var(--shadow-soft);
+  border: 1.5px solid rgba(78, 44, 14, 0.1);
+  margin-bottom: 2rem;
+  transition: var(--transition);
+}
+
+.search-bar:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(160, 82, 45, 0.1);
+}
+
+.search-bar__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.search-bar__icon {
+  width: 20px;
+  color: var(--text-muted);
+}
+
+/* ——— Forms ——— */
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--fw-brun-fonce);
+  margin-bottom: 0.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 1.5px solid rgba(78, 44, 14, 0.1);
+  background: var(--white);
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--text-main);
+  transition: var(--transition);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(160, 82, 45, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.form-errors {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: #c0392b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.form-errors li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-errors li::before {
+  content: "•";
+  color: #c0392b;
+  font-weight: 900;
+}
+
+/* ——— Alerts ——— */
+.alert {
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.alert--success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.alert--error { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; }
+
+/* ——— Responsive ——— */
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: 240px 1fr;
+  }
+  .layout__notifications {
+    display: none;
+  }
+  .site-footer {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    height: auto;
+    position: relative;
+    padding: 1.5rem;
+  }
+  .layout__main {
+    padding: 2rem;
+  }
+  .page-header__row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

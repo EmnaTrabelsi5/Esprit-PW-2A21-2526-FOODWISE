@@ -215,6 +215,19 @@
   margin-bottom: 2px;
 }
 
+.form-card {
+  overflow: visible !important;
+  min-height: auto !important;
+}
+
+.page-body {
+  overflow: visible !important;
+}
+
+.card {
+  min-height: auto !important;
+}
+
 /* ── Formulaires — états invalides ── */
 .form-control.is-invalid {
   border-color: var(--alerte-rouge);
@@ -291,6 +304,10 @@
 .row-critical {
     background: #fff3f3 !important;
     border-left: 4px solid #e74c3c;
+}
+
+.form-card {
+  overflow: visible;
 }
 
 @keyframes modalIn {

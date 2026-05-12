@@ -12,13 +12,13 @@ if (!isset($recettes)) {
     <h1 class="page-title">❤️ Mes Favoris</h1>
     <p class="page-subtitle"><?= count($recettes) ?> recette<?= count($recettes) > 1 ? 's' : '' ?> sauvegardée<?= count($recettes) > 1 ? 's' : '' ?></p>
   </div>
-  <a href="?url=recettes" class="btn btn-outline btn-sm">← Toutes les recettes</a>
+  <a href="?route=recettes" class="btn btn-outline btn-sm">← Toutes les recettes</a>
 </div>
 
 <?php if (!empty($recettes)): ?>
 <div class="recipe-grid">
   <?php foreach ($recettes as $r): ?>
-  <a href="?url=recettes/<?= $r->id_recette ?>" class="recipe-card">
+  <a href="?route=recettes/<?= $r->id_recette ?>" class="recipe-card">
     <div style="position:relative;">
       <?php if (!empty($r->image_url)): ?>
         <img src="<?= htmlspecialchars($r->image_url) ?>"
@@ -77,7 +77,7 @@ async function toggleFavori(event, btn, recetteId) {
     event.preventDefault();
     event.stopPropagation();
     try {
-        const resp = await fetch('/FOODWISE/index.php?url=recettes/' + recetteId + '/favori', {
+        const resp = await fetch('index.php?url=recettes/' + recetteId + '/favori', {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });

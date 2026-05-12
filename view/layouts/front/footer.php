@@ -6,9 +6,9 @@
 ═══════════════════════════════════════════ -->
 <footer class="site-footer">
   <p>
-    <a href="../index.php">Dashboard</a> &nbsp;·&nbsp;
-    <a href="offre.php?action=index">Le Marché</a> &nbsp;·&nbsp;
-    <a href="commercant.php?action=index">Commerçants</a> &nbsp;·&nbsp;
+    <a href="?route=recettes">Dashboard</a> &nbsp;·&nbsp;
+    <a href="?route=offres">Le Marché</a> &nbsp;·&nbsp;
+    <a href="#">Commerçants</a> &nbsp;·&nbsp;
     <a href="#">Confidentialité</a> &nbsp;·&nbsp;
     <a href="#">Aide</a>
     &emsp;|&emsp;
@@ -16,11 +16,11 @@
   </p>
 </footer>
  
-<script src="<?= $baseUrl ?? '../' ?>assets/js/localmarket.js"></script>
+<script src="<?= htmlspecialchars(assetUrl('localMarket.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <script>
 function doTopbarSearch() {
   const q = document.getElementById('topbarSearch').value.trim();
-  if (q) window.location.href = 'offre.php?action=index&search=' + encodeURIComponent(q);
+  if (q) window.location.href = '?route=offres&action=index&search=' + encodeURIComponent(q);
 }
 document.getElementById('topbarSearch')?.addEventListener('keydown', e => {
   if (e.key === 'Enter') doTopbarSearch();

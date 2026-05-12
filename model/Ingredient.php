@@ -301,3 +301,4 @@ class Ingredient
         return (int)$stmt->fetchColumn() > 0;
     }
 }
+

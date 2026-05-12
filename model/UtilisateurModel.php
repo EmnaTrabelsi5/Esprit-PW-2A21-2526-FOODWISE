@@ -334,3 +334,4 @@ class UtilisateurModel
         return max(0, (int) $daysLeft);
     }
 }
+

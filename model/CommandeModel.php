@@ -25,16 +25,16 @@ class CommandeModel {
                 return false; // Offre n'existe pas
             }
 
-            error_log("Offre trouvée - Stock: {$offre['stock']}, Statut: {$offre['statut']}, Quantité demandée: $quantite");
+            error_log("Offre trouvée - Stock: {$offre->stock}, Statut: {$offre->statut}, Quantité demandée: $quantite");
 
             // Vérifier statut et stock
-            if ($offre['statut'] === 'epuise' || $offre['statut'] === 'expire') {
-                error_log("Offre indisponible (statut={$offre['statut']}): id_offre=$id_offre");
+            if ($offre->statut === 'epuise' || $offre->statut === 'expire') {
+                error_log("Offre indisponible (statut={$offre->statut}): id_offre=$id_offre");
                 return false;
             }
 
-            if ($offre['stock'] < $quantite) {
-                error_log("Stock insuffisant: disponible={$offre['stock']}, demandé=$quantite");
+            if ($offre->stock < $quantite) {
+                error_log("Stock insuffisant: disponible={$offre->stock}, demandé=$quantite");
                 return false;
             }
 
@@ -166,7 +166,7 @@ $sql = $sql = "SELECT c.*, o.titre AS offre_nom
 $sql = "SELECT c.*, o.titre AS offre_nom 
         FROM commande c 
         JOIN Offre o ON c.id_offre = o.id";
-        return $db->query($sql)->fetchAll();
+        return $db->query($sql)->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public static function updateStatus($id, $status) {
@@ -194,7 +194,7 @@ $sql = "SELECT c.*, o.titre AS offre_nom
         $sql .= " ORDER BY nom ASC";
         $stmt = $db->prepare($sql);
         $stmt->execute($params);
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     // ── Récupérer toutes les villes ────────────────────────────
@@ -286,4 +286,5 @@ public static function simulatePayment($id_commande, $mode_paiement) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 }
+
 

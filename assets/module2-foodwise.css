@@ -49,8 +49,45 @@ body.fw-module2 {
   z-index: 10;
 }
 .fw-main-wrap {
-  margin-left: var(--sidebar-w);
+  margin-left: var(--sidebar-w, 260px);
 }
+
+/* ── nav-item styles pour sidebar admin ── */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+  flex: 1;
+}
+.sidebar-nav .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 20px;
+  color: rgba(255,255,255,0.75);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+.sidebar-nav .nav-item:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+.sidebar-nav .nav-item.active {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border-left-color: #e8c49a;
+  font-weight: 700;
+}
+.sidebar-nav .nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+.sidebar-nav .nav-item.active svg { opacity: 1; }
 
 .fw-no-sidebar .fw-main-wrap {
   margin-left: 0;

@@ -105,9 +105,9 @@ foreach ($avecOffre as $ligne) {
 
 <!-- Fil d'Ariane -->
 <nav style="font-size:13px;color:var(--texte-leger);margin-bottom:16px;">
-    <a href="/FOODWISE/index.php?url=recettes" style="color:var(--brun-chaud);text-decoration:none;">Mes Recettes</a>
+    <a href="?route=recettes" style="color:var(--brun-chaud);text-decoration:none;">Mes Recettes</a>
     <span style="margin:0 6px;">›</span>
-    <a href="/FOODWISE/index.php?url=recettes/<?= $recette->id_recette ?>"
+    <a href="?route=recettes/<?= $recette->id_recette ?>"
        style="color:var(--brun-chaud);text-decoration:none;"><?= htmlspecialchars($recette->nom) ?></a>
     <span style="margin:0 6px;">›</span>
     <span>Liste de courses</span>
@@ -121,7 +121,7 @@ foreach ($avecOffre as $ligne) {
             Offres locales disponibles pour <strong><?= htmlspecialchars($recette->nom) ?></strong>
         </p>
     </div>
-    <a href="/FOODWISE/index.php?url=recettes/<?= $recette->id_recette ?>"
+    <a href="?route=recettes/<?= $recette->id_recette ?>"
        class="btn btn-outline btn-sm">← Retour à la recette</a>
 </div>
 
@@ -183,7 +183,7 @@ foreach ($avecOffre as $ligne) {
                 <!-- Prix + bouton -->
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
                     <span class="prix-tag"><?= number_format($ligne->prix_unitaire, 2) ?> DT/<?= $ligne->offre_unite ?></span>
-                    <a href="/FOODWISE/index.php?url=offres/show&action=show&id=<?= $ligne->offre_id ?>"
+                    <a href="?route=offres&action=show&id=<?= $ligne->offre_id ?>"
                        class="btn btn-outline btn-sm" style="font-size:11px;padding:3px 10px;">
                         Voir l'offre
                     </a>
@@ -192,7 +192,7 @@ foreach ($avecOffre as $ligne) {
             <?php endforeach; ?>
                 <?php if (!empty($avecOffre)): ?>
     <div style="display:flex;justify-content:flex-end;margin-top:20px;">
-        <a href="/FOODWISE/index.php?route=commandes/createBulk&id_recette=<?= $recette->id_recette ?>" 
+        <a href="?route=commandes&action=createBulk&id_recette=<?= $recette->id_recette ?>" 
             class="btn btn-confirm">
             <span></span> commander en ligne
         </a>
@@ -466,3 +466,4 @@ async function activerCommercant(idx) {
 </script>
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

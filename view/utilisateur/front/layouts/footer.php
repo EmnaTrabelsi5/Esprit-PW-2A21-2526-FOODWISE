@@ -19,7 +19,7 @@ declare(strict_types=1);
     </footer>
   </div>
 </div>
-<script src="../assets/js/validation.js"></script>
+<script src="<?= htmlspecialchars(assetUrl('validation-foodlog.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 <script>
   // Afficher le badge de messages non lus
   document.addEventListener('DOMContentLoaded', function() {
@@ -37,3 +37,4 @@ declare(strict_types=1);
 </script>
 </body>
 </html>
+

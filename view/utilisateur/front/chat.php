@@ -119,3 +119,4 @@ require __DIR__ . '/layouts/header.php';
 </script>
 
 <?php require __DIR__ . '/layouts/footer.php'; ?>
+

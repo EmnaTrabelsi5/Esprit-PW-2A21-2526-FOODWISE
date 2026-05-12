@@ -188,3 +188,4 @@ $unites = ['kg','g','L','ml','pièce','boîte','bouteille','paquet','sachet','lo
 </div>
  
 <?php require __DIR__ . '/../../layouts/back/footer.php'; ?>
+

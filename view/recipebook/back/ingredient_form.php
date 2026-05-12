@@ -23,8 +23,8 @@ $unites = ['g', 'kg', 'ml', 'L', 'unité', 'pincée'];*/
 include __DIR__ . '/layout/header.php';
 
 $action = $estModif
-    ? '/FOODWISE/index.php?route=admin/ingredients/' . $ingredient->id_ingredient . '/modifier'
-    : '/FOODWISE/index.php?route=admin/ingredients/ajouter';
+    ? 'index.php?route=admin/ingredients/' . $ingredient->id_ingredient . '/modifier'
+    : 'index.php?route=admin/ingredients/ajouter';
 
 /* ── Helpers ── */
 function erreurChamp(array $e, string $c): void {
@@ -60,9 +60,9 @@ function classeErreur(array $e, string $c): string {
 
 <!-- Fil d'Ariane -->
 <nav style="font-size:13px;color:var(--texte-leger);margin-bottom:16px;">
-  <a href="/FOODWISE/index.php?route=admin" style="color:var(--brun-chaud);text-decoration:none;">Tableau de bord</a>
+  <a href="index.php?route=admin" style="color:var(--brun-chaud);text-decoration:none;">Tableau de bord</a>
   <span style="margin:0 6px;">›</span>
-  <a href="/FOODWISE/index.php?route=admin_ingredients" style="color:var(--brun-chaud);text-decoration:none;">Base Ingrédients</a>
+  <a href="index.php?route=admin_ingredients" style="color:var(--brun-chaud);text-decoration:none;">Base Ingrédients</a>
   <span style="margin:0 6px;">›</span>
   <span><?= htmlspecialchars($pageTitle) ?></span>
 </nav>
@@ -280,7 +280,7 @@ function classeErreur(array $e, string $c): string {
         <button type="submit" form="ingredient-form" class="btn btn-primary" style="justify-content:center;">
           💾 <?= $estModif ? 'Enregistrer' : 'Créer l\'ingrédient' ?>
         </button>
-        <a href="/FOODWISE/index.php?route=admin_ingredients"
+        <a href="index.php?route=admin_ingredients"
            class="btn btn-outline" style="justify-content:center;">
           ✕ Annuler
         </a>
@@ -291,7 +291,7 @@ function classeErreur(array $e, string $c): string {
       <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--creme-fonce);">
         <p style="font-size:12px;color:var(--texte-leger);margin-bottom:10px;">Zone dangereuse</p>
         <form method="POST"
-              action="/FOODWISE/index.php?route=admin/ingredients/<?= $ingredient->id_ingredient ?>/supprimer"
+              action="index.php?route=admin/ingredients/<?= $ingredient->id_ingredient ?>/supprimer"
               onsubmit="return confirm('Supprimer «<?= htmlspecialchars(addslashes($ingredient->nom)) ?>» ?\n\nImpossible si cet ingrédient est utilisé dans des recettes.');">
           <input type="hidden" name="_method" value="DELETE">
           <button type="submit" class="btn btn-danger btn-sm" style="width:100%;justify-content:center;">
@@ -528,3 +528,4 @@ if (uniteInput) {
 </script>
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

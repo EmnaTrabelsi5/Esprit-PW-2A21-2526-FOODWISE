@@ -136,3 +136,4 @@ class ProfilNutritionnelModel
         return (int) round(100 * ($count / count($fields)));
     }
 }
+

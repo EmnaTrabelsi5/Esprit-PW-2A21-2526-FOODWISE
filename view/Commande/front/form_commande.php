@@ -78,9 +78,9 @@ require __DIR__ . '/../../layouts/front/header.php';
                         <!-- BUTTONS -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-success">? Confirmer la commande</button>
-                            <a href="?route=offres/index" 
+                            <a href="/FOODWISE1/offre.php?action=index" 
                                class="btn btn-secondary">? Retour aux offres</a>
-                            <a href="?route=offres/show&id=<?= $id_offre ?>" 
+                            <a href="/FOODWISE1/offre.php?action=show&id=<?= $id_offre ?>" 
                                class="btn btn-outline-secondary">Annuler</a>
                         </div>
 
@@ -141,3 +141,4 @@ function validateCommande() {
 </script>
 
 <?php require __DIR__ . '/../../layouts/front/footer.php'; ?>
+

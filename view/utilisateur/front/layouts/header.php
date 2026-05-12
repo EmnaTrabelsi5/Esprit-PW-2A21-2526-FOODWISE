@@ -9,7 +9,7 @@
 declare(strict_types=1);
 
 $pageTitle = $pageTitle ?? 'FoodWise — Mon profil';
-$cssUrl = '/FOODWISE/assets/module2-foodwise.css';
+$cssUrl = assetUrl('module2-foodwise.css');
 $backoffice = $backoffice ?? false;
 
 require dirname(__DIR__, 2) . '/routes_defaults.php';
@@ -79,7 +79,7 @@ $cssHref = $cssUrl;
 <?php if (empty($hideSidebar) && !empty($_SESSION['user_id'])): ?>
 <aside class="sidebar">
   <div class="sidebar-logo">
-   <img src="/FOODWISE/assets/img/logo.png" alt="FoodWise Logo">
+   <img src="<?= htmlspecialchars(assetUrl('img/logo.png'), ENT_QUOTES, 'UTF-8') ?>" alt="FoodWise Logo">
   </div>
 
   <nav class="sidebar-nav">
@@ -89,7 +89,7 @@ $cssHref = $cssUrl;
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
          Recherche filtrée
       </a>
-      <a href="/FOODWISE/recettes" 
+      <a href="?route=recettes" 
    class="nav-item <?= $activeNav === 'recettes' ? 'active' : '' ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         Mes Recettes
@@ -104,9 +104,25 @@ $cssHref = $cssUrl;
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
         Mes Objectifs
       </a>
-      <a href="/FOODWISE/offres" class="nav-item <?= $activeNav === 'marche' ? 'active' : '' ?>">
+      <a href="?route=offres" class="nav-item <?= $activeNav === 'marche' ? 'active' : '' ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Le Marché
+      </a>
+      <a href="?route=community" class="nav-item <?= $activeNav === 'community' ? 'active' : '' ?>">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Communauté
+      </a>
+      <a href="?route=foodlog/journal" class="nav-item <?= $activeNav === 'foodlog_journal' ? 'active' : '' ?>">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        Journal alimentaire
+      </a>
+      <a href="?route=foodlog/suivi" class="nav-item <?= $activeNav === 'foodlog_suivi' ? 'active' : '' ?>">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Suivi Santé
+      </a>
+      <a href="?route=foodlog/resume" class="nav-item <?= $activeNav === 'foodlog_resume' ? 'active' : '' ?>">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+        Résumé du jour
       </a>
       <a href="#" class="nav-item <?= $activeNav === 'nutrition' ? 'active' : '' ?>">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
@@ -131,7 +147,7 @@ $cssHref = $cssUrl;
         ?>
         <a href="<?= htmlspecialchars($routesModule2['front_mon_profil'] ?? '#', ENT_QUOTES, 'UTF-8') ?>" style="display:inline-flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
           <?php if ($userImage): ?>
-            <img src="/FOODWISE/uploads/<?= htmlspecialchars($userImage, ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>" style="width: 28px; height: 28px; border-radius: 50%; object-fit:cover;">
+            <img src="<?= htmlspecialchars(assetUrl('uploads/' . $userImage), ENT_QUOTES, 'UTF-8') ?>" alt="Avatar de <?= htmlspecialchars($userName, ENT_QUOTES, 'UTF-8') ?>" style="width: 28px; height: 28px; border-radius: 50%; object-fit:cover;">
           <?php else: ?>
             <span aria-hidden="true" style="font-size:1.1rem;">👤</span>
           <?php endif; ?>
@@ -142,3 +158,4 @@ $cssHref = $cssUrl;
       </div>
     </header>
     <?php } ?>
+

@@ -46,7 +46,7 @@ include __DIR__ . '/layout/header.php';
             <?= htmlspecialchars($recette->nom) ?>
           </h1>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-             <form method="POST" action="/FOODWISE/admin/recettes/<?= $recette->id_recette ?>/supprimer"
+             <form method="POST" action="admin/recettes/<?= $recette->id_recette ?>/supprimer"
                   onsubmit="return confirm('Supprimer cette recette ?');" style="display:inline;">
               <input type="hidden" name="_method" value="DELETE">
               <button type="submit" class="btn btn-danger btn-sm">🗑 Supprimer</button>
@@ -185,3 +185,4 @@ include __DIR__ . '/layout/header.php';
 </div><!-- /grid -->
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

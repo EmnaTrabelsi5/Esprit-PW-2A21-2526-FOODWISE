@@ -18,7 +18,7 @@ unset($_SESSION['flash']);
     <h1 class="page-title">🧪 Base Ingrédients</h1>
     <p class="page-subtitle">Gestion de tous les ingrédients du système</p>
   </div>
-  <a href="/FOODWISE/index.php?url=admin/ingredients/ajouter" class="btn btn-primary">
+  <a href="index.php?url=admin/ingredients/ajouter" class="btn btn-primary">
     + Nouvel ingrédient
   </a>
 </div>
@@ -51,7 +51,7 @@ unset($_SESSION['flash']);
 </div>
  
 <!-- Filtres -->
-<form method="GET" action="/FOODWISE/index.php">
+<form method="GET" action="index.php">
   <input type="hidden" name="route" value="admin_ingredients">
   <div class="filter-bar" style="margin-bottom:18px;">
     <input type="text" name="q" placeholder="Rechercher un ingrédient..."
@@ -86,7 +86,7 @@ unset($_SESSION['flash']);
     </select>
  
     <button type="submit" class="btn btn-secondary btn-sm">Filtrer</button>
-    <a href="/FOODWISE/index.php?url=admin/ingredients" class="btn btn-outline btn-sm">Réinitialiser</a>
+    <a href="index.php?url=admin/ingredients" class="btn btn-outline btn-sm">Réinitialiser</a>
   </div>
 </form>
  
@@ -152,10 +152,10 @@ unset($_SESSION['flash']);
           </td>
           <td>
             <div style="display:flex;gap:5px;">
-              <a href="/FOODWISE/index.php?url=admin/ingredients/<?= $ing->id_ingredient ?>/modifier"
+              <a href="index.php?url=admin/ingredients/<?= $ing->id_ingredient ?>/modifier"
                  class="btn btn-outline btn-sm" title="Modifier">✏️</a>
               <form method="POST"
-                    action="/FOODWISE/index.php?url=admin/ingredients/<?= $ing->id_ingredient ?>/supprimer"
+                    action="index.php?url=admin/ingredients/<?= $ing->id_ingredient ?>/supprimer"
                     onsubmit="return confirm('Supprimer «<?= htmlspecialchars(addslashes($ing->nom)) ?>» ?');"
                     style="display:inline;">
                 <input type="hidden" name="_method" value="DELETE">
@@ -169,7 +169,7 @@ unset($_SESSION['flash']);
         <tr>
           <td colspan="11" style="text-align:center;padding:40px;color:var(--texte-leger);">
             Aucun ingrédient trouvé.
-            <a href="/FOODWISE/index.php?url=admin/ingredients/ajouter"
+            <a href="index.php?url=admin/ingredients/ajouter"
                style="color:var(--brun-chaud);">Ajouter le premier.</a>
           </td>
         </tr>
@@ -201,3 +201,4 @@ unset($_SESSION['flash']);
 </div>
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

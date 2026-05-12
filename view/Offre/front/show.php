@@ -1,33 +1,72 @@
-
-
 <?php require __DIR__ . '/../../layouts/front/header.php'; ?>
 
+<div class="fw-container">
 
-<h1><?= htmlspecialchars($offre['titre']) ?></h1>
+  <div class="fw-card">
 
-<p><strong>Description:</strong> <?= $offre['description'] ?></p>
-<p><strong>Prix:</strong> <?= $offre['prix_unitaire'] ?> TND</p>
-<p><strong>Stock:</strong> <?= $offre['stock'] ?></p>
-<p><strong>Statut:</strong> <?= $offre['statut'] ?></p>
+    <!-- HEADER -->
+    <div class="fw-card-header">
+      <h2><?= htmlspecialchars($offre['titre']) ?></h2>
+      <span class="badge <?= $offre['statut'] === 'disponible' ? 'badge--success' : 'badge--danger' ?>">
+        <?= htmlspecialchars($offre['statut']) ?>
+      </span>
+    </div>
 
-<hr>
+    <!-- BODY -->
+    <div class="fw-card-body">
 
-<p><strong>Commerçant:</strong> <?= $offre['commercant_nom'] ?></p>
-<p><strong>Ville:</strong> <?= $offre['commercant_ville'] ?></p>
+      <p class="fw-description">
+        <?= nl2br(htmlspecialchars($offre['description'])) ?>
+      </p>
 
-<hr>
-<a href="/FOODWISE1/router/offreRouter.php?action=edit&id=<?= $offre['id'] ?>">✏️ Modifier</a>
-<a href="/FOODWISE1/router/offreRouter.php?action=cloture&id=<?= $offre['id'] ?>">🚫 Clôturer</a>
-<a href="/FOODWISE1/router/offreRouter.php?action=index">⬅ Retour</a>
-<?php if ($offre['statut'] === 'disponible'): ?>
-<a href="/FOODWISE1/router/commandeRouter.php?action=create&id_offre=<?= $offre['id'] ?>">
-    Commander
-</a>
-<?php else: ?>
-    <button disabled>Indisponible</button>
-<?php endif; ?>
+      <div class="fw-grid">
+        <div>
+          <strong>💰 Prix:</strong><br>
+          <?= number_format($offre['prix_unitaire'], 2) ?> TND
+        </div>
+
+        <div>
+          <strong>📦 Stock:</strong><br>
+          <?= $offre['stock'] ?>
+        </div>
+
+        <div>
+          <strong>🏪 Commerçant:</strong><br>
+          <?= htmlspecialchars($offre['commercant_nom']) ?>
+        </div>
+
+        <div>
+          <strong>📍 Ville:</strong><br>
+          <?= htmlspecialchars($offre['commercant_ville']) ?>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER ACTIONS -->
+    <div class="fw-card-footer">
+
+      <a href="?route=offres/index" class="btn btn--secondary">
+        ⬅ Retour
+      </a>
+
+
+      <?php if ($offre['statut'] === 'disponible'): ?>
+        <a href="?route=commandes/create&id_offre=<?= $offre['id'] ?>" class="btn btn--success">
+          🛒 Commander
+        </a>
+      <?php else: ?>
+        <button class="btn btn--disabled" disabled>Indisponible</button>
+      <?php endif; ?>
+
+    </div>
+
+  </div>
+
+</div>
 
 <?php require __DIR__ . '/../../layouts/front/footer.php'; ?>
+
 
 
 

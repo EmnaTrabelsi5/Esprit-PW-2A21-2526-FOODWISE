@@ -1,0 +1,95 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<title>Explication du Code - Jumeau Numérique</title>
+<style>
+  body { font-family: 'Calibri', sans-serif; font-size: 11pt; }
+  h1 { color: #1e40af; font-size: 24pt; border-bottom: 2px solid #1e40af; padding-bottom: 5px; }
+  h2 { color: #2563eb; font-size: 16pt; margin-top: 20px; }
+  h3 { color: #3b82f6; font-size: 13pt; }
+  code { font-family: 'Consolas', 'Courier New', monospace; background-color: #f1f5f9; padding: 2px 4px; border-radius: 4px; color: #b91c1c; }
+  pre { background-color: #1e293b; color: #f8fafc; padding: 15px; border-radius: 8px; font-family: 'Consolas', monospace; font-size: 10pt; line-height: 1.4; }
+  p { line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<h1>Explication Détaillée du Code : Le Jumeau Numérique</h1>
+
+<p>Le module du Jumeau Numérique respecte l'architecture <strong>MVC (Modèle-Vue-Contrôleur)</strong>. Le code est divisé en deux parties principales : la logique mathématique de prédiction (Backend en PHP) et la génération 3D visuelle (Frontend en JavaScript / Three.js).</p>
+
+<h2>1. Le Backend : DigitalTwinController.php</h2>
+<p>Ce contrôleur PHP est le "cerveau" prédictif. Sa fonction principale est <code>runMetabolicSimulation()</code>.</p>
+<ul>
+  <li><strong>Calcul du métabolisme :</strong> Il lit la cible calorique (<code>$targetCal</code>) et le type d'objectif (perte, maintien, prise). Il en déduit votre métabolisme de base (<code>$maintenance</code>).</li>
+  <li><strong>Analyse de vos repas :</strong> Il fait la moyenne des calories de vos plans alimentaires actuels (<code>$avgIntake</code>).</li>
+  <li><strong>La boucle de projection (90 Jours) :</strong>
+    <br>Il utilise une boucle <code>for ($i = 0; $i <= 90; $i += 10)</code>.
+    <br>À l'intérieur, il applique la règle biologique : <code>$dailyDelta * $i / 7700</code> pour prédire exactement votre poids tous les 10 jours.
+  </li>
+  <li>Ces données (poids de départ, poids final projeté) sont ensuite envoyées à la Vue.</li>
+</ul>
+
+<h2>2. Le Frontend 3D : digital_twin.php</h2>
+<p>C'est ici que la magie visuelle opère. Le code JavaScript utilise la bibliothèque <strong>Three.js</strong>.</p>
+
+<h3>A. Initialisation de la Scène</h3>
+<p>On crée un monde 3D vide avec :</p>
+<ul>
+  <li><code>new THREE.Scene()</code> : La scène où tout existe.</li>
+  <li><code>new THREE.PerspectiveCamera(...)</code> : Les "yeux" de l'utilisateur.</li>
+  <li><code>new THREE.WebGLRenderer(...)</code> : Le moteur qui dessine la 3D dans le canvas HTML.</li>
+</ul>
+
+<h3>B. La Génération du Corps (Génération Procédurale)</h3>
+<p>Le cœur du code est la fonction <code>createModel()</code>. Au lieu de charger un modèle tout fait, on le dessine mathématiquement en deux étapes :</p>
+
+<h4>Étape 1 : Le Profil 2D (LatheGeometry)</h4>
+<p>On utilise une boucle <code>for</code> avec une variable <code>t</code> (le temps ou la position) qui va de 0 (le cou) à 1 (le bassin). À chaque étape, on définit un rayon <code>r</code>.</p>
+<pre>
+if (t < 0.08) { 
+    // Si on est tout en haut (t < 8%), on dessine un cou fin
+    r = 0.12; 
+} else if (t < 0.22) { 
+    // En descendant, on élargit pour faire les épaules
+    r = shoulderWidth * Math.sin(...);
+}
+// etc...
+</pre>
+<p>Three.js prend ensuite ce profil et le fait tourner à 360 degrés (comme un tour de potier) pour créer un cylindre basique en 3D avec <code>new THREE.LatheGeometry()</code>.</p>
+
+<h4>Étape 2 : La Sculpture 3D (Vertices)</h4>
+<p>Un cylindre n'est pas un corps humain. On va donc parcourir chaque point 3D (Vertex) du modèle et le déplacer avec des mathématiques.</p>
+<pre>
+const bodyPos = bodyG.attributes.position; // Récupère tous les points 3D
+for (let i = 0; i < bodyPos.count; i++) {
+    let x = bodyPos.getX(i); // Gauche/Droite
+    let y = bodyPos.getY(i); // Haut/Bas
+    let z = bodyPos.getZ(i); // Avant/Arrière (Profondeur)
+    
+    // Si on est sur le devant (z > 0) et au niveau du torse (t entre 0.22 et 0.45)
+    if (z > 0 && t > 0.22 && t < 0.45) {
+        // On gonfle la poitrine (on pousse le Z vers l'avant avec un Sinus)
+        let bulge = Math.sin(...) * 0.06;
+        z += bulge;
+    }
+}
+</pre>
+<p>On applique ce principe pour <strong>creuser le sternum</strong>, <strong>dessiner les abdominaux</strong>, et <strong>creuser les articulations</strong> (coudes et genoux).</p>
+
+<h3>C. Le Matériau et la Lumière</h3>
+<p>Pour l'aspect "Peau Vivante" :</p>
+<ul>
+  <li><code>new THREE.MeshStandardMaterial()</code> : Le matériau principal.</li>
+  <li><code>emissive: new THREE.Color(0x331100)</code> : On force le corps à émettre une légère lumière rouge foncé pour simuler le sang sous la peau (Subsurface Scattering).</li>
+</ul>
+<p>On ajoute ensuite 3 lumières : <code>DirectionalLight</code> (Lumière du soleil), <code>AmbientLight</code> (Lumière globale) et surtout la <strong>Rim Light</strong> (Lumière bleue puissante placée derrière pour souligner les muscles sculptés).</p>
+
+<h3>D. L'Animation</h3>
+<p>La fonction <code>animate()</code> tourne à 60 images par seconde (<code>requestAnimationFrame</code>).<br>
+Dedans, on utilise <code>Math.sin(Date.now() * 0.002)</code> pour faire gonfler et dégonfler le torse en douceur, créant l'illusion parfaite d'une respiration !</p>
+
+</body>
+</html>

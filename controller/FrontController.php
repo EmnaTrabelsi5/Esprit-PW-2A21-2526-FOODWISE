@@ -125,7 +125,7 @@ class FrontController
             if ($old['email'] === '') {
                 $errors['email'] = 'Veuillez saisir votre adresse e-mail.';
             } elseif (!validateEmail($old['email'])) {
-                $errors['email'] = 'Le format de l’adresse est invalide.';
+                $errors['email'] = "Le format de l'adresse est invalide.";
             }
 
             if ($old['password'] === '') {
@@ -305,11 +305,6 @@ class FrontController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $old = array_map('trim', $_POST);
             
-            // DEBUG : logger les données reçues
-            error_log('DEBUG verifyResetCode - Email: ' . $old['email']);
-            error_log('DEBUG verifyResetCode - Code reçu: ' . $old['code']);
-            error_log('DEBUG verifyResetCode - Code brut (var_dump): ' . var_export($old['code'], true));
-            
             if ($old['email'] === '') {
                 $errors['email'] = 'Veuillez saisir votre adresse courriel.';
             } elseif (!validateEmail($old['email'])) {
@@ -337,15 +332,12 @@ class FrontController
             if (empty($errors)) {
                 // Nettoyer le code (supprimer espaces et tirets)
                 $cleanedCode = trim(str_replace(['-', ' '], '', $old['code']));
-                error_log('DEBUG verifyResetCode - Code nettoyé: ' . $cleanedCode);
                 
                 // Vérifier le code
                 $user = $this->userModel->verifyResetCode($old['email'], $cleanedCode);
                 if ($user === null) {
-                    error_log('DEBUG verifyResetCode - Vérification échouée pour email: ' . $old['email']);
                     $errors['code'] = 'Le code de réinitialisation est invalide ou a expiré.';
                 } else {
-                    error_log('DEBUG verifyResetCode - Vérification réussie!');
                     // Mettre à jour le mot de passe
                     $this->userModel->updatePasswordByResetCode((int) $user['id'], $old['password']);
                     $successMessage = 'Votre mot de passe a été réinitialisé avec succès. Vous pouvez vous connecter.';
@@ -507,7 +499,7 @@ class FrontController
         }
 
         // Créer le dossier s'il n'existe pas
-        $uploadDir = __DIR__ . '/../views/module2/assets/uploads/profils/';
+        $uploadDir = __DIR__ . '/../assets/uploads/profils/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
@@ -520,13 +512,13 @@ class FrontController
         if (move_uploaded_file($file['tmp_name'], $newFilepath)) {
             // Supprimer l'ancienne photo si elle existe
             if ($oldPhotoPath !== null) {
-                $oldPath = __DIR__ . '/../../' . $oldPhotoPath;
+                $oldPath = __DIR__ . '/../assets/uploads/profils/' . basename($oldPhotoPath);
                 if (file_exists($oldPath)) {
                     unlink($oldPath);
                 }
             }
             // Retourner le chemin relatif pour la base de données
-            return 'app/views/module2/assets/uploads/profils/' . $newFilename;
+            return 'profils/' . $newFilename;
         }
 
         return null;
@@ -582,4 +574,6 @@ class FrontController
         }
     }
 }
+
+
 

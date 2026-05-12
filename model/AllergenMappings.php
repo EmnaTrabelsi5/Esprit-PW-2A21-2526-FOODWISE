@@ -203,3 +203,4 @@ class AllergenMappings
         return implode(', ', $unique);
     }
 }
+

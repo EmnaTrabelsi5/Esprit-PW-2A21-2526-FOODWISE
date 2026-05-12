@@ -222,11 +222,11 @@ include __DIR__ . '/layout/header.php';
 
     <!-- Actions -->
 <div class="card">
-  <a href="/FOODWISE/index.php?url=recettes/<?= $recette->id_recette ?>/courses"
+  <a href="?route=recettes/<?= $recette->id_recette ?>/courses"
      class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">
     🛒 Voir la liste de courses
   </a>
-  <a href="/FOODWISE/planificateur/ajouter?recette=<?= $recette->id_recette ?>" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">
+  <a href="#" class="btn btn-secondary" style="width:100%;justify-content:center;margin-bottom:10px;">
     📅 Ajouter au planificateur
   </a>
   <button id="btn-favori-detail"
@@ -244,14 +244,14 @@ include __DIR__ . '/layout/header.php';
 async function toggleFavoriDetail(recetteId) {
     const btn = document.getElementById('btn-favori-detail');
     try {
-        const resp = await fetch('/FOODWISE/index.php?url=recettes/' + recetteId + '/favori', {
+        const resp = await fetch('?route=recettes/' + recetteId + '/favori', {
             method: 'POST',
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         });
         const data = await resp.json();
 
         if (data.error === 'non_connecte') {
-            window.location.href = '/FOODWISE/index.php?url=login';
+            window.location.href = '?route=module2/front/connexion';
             return;
         }
 
@@ -273,3 +273,4 @@ async function toggleFavoriDetail(recetteId) {
 </script>
 
 <?php include __DIR__ . '/layout/footer.php'; ?>
+

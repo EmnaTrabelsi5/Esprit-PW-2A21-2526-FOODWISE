@@ -36,10 +36,10 @@ class MessageController
         }
 
         $users = $this->messageModel->getAllUsers((int) $user['id']);
-        
+        $utilisateur = $user;
         $pageTitle = 'Annuaire des utilisateurs';
         $activeNav = 'messages';
-        require __DIR__ . '/../views/module2/front/users_list.php';
+        require __DIR__ . '/../view/utilisateur/front/users_list.php';
     }
 
     /**
@@ -89,7 +89,7 @@ class MessageController
 
         $pageTitle = 'Conversation avec ' . htmlspecialchars($recipient['prenom'] . ' ' . $recipient['nom'], ENT_QUOTES, 'UTF-8');
         $activeNav = 'messages';
-        require __DIR__ . '/../views/module2/front/chat.php';
+        require __DIR__ . '/../view/utilisateur/front/chat.php';
     }
 
     /**
@@ -128,3 +128,4 @@ class MessageController
         echo json_encode(['unread_count' => $count]);
     }
 }
+

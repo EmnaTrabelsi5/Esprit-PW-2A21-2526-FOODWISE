@@ -163,8 +163,8 @@ public function showAdmin(int $id, bool $admin): void
 
                     /* Redirection selon contexte front/back */
                     $redirect = $admin
-                        ? '/FOODWISE/admin/recettes'
-                        : '/FOODWISE/recettes/' . $newId;
+                        ? 'admin/recettes'
+                        : 'recettes/' . $newId;
                     header('Location: ' . $redirect);
                     exit;
 
@@ -229,8 +229,8 @@ public function showAdmin(int $id, bool $admin): void
 
                     /* Redirection selon contexte front/back */
                     $redirect = $admin
-                        ? '/FOODWISE/admin/recettes'
-                        : '/FOODWISE/recettes/' . $id;
+                        ? 'admin/recettes'
+                        : 'recettes/' . $id;
                     header('Location: ' . $redirect);
                     exit;
 
@@ -263,7 +263,7 @@ public function showAdmin(int $id, bool $admin): void
 
         if (!$recette) {
             $this->setFlash('error', 'Recette introuvable.');
-            header('Location: /FOODWISE/recettes');
+            header('Location: recettes');
             exit;
         }
 
@@ -279,8 +279,8 @@ public function showAdmin(int $id, bool $admin): void
         }
 
         $redirect = $fromAdmin
-            ? '/FOODWISE/admin/recettes'
-            : '/FOODWISE/recettes';
+            ? 'admin/recettes'
+            : 'recettes';
         header('Location: ' . $redirect);
         exit;
     }
@@ -432,7 +432,7 @@ private function nettoyerPost(array $post): array
         }
 
         if (move_uploaded_file($file['tmp_name'], $dossier . $nomFich)) {
-            return '/FOODWISE/assets/uploads/' . $nomFich;
+            return 'assets/uploads/' . $nomFich;
         }
 
         return null;
@@ -522,12 +522,12 @@ private function nettoyerPost(array $post): array
         $pageTitle  = $titre;
         $activeNav  = '';
         $backoffice = false;
-        include __DIR__ . '/../view/layout/header.php';
+        include __DIR__ . '/../view/layouts/front/header.php';
         echo '<div style="text-align:center;padding:60px 20px;">';
         echo '<h2 style="font-family:\'Playfair Display\',serif;color:#4E2C0E;">' . htmlspecialchars($titre) . '</h2>';
         echo '<p style="color:#9B7355;margin:12px 0 24px;">' . htmlspecialchars($message) . '</p>';
-        echo '<a href="/FOODWISE/recettes" style="background:#A0522D;color:#FDF6EC;padding:10px 24px;border-radius:25px;text-decoration:none;font-weight:700;">Retour aux recettes</a>';
+        echo '<a href="recettes" style="background:#A0522D;color:#FDF6EC;padding:10px 24px;border-radius:25px;text-decoration:none;font-weight:700;">Retour aux recettes</a>';
         echo '</div>';
-        include __DIR__ . '/../view/layout/footer.php';
+        include __DIR__ . '/../view/layouts/front/footer.php';
     }
 }
